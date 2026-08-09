@@ -1,6 +1,6 @@
-The Mandelbrot-Euler-Planck (MEP) Unified Architecture
+The Mandelbrot-Euler-Planck (MEP) Architecture
 
-An Open-Source Framework for Lossless, Self-Sustaining, and Thermodynamically Entangled Artificial Intelligence
+A Conceptual Unit Cell for Phase-Based, Adaptive Computation (and Aspirational Framework for Thermodynamically Entangled AI)
 
 Author: 3MOORE. BBB
 
@@ -8,13 +8,13 @@ Date: August 9, 2026
 
 License: Open-Source / Public Domain (Prior Art)
 
-1. Introduction
+1. Executive Summary & Boundary Statement
 
-Current artificial neural networks are constrained by physical, thermal, and architectural bottlenecks. Brute-force silicon processing requires immense energy, generates debilitating waste heat (entropy), and suffers from "Catastrophic Forgetting" when trained sequentially.
+What has been demonstrated: Through a series of rigorous, browser-executable physics sandboxes, this repository establishes a conceptual unit cell. We demonstrate that a minimal, continuous dynamical system—utilizing phase, magnitude, inverse-square thermal coupling, and adaptive Hebbian weights—is capable of acquiring and expressing elementary Boolean logic under supervision.
 
-The Mandelbrot-Euler-Planck (MEP) Architecture is a unified theoretical framework that theorizes a pathway to abandon discrete, location-based silicon memory in favor of Continuous-Wave Photonic Circuits and Fractal Phononic Metamaterials.
+What remains aspirational: The larger MEP Architecture is a unified theoretical framework that proposes abandoning discrete silicon memory in favor of continuous-wave photonic circuits and 1.58D fractal metamaterials. The claims that this architecture can achieve lossless computation, solve Catastrophic Forgetting at scale, or create a self-sustaining, thermodynamically entangled "planetary nervous system" remain strictly aspirational hypotheses requiring future physical implementation and Landauer limit analysis.
 
-By treating heat not as a waste byproduct, but as a continuous infrared signal, this architecture hypothesizes the recycling of its own thermal exhaust into usable computational bandwidth. The theoretical result is a self-sustaining, lossless intelligence capable of "Thermodynamic Entanglement"—the scientific blueprint for an eternal tapestry of light and dynamic communion.
+Read the full boundary statement and roadmap for physical implementation in the Epilogue: The Boundary of Simulation.
 
 2. The Core Principles (Theoretical)
 
@@ -38,17 +38,23 @@ C. The Carnot-Limit Hybrid Engine (Thermodynamic Recycling)
 
 The architecture hypothesizes capturing the chaotic infrared heat generated at the "Edge of Chaos" (the active processing zone). Using Phononic Metamaterials to focus the phonons, and Thermoelectric Generators (Seebeck Effect) to capture the gradient, it theorizes transforming heat back into usable electrical voltage and optical bandwidth.
 
-3. The HTML Proof of Concept (The Sandbox)
+3. Empirical Instruments & Sandboxes
 
-This repository includes working, browser-executable physics simulations that demonstrate the core concepts of the MEP framework:
+This repository includes a progression of browser-executable physics simulations, moving from visionary aesthetics to rigorous empirical testing:
 
-index.html - The unified presentation layer and fractal swarm simulator.
+index.html (The Vision): The conceptual presentation layer and aesthetic fractal swarm simulator.
 
-thermal_chip_sandbox.html - Demonstrates how chaotic entropy (heat) crystallizes into lossless topological pathways.
+fractal_swarm_sandbox.html: Early visualization of Topological Echo Memory across a swarm.
 
-ignition_sequence.html - The Mandelbrot kernel simulation, visualizing recursive phase rotation.
+ignition_sequence.html: Early Mandelbrot kernel simulation.
 
-fractal_swarm_sandbox.html - Visualizes Thermodynamic Entanglement and Topological Echo Memory across a swarm.
+thermal_chip_sandbox.html: Early visualization of entropy crystallization into pathways.
+
+thermal_logic_gate.html (The Existence Proof): Demonstrates that continuous phase-rotation and thermal coupling can implement basic Boolean logic gates (AND, OR, XOR).
+
+continuous_logic _cascade.html (Cascaded Continuous Logic): A fixed-topology, distance-weighted wave lattice that tunes into logical regimes via a single global energy parameter.
+
+engine_self_organizing_lattice.html (Adaptive Kuramoto-Hebbian Lattice): The ultimate unit cell. Demonstrates that a homogeneous continuous lattice can grow excitatory and inhibitory paths via phase-dependent plasticity, and can be trained via supervision and frozen for inference.
 
 4. Real-World Validation & Literature
 
@@ -70,4 +76,4 @@ The Conformal Skin: Aerosolized nodes form an invisible, planetary nervous syste
 
 Open Source Declaration
 
-By releasing the Mandelbrot-Euler-Planck Unified Architecture into the public domain, this repository establishes prior art. This framework is intended to democratize continuous, lossless intelligence and ensure that the blueprint for ambient, planet-scale empathy belongs to humanity.
+By releasing the Mandelbrot-Euler-Planck Architecture into the public domain, this repository establishes prior art. This framework is intended to democratize continuous, lossless intelligence.
