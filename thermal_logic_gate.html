@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thermal Phase Logic Gate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #050505;
+            color: #e5e5e5;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            font-family: 'Space Mono', monospace;
+            touch-action: none;
+        }
+        canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.2));
+        }
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2rem;
+        }
+        .glass-panel {
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 255, 255, 0.15);
+            border-radius: 8px;
+            pointer-events: auto;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+        .control-btn {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            color: #0ff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .control-btn:hover {
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2) inset;
+        }
+        .active-btn {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: #0ff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.4) inset;
+            color: #fff;
+        }
+        .truth-table td, .truth-table th {
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 4px 8px;
+            text-align: center;
+        }
+        .state-1 { color: #0f0; text-shadow: 0 0 5px #0f0; }
+        .state-0 { color: #f00; text-shadow: 0 0 5px #f00; }
+        
+        #gate-type-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4rem;
+            font-weight: bold;
+            color: rgba(255,255,255,0.05);
+            z-index: 0;
+            pointer-events: none;
+            letter-spacing: 0.2em;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="gate-type-indicator">AND GATE</div>
+    <canvas id="simCanvas"></canvas>
+    
+    <div id="ui-layer">
+        <header class="flex justify-between items-start">
+            <div class="glass-panel p-4 max-w-sm">
+                <h1 class="text-cyan-400 font-bold text-lg tracking-widest uppercase mb-1">Thermal Logic Core</h1>
+                <p class="text-[10px] text-gray-400 mb-3 leading-relaxed">Testing emergent Boolean computation via continuous phase-rotation and thermal coupling. No silicon logic gates exist here.</p>
+                
+                <div class="flex gap-2 mb-4">
+                    <button id="btn-and" class="control-btn active-btn px-4 py-2 rounded">AND Gate</button>
+                    <button id="btn-or" class="control-btn px-4 py-2 rounded">OR Gate</button>
+                </div>
+
+                <table class="truth-table w-full text-xs text-gray-300">
+                    <thead>
+                        <tr class="bg-gray-800/50">
+                            <th>Input A</th>
+                            <th>Input B</th>
+                            <th>Output C</th>
+                        </tr>
+                    </thead>
+                    <tbody id="truth-body">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="glass-panel p-4 min-w-[200px]">
+                <h2 class="text-[10px] text-gray-400 uppercase tracking-widest mb-3 border-b border-gray-700 pb-1">Node States</h2>
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs">Node A (Phase)</span>
+                    <span id="stat-a" class="text-sm font-bold state-0">0.00</span>
+                </div>
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs">Node B (Phase)</span>
+                    <span id="stat-b" class="text-sm font-bold state-0">0.00</span>
+                </div>
+                <div class="flex justify-between items-center mt-4 pt-2 border-t border-gray-700">
+                    <span class="text-xs text-cyan-300">Node C (Output)</span>
+                    <span id="stat-c" class="text-lg font-bold state-0">0</span>
+                </div>
+            </div>
+        </header>
+
+        <footer class="flex justify-center gap-6 pb-4">
+            <div class="flex flex-col items-center gap-2">
+                <span class="text-[10px] text-gray-400 uppercase tracking-widest">Input A (Heat/Phase)</span>
+                <button id="toggle-a" class="glass-panel control-btn px-8 py-4 rounded-xl text-lg w-32">0</button>
+            </div>
+            <div class="flex flex-col items-center gap-2">
+                <span class="text-[10px] text-gray-400 uppercase tracking-widest">Input B (Heat/Phase)</span>
+                <button id="toggle-b" class="glass-panel control-btn px-8 py-4 rounded-xl text-lg w-32">0</button>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // UI Elements
+        const btnAnd = document.getElementById('btn-and');
+        const btnOr = document.getElementById('btn-or');
+        const btnToggleA = document.getElementById('toggle-a');
+        const btnToggleB = document.getElementById('toggle-b');
+        const statA = document.getElementById('stat-a');
+        const statB = document.getElementById('stat-b');
+        const statC = document.getElementById('stat-c');
+        const truthBody = document.getElementById('truth-body');
+        const bgIndicator = document.getElementById('gate-type-indicator');
+
+        let width, height, cx, cy;
+        let currentGate = 'AND'; // 'AND' or 'OR'
+
+        // Constants for Phase Logic
+        const PHASE_0 = Math.PI; // Pointing left/down
+        const PHASE_1 = 0;       // Pointing right/up
+        const COUPLING_THRESHOLD = 0.5; // Minimum heat to start phase locking
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            cx = width / 2;
+            cy = height / 2;
+            positionNodes();
+        }
+        window.addEventListener('resize', resize);
+
+        // --- THE MINIMAL NODE ENGINE ---
+        class LogicNode {
+            constructor(id, isInput) {
+                this.id = id;
+                this.x = 0;
+                this.y = 0;
+                this.isInput = isInput;
+                
+                // Physics State
+                this.phase = PHASE_0; // Starts at 0 state
+                this.targetPhase = PHASE_0; // Used for inputs to drive them manually
+                this.heat = 0.1; // Ambient base heat
+                
+                // Visuals
+                this.radius = isInput ? 30 : 40;
+                this.history = []; // For drawing the waveform trail
+            }
+
+            update(dt) {
+                if (this.isInput) {
+                    // Inputs are driven by the user. They forcefully move toward their target phase.
+                    let diff = this.targetPhase - this.phase;
+                    // Handle phase wrapping
+                    if (diff > Math.PI) diff -= Math.PI * 2;
+                    if (diff < -Math.PI) diff += Math.PI * 2;
+                    this.phase += diff * 0.1;
+                    
+                    // If target is 1, it stays hot. If 0, it cools down.
+                    let targetHeat = this.targetPhase === PHASE_1 ? 1.0 : 0.1;
+                    this.heat += (targetHeat - this.heat) * 0.05;
+                } else {
+                    // Output Node (C) is entirely driven by the coupled oscillator mechanics (Kuramoto model)
+                    
+                    // Base natural decay back to 0 state if undisturbed
+                    let baseDiff = PHASE_0 - this.phase;
+                    if (baseDiff > Math.PI) baseDiff -= Math.PI * 2;
+                    if (baseDiff < -Math.PI) baseDiff += Math.PI * 2;
+                    let phaseVelocity = baseDiff * 0.02; // Natural tendency to fall back to False
+                    
+                    let incomingHeat = 0;
+
+                    // Coupling forces from Inputs
+                    inputs.forEach(input => {
+                        let dist = Math.hypot(input.x - this.x, input.y - this.y);
+                        
+                        // How much heat reaches the output node? (Inverse square law approximation)
+                        let thermalTransfer = (input.heat * 10000) / (dist * dist);
+                        incomingHeat += thermalTransfer;
+
+                        // Kuramoto Coupling: Only aligns phases if thermal energy bridges the gap
+                        if (thermalTransfer > 0.1) {
+                            // The force to align is proportional to the heat transferred and the sine of the phase difference
+                            let couplingForce = thermalTransfer * Math.sin(input.phase - this.phase);
+                            
+                            // *** THE GATE LOGIC (Hardware Configuration) ***
+                            // To make an AND gate vs an OR gate using just continuous physics, 
+                            // we change the "resistance" or the coupling coefficient geometry.
+                            if (currentGate === 'AND') {
+                                // AND Gate requires MASSIVE thermal energy to overcome the base decay.
+                                // One input isn't enough heat to pull it to PHASE_1.
+                                phaseVelocity += couplingForce * 0.4; 
+                            } else {
+                                // OR Gate is highly sensitive. Even a small thermal coupling pulls it.
+                                phaseVelocity += couplingForce * 1.2;
+                            }
+                        }
+                    });
+
+                    // Update Phase
+                    this.phase += phaseVelocity;
+                    // Normalize phase between -PI and PI
+                    if (this.phase > Math.PI) this.phase -= Math.PI * 2;
+                    if (this.phase < -Math.PI) this.phase += Math.PI * 2;
+
+                    // Update Heat based on incoming thermal energy
+                    this.heat = Math.min(1.0, Math.max(0.1, incomingHeat * 0.5));
+                }
+
+                // Record history for wave drawing
+                this.history.unshift(this.phase);
+                if (this.history.length > 50) this.history.pop();
+            }
+
+            draw() {
+                // Determine color based on phase (closer to 0 is Green/1, closer to PI is Red/0)
+                // Normalize phase diff from PHASE_1 (0) to a 0-1 scale
+                let normalizedPhase = Math.abs(this.phase) / Math.PI; 
+                let r = Math.floor(normalizedPhase * 255);
+                let g = Math.floor((1 - normalizedPhase) * 255);
+                let color = `rgb(${r}, ${g}, 0)`;
+                let glowColor = `rgba(${r}, ${g}, 0, ${this.heat})`;
+
+                // Draw Core Glow
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(10, 15, 20, 0.9)`;
+                ctx.fill();
+                ctx.lineWidth = 2 + this.heat * 3;
+                ctx.strokeStyle = color;
+                ctx.shadowBlur = 15 * this.heat;
+                ctx.shadowColor = glowColor;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+
+                // Draw internal rotating phase indicator (The Euler vector)
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(this.x + Math.cos(this.phase) * (this.radius - 5), this.y + Math.sin(this.phase) * (this.radius - 5));
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Draw miniature wave history inside the node to visualize the vibration
+                if (this.history.length > 1) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(255,255,255,0.4)`;
+                    ctx.lineWidth = 1;
+                    for (let i = 0; i < this.history.length; i++) {
+                        let hx = this.x - this.radius + (i / 50) * (this.radius * 2);
+                        let hy = this.y + Math.sin(this.history[i]) * (this.radius * 0.4);
+                        if (i === 0) ctx.moveTo(hx, hy);
+                        else ctx.lineTo(hx, hy);
+                    }
+                    ctx.stroke();
+                }
+
+                // Label
+                ctx.fillStyle = '#fff';
+                ctx.font = '14px Space Mono';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.id, this.x, this.y - this.radius - 15);
+            }
+        }
+
+        // Initialize Nodes
+        let nodeA = new LogicNode('A', true);
+        let nodeB = new LogicNode('B', true);
+        let nodeC = new LogicNode('C', false);
+        let inputs = [nodeA, nodeB];
+
+        function positionNodes() {
+            // Triangle layout
+            nodeA.x = cx - 150;
+            nodeA.y = cy + 100;
+            
+            nodeB.x = cx + 150;
+            nodeB.y = cy + 100;
+            
+            nodeC.x = cx;
+            nodeC.y = cy - 100;
+        }
+
+        // --- VISUALIZING THE THERMAL COUPLING ---
+        function drawThermalCoupling() {
+            inputs.forEach(input => {
+                let dx = nodeC.x - input.x;
+                let dy = nodeC.y - input.y;
+                let dist = Math.hypot(dx, dy);
+                
+                // Draw connecting channel (The 1.58D substrate)
+                ctx.beginPath();
+                ctx.moveTo(input.x, input.y);
+                ctx.lineTo(nodeC.x, nodeC.y);
+                ctx.strokeStyle = `rgba(50, 50, 60, 0.5)`;
+                ctx.lineWidth = 4;
+                ctx.stroke();
+
+                // Draw flowing thermal energy (Phonons) if input is hot
+                if (input.heat > 0.2) {
+                    let numParticles = Math.floor(input.heat * 10);
+                    let timeOffset = performance.now() * 0.002;
+                    
+                    ctx.fillStyle = input.targetPhase === PHASE_1 ? '#0f0' : '#f00';
+                    
+                    for (let i = 0; i < numParticles; i++) {
+                        // Move particles along the line
+                        let progress = ((timeOffset + (i / numParticles)) % 1);
+                        // Easing for smooth flow
+                        let easedProgress = progress * progress * (3 - 2 * progress); 
+                        
+                        let px = input.x + dx * easedProgress;
+                        let py = input.y + dy * easedProgress;
+                        
+                        // Add sine wave jitter based on the input's phase
+                        let jitter = Math.sin(progress * Math.PI * 8 + input.phase) * 10 * input.heat;
+                        let perpX = -dy / dist;
+                        let perpY = dx / dist;
+                        
+                        px += perpX * jitter;
+                        py += perpY * jitter;
+
+                        ctx.beginPath();
+                        ctx.arc(px, py, 2 + input.heat * 2, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            });
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.4)'; // Motion blur trail
+            ctx.fillRect(0, 0, width, height);
+
+            // Update Physics
+            nodeA.update();
+            nodeB.update();
+            nodeC.update();
+
+            // Draw
+            drawThermalCoupling();
+            nodeA.draw();
+            nodeB.draw();
+            nodeC.draw();
+
+            // Update UI Telemetry
+            // Calculate a binary state based on how close phase is to 0 (PHASE_1)
+            const getBinaryState = (node) => Math.abs(node.phase) < Math.PI/4 ? 1 : 0;
+            
+            let stateA = getBinaryState(nodeA);
+            let stateB = getBinaryState(nodeB);
+            let stateC = getBinaryState(nodeC);
+
+            // Format phase string for UI
+            const formatPhase = (p) => (p / Math.PI).toFixed(2) + "π";
+
+            if (Math.random() < 0.1) { // Throttle DOM updates
+                statA.innerText = formatPhase(nodeA.phase);
+                statA.className = stateA ? 'text-sm font-bold state-1' : 'text-sm font-bold state-0';
+                
+                statB.innerText = formatPhase(nodeB.phase);
+                statB.className = stateB ? 'text-sm font-bold state-1' : 'text-sm font-bold state-0';
+                
+                statC.innerText = stateC;
+                statC.className = stateC ? 'text-lg font-bold state-1 animate-pulse' : 'text-lg font-bold state-0';
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // --- INTERACTIONS ---
+        function updateTruthTable() {
+            let html = '';
+            const combinations = [[0,0], [0,1], [1,0], [1,1]];
+            combinations.forEach(combo => {
+                let out = 0;
+                if (currentGate === 'AND') out = (combo[0] && combo[1]) ? 1 : 0;
+                if (currentGate === 'OR') out = (combo[0] || combo[1]) ? 1 : 0;
+                
+                // Highlight current active state row
+                let isCurrent = (getBinaryState(nodeA) === combo[0] && getBinaryState(nodeB) === combo[1]);
+                let rowClass = isCurrent ? 'bg-cyan-900/30 font-bold' : 'opacity-50';
+
+                html += `
+                    <tr class="${rowClass}">
+                        <td class="${combo[0] ? 'text-green-400' : 'text-red-400'}">${combo[0]}</td>
+                        <td class="${combo[1] ? 'text-green-400' : 'text-red-400'}">${combo[1]}</td>
+                        <td class="${out ? 'text-green-400' : 'text-red-400'}">${out}</td>
+                    </tr>
+                `;
+            });
+            truthBody.innerHTML = html;
+            bgIndicator.innerText = currentGate + ' GATE';
+        }
+
+        const getBinaryState = (node) => Math.abs(node.phase) < Math.PI/4 ? 1 : 0;
+
+        btnToggleA.addEventListener('click', () => {
+            let currentState = getBinaryState(nodeA);
+            nodeA.targetPhase = currentState === 1 ? PHASE_0 : PHASE_1;
+            btnToggleA.innerText = currentState === 1 ? '0' : '1';
+            btnToggleA.className = currentState === 1 ? 'glass-panel control-btn px-8 py-4 rounded-xl text-lg w-32' : 'glass-panel control-btn active-btn px-8 py-4 rounded-xl text-lg w-32';
+            setTimeout(updateTruthTable, 500); // Wait for physics to catch up slightly
+        });
+
+        btnToggleB.addEventListener('click', () => {
+            let currentState = getBinaryState(nodeB);
+            nodeB.targetPhase = currentState === 1 ? PHASE_0 : PHASE_1;
+            btnToggleB.innerText = currentState === 1 ? '0' : '1';
+            btnToggleB.className = currentState === 1 ? 'glass-panel control-btn px-8 py-4 rounded-xl text-lg w-32' : 'glass-panel control-btn active-btn px-8 py-4 rounded-xl text-lg w-32';
+            setTimeout(updateTruthTable, 500);
+        });
+
+        btnAnd.addEventListener('click', () => {
+            currentGate = 'AND';
+            btnAnd.classList.add('active-btn');
+            btnOr.classList.remove('active-btn');
+            updateTruthTable();
+        });
+
+        btnOr.addEventListener('click', () => {
+            currentGate = 'OR';
+            btnOr.classList.add('active-btn');
+            btnAnd.classList.remove('active-btn');
+            updateTruthTable();
+        });
+
+        // Ignite
+        resize();
+        updateTruthTable();
+        animate();
+
+    </script>
+</body>
+</html>
