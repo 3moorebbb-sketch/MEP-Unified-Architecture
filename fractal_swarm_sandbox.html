@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fractal Phononic Swarm</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #000;
+            color: #e5e5e5;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            font-family: 'Space Mono', monospace;
+            touch-action: none;
+        }
+        canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            /* Enhance the glowing energy lines */
+            filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.3)) contrast(1.2) brightness(1.2);
+        }
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2rem;
+        }
+        .glass-panel {
+            background: rgba(5, 5, 10, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 255, 255, 0.1);
+            border-radius: 12px;
+            pointer-events: auto;
+        }
+        .hud-value {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            text-shadow: 0 0 10px currentColor;
+        }
+        .instructions {
+            border-left: 2px solid #a855f7;
+            background: linear-gradient(90deg, rgba(168, 85, 247, 0.1), transparent);
+            padding: 0.5rem 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="swarmCanvas"></canvas>
+    
+    <div id="ui-layer">
+        <header class="flex justify-between items-start">
+            <div class="glass-panel p-5 max-w-md shadow-2xl">
+                <div class="flex justify-between items-center mb-2">
+                    <h1 class="text-fuchsia-400 font-bold text-lg tracking-widest uppercase">Fractal Swarm</h1>
+                    <span class="text-[9px] bg-fuchsia-900/50 text-fuchsia-300 px-2 py-0.5 rounded border border-fuchsia-800 animate-pulse">Z² TOPOLOGY</span>
+                </div>
+                <p class="text-xs text-gray-400 mb-4 leading-relaxed">
+                    Aerosolized nodes utilizing the Mandelbrot Master Equation. Entanglement does not draw linear connections; it opens recursive fractal dimensions between nodes.
+                </p>
+                
+                <div class="instructions text-xs text-fuchsia-200">
+                    <span class="font-bold text-white uppercase">Directive:</span> Click & drag to inject massive thermal energy. Watch the connections geometrically fold into infinite depth.
+                </div>
+            </div>
+
+            <div class="glass-panel p-4 min-w-[260px] shadow-2xl">
+                <h2 class="text-[10px] text-gray-500 uppercase tracking-widest mb-3 border-b border-gray-800 pb-1">Mandelbrot Telemetry</h2>
+                
+                <div class="flex justify-between mb-2 items-end">
+                    <span class="text-xs text-gray-400">Nodes Synchronized</span>
+                    <span id="stat-nodes" class="text-sm hud-value text-cyan-400">0</span>
+                </div>
+                
+                <div class="flex justify-between mb-2 items-end">
+                    <span class="text-xs text-gray-400">Ambient Heat (hν)</span>
+                    <span id="stat-heat" class="text-sm hud-value text-orange-500">0.00 THz</span>
+                </div>
+                
+                <div class="flex justify-between mt-4 items-end">
+                    <span class="text-[10px] text-fuchsia-400 uppercase tracking-widest">Fractal Depth (Recursion)</span>
+                    <span id="stat-depth" class="text-lg hud-value text-fuchsia-300">Level 0</span>
+                </div>
+            </div>
+        </header>
+
+        <footer class="flex justify-center pb-4">
+             <button id="btn-reset" class="glass-panel px-8 py-3 text-xs text-gray-300 hover:text-fuchsia-400 hover:bg-fuchsia-900/20 hover:border-fuchsia-400 transition-all uppercase tracking-widest font-bold">
+                 Disperse Fractal (Reset)
+             </button>
+        </footer>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('swarmCanvas');
+        const ctx = canvas.getContext('2d', { alpha: false });
+        
+        const statNodes = document.getElementById('stat-nodes');
+        const statHeat = document.getElementById('stat-heat');
+        const statDepth = document.getElementById('stat-depth');
+        const btnReset = document.getElementById('btn-reset');
+
+        let width, height;
+        let nodes = [];
+        let waves = [];
+        const NUM_NODES = 250; // Lower density to allow for complex fractal rendering
+        let globalFractalDepth = 0;
+
+        let isDrawing = false;
+        let mouseX = -1000;
+        let mouseY = -1000;
+
+        let memoryScars = []; // Tracks permanent conceptual memories
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Node {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 1.5;
+                this.vy = (Math.random() - 0.5) * 1.5;
+                
+                this.heat = 0;           
+                this.phase = Math.random() * Math.PI * 2; 
+                this.basePhase = this.phase; 
+                this.isResonant = false;
+                this.lockX = this.x; // Position to lock into when resonant
+                this.lockY = this.y;
+            }
+
+            update() {
+                // If hot, the node slows down and locks into the geometric web
+                if (this.isResonant) {
+                    this.vx *= 0.8;
+                    this.vy *= 0.8;
+                } else {
+                    // Cold nodes drift randomly
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    // Add slight chaotic jitter
+                    this.vx += (Math.random() - 0.5) * 0.1;
+                    this.vy += (Math.random() - 0.5) * 0.1;
+                    
+                    // Normalize velocity
+                    let speed = Math.hypot(this.vx, this.vy);
+                    if (speed > 1.5) {
+                        this.vx = (this.vx / speed) * 1.5;
+                        this.vy = (this.vy / speed) * 1.5;
+                    }
+                }
+                
+                // Wrap screen
+                if (this.x < 0) this.x = width;
+                if (this.x > width) this.x = 0;
+                if (this.y < 0) this.y = height;
+                if (this.y > height) this.y = 0;
+
+                // Entropy
+                if (this.heat > 0) this.heat -= 0.003;
+                if (this.heat < 0) this.heat = 0;
+
+                this.isResonant = this.heat > 0.5;
+                
+                if (!this.isResonant) {
+                    let diff = this.basePhase - this.phase;
+                    this.phase += diff * 0.01;
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.isResonant ? 2 : 1, 0, Math.PI * 2);
+                
+                if (this.isResonant) {
+                    let r = Math.floor(Math.sin(this.phase) * 127 + 128);
+                    let g = Math.floor(Math.sin(this.phase + 2) * 127 + 128);
+                    let b = Math.floor(Math.sin(this.phase + 4) * 127 + 128);
+                    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+                } else {
+                    ctx.fillStyle = `rgba(100, 100, 150, ${0.3 + this.heat})`;
+                }
+                ctx.fill();
+            }
+        }
+
+        // This function draws recursive Mandelbrot-inspired branches between two entangled nodes
+        function drawFractalConnection(x1, y1, x2, y2, depth, phase, maxDepth) {
+            if (depth === 0) {
+                // Base case: Draw a glowing line
+                let opacity = (1 - depth/maxDepth) * 0.8;
+                let r = Math.floor(Math.sin(phase) * 127 + 128);
+                let g = Math.floor(Math.sin(phase + 2) * 127 + 128);
+                let b = Math.floor(Math.sin(phase + 4) * 127 + 128);
+                
+                ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${opacity})`;
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+                return;
+            }
+
+            // Calculate the vector between the two points
+            let dx = x2 - x1;
+            let dy = y2 - y1;
+            let dist = Math.hypot(dx, dy);
+            
+            // If the points are too close, stop recursing to save performance
+            if (dist < 5) return drawFractalConnection(x1, y1, x2, y2, 0, phase, maxDepth);
+
+            // Calculate the midpoint
+            let mx = x1 + dx / 2;
+            let my = y1 + dy / 2;
+
+            // Apply Euler's Phase Rotation (e^iθ) to find the orthogonal branching point
+            // This creates the "Fractal Sprouting" effect
+            let branchLength = dist * 0.3; // Size of the new fractal bulb
+            
+            // Rotate the vector by 90 degrees (Math.PI/2) and apply the node's unique phase shift
+            let angle = Math.atan2(dy, dx) + (Math.PI / 2) + (Math.sin(phase) * 0.5);
+            
+            let bx = mx + Math.cos(angle) * branchLength;
+            let by = my + Math.sin(angle) * branchLength;
+
+            // Decrease line width as we go deeper into the fractal
+            ctx.lineWidth = Math.max(0.2, (depth / maxDepth) * 1.5);
+
+            // Recursively draw the sub-branches (The Koch-like geometry)
+            drawFractalConnection(x1, y1, bx, by, depth - 1, phase + 0.1, maxDepth);
+            drawFractalConnection(bx, by, x2, y2, depth - 1, phase + 0.1, maxDepth);
+        }
+
+        class ThermalWave {
+            constructor(x, y, energy, phase) {
+                this.x = x;
+                this.y = y;
+                this.energy = energy;
+                this.phase = phase;
+                this.radius = 0;
+                this.maxRadius = energy * 200;
+                this.opacity = 1.0;
+                this.speed = 4 + Math.random() * 2;
+            }
+
+            update() {
+                this.radius += this.speed;
+                this.opacity = 1.0 - (this.radius / this.maxRadius);
+                
+                nodes.forEach(n => {
+                    let dist = Math.hypot(n.x - this.x, n.y - this.y);
+                    if (Math.abs(dist - this.radius) < this.speed) {
+                        n.heat = Math.min(n.heat + this.energy * 0.6 * this.opacity, 1.0);
+                        if (n.heat > 0.3) {
+                            let phaseDiff = this.phase - n.phase;
+                            n.phase += phaseDiff * 0.3; // Rapid sync
+                        }
+                    }
+                });
+            }
+
+            draw() {
+                if (this.opacity <= 0) return;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                let r = Math.floor(Math.sin(this.phase) * 127 + 128);
+                let g = Math.floor(Math.sin(this.phase + 2) * 127 + 128);
+                let b = Math.floor(Math.sin(this.phase + 4) * 127 + 128);
+                ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${this.opacity * 0.4})`;
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            }
+        }
+
+        function initSwarm() {
+            nodes = [];
+            waves = [];
+            memoryScars = []; // Erase all memories on cold reboot
+            for (let i = 0; i < NUM_NODES; i++) {
+                nodes.push(new Node());
+            }
+        }
+
+        function animate() {
+            // Motion blur background trail
+            ctx.fillStyle = 'rgba(5, 2, 10, 0.25)';
+            ctx.fillRect(0, 0, width, height);
+
+            // --- ENHANCEMENT: Draw Echo Memories (Catastrophic Forgetting Solved) ---
+            // These are the permanent, crystallized thoughts that never fully fade
+            ctx.lineWidth = 0.5;
+            memoryScars.forEach(scar => {
+                let r = Math.floor(Math.sin(scar.phase) * 127 + 128);
+                let g = Math.floor(Math.sin(scar.phase + 2) * 127 + 128);
+                let b = Math.floor(Math.sin(scar.phase + 4) * 127 + 128);
+                // Faint, permanent ghost-glow of past calculations
+                ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.15)`; 
+                ctx.beginPath();
+                ctx.moveTo(scar.x1, scar.y1);
+                ctx.lineTo(scar.x2, scar.y2);
+                ctx.stroke();
+            });
+            // ------------------------------------------------------------------------
+
+            // User input injection
+            if (isDrawing) {
+                if (Math.random() < 0.2) {
+                    let userPhase = (Date.now() * 0.002) % (Math.PI * 2); 
+                    waves.push(new ThermalWave(mouseX, mouseY, 1.5, userPhase));
+                }
+                nodes.forEach(n => {
+                    let d = Math.hypot(n.x - mouseX, n.y - mouseY);
+                    if (d < 120) n.heat = 1.0;
+                });
+            }
+
+            let activeCount = 0;
+            let totalHeat = 0;
+
+            // Process Thermodynamic Entanglement and draw Fractal Connections
+            for (let i = 0; i < nodes.length; i++) {
+                let n1 = nodes[i];
+                if (n1.isResonant) activeCount++;
+                totalHeat += n1.heat;
+
+                for (let j = i + 1; j < nodes.length; j++) {
+                    let n2 = nodes[j];
+                    let dist = Math.hypot(n1.x - n2.x, n1.y - n2.y);
+                    
+                    // If nodes are close and both are hot, they fold space between them
+                    if (dist < 100 && n1.isResonant && n2.isResonant) {
+                        let phaseDiff = Math.abs(n1.phase - n2.phase);
+                        
+                        // If their phases are aligned (Resonance)
+                        if (phaseDiff < 0.4 || Math.PI * 2 - phaseDiff < 0.4) {
+                            
+                            // Entanglement locks their phases together
+                            let avgPhase = (n1.phase + n2.phase) / 2;
+                            n1.phase = avgPhase;
+                            n2.phase = avgPhase;
+                            
+                            // The hotter the system, the deeper the fractal recursion
+                            let heatAvg = (n1.heat + n2.heat) / 2;
+                            let maxRecursion = Math.floor(heatAvg * 4); // Max 4 levels deep to save frame rate
+                            
+                            if (maxRecursion > globalFractalDepth) globalFractalDepth = maxRecursion;
+
+                            // --- ENHANCEMENT: Topological Scarring ---
+                            // If the thought is deep enough, it becomes a permanent memory scar in the substrate
+                            if (maxRecursion >= 3 && Math.random() < 0.04) {
+                                memoryScars.push({
+                                    x1: n1.x, y1: n1.y, x2: n2.x, y2: n2.y, 
+                                    phase: n1.phase
+                                });
+                                // Prevent infinite memory array lag by capping total scars
+                                if (memoryScars.length > 250) memoryScars.shift(); 
+                            }
+                            // -----------------------------------------
+
+                            // Draw the recursive geometric boundary instead of a straight line
+                            drawFractalConnection(n1.x, n1.y, n2.x, n2.y, maxRecursion, n1.phase, Math.max(1, maxRecursion));
+                        }
+                    }
+                }
+            }
+
+            waves.forEach((w, index) => {
+                w.update();
+                w.draw();
+                if (w.opacity <= 0) waves.splice(index, 1);
+            });
+
+            nodes.forEach(n => {
+                n.update();
+                n.draw();
+            });
+
+            // Update UI Telemetry
+            if (Math.random() < 0.1) {
+                statNodes.innerText = activeCount;
+                statHeat.innerText = (totalHeat * 0.05).toFixed(2) + " THz";
+                
+                // Decay global depth metric if heat is dissipating
+                if (activeCount < 10) globalFractalDepth = 0;
+                statDepth.innerText = `Level ${globalFractalDepth}`;
+                statDepth.className = globalFractalDepth > 2 ? "text-lg hud-value text-fuchsia-400 animate-pulse" : "text-lg hud-value text-cyan-400";
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        function handleInput(e, isDown) {
+            if (e.touches && e.touches.length > 0) {
+                mouseX = e.touches[0].clientX;
+                mouseY = e.touches[0].clientY;
+            } else {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            }
+            if (isDown !== undefined) isDrawing = isDown;
+        }
+
+        canvas.addEventListener('mousedown', (e) => handleInput(e, true));
+        window.addEventListener('mousemove', (e) => handleInput(e));
+        window.addEventListener('mouseup', () => isDrawing = false);
+        
+        canvas.addEventListener('touchstart', (e) => handleInput(e, true), {passive: false});
+        window.addEventListener('touchmove', (e) => { handleInput(e); e.preventDefault(); }, {passive: false});
+        window.addEventListener('touchend', () => isDrawing = false);
+
+        btnReset.addEventListener('click', initSwarm);
+
+        initSwarm();
+        animate();
+
+    </script>
+</body>
+</html>
