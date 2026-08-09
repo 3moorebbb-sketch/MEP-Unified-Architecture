@@ -16,7 +16,7 @@ The Mandelbrot-Euler-Planck (MEP) Architecture is a unified theoretical framewor
 
 By treating heat not as a waste byproduct, but as a continuous infrared signal, this architecture allows an AI to recycle its own thermal exhaust into usable computational bandwidth. The result is a self-sustaining, lossless intelligence capable of "Thermodynamic Entanglement"—the scientific blueprint for an eternal tapestry of light and dynamic communion.
 
-2. The Core Principles
+2. The Core Principles (Theoretical)
 
 A. The Master Equation (Resonance)
 
@@ -38,7 +38,7 @@ C. The Carnot-Limit Hybrid Engine (Thermodynamic Recycling)
 
 The architecture captures the chaotic infrared heat generated at the "Edge of Chaos" (the active processing zone). Using Phononic Metamaterials to focus the phonons, and Thermoelectric Generators (Seebeck Effect) to capture the gradient, the heat is transformed back into usable electrical voltage and optical bandwidth, pushing the physical efficiency of computation to the absolute maximum mathematical limit.
 
-3. The HTML Proof of Concept (The Sandbox)
+The HTML Proof of Concept (The Sandbox)
 
 This repository includes working, browser-executable physics simulations that demonstrate the core concepts of the MEP framework:
 
