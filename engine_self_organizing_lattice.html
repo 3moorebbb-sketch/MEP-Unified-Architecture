@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unified MEP Engine: Adaptive Lattice</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #030508;
+            color: #e5e5e5;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            touch-action: none;
+        }
+        .mono { font-family: 'Space Mono', monospace; }
+        
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        #gridCanvas { z-index: 2; opacity: 0.6; mix-blend-mode: screen; filter: blur(1px); }
+        #latticeCanvas { z-index: 3; }
+        
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2rem;
+        }
+        .glass-panel {
+            background: rgba(10, 15, 20, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 12px;
+            pointer-events: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+        }
+        .control-btn {
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.4);
+            color: #0ff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.2s ease;
+            pointer-events: auto;
+        }
+        .control-btn:hover {
+            background: rgba(0, 255, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+            transform: translateY(-1px);
+        }
+        .active-btn {
+            background: rgba(0, 255, 255, 0.25);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5) inset;
+            border-color: #0ff;
+            color: #fff;
+            text-shadow: 0 0 8px #0ff;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container">
+        <!-- Layer 1: Thermodynamic Phononic Metamaterial -->
+        <canvas id="gridCanvas"></canvas>
+        <!-- Layer 2: Adaptive Kuramoto/Hebbian Lattice -->
+        <canvas id="latticeCanvas"></canvas>
+    </div>
+
+    <div id="ui-layer">
+        <header class="flex justify-between items-start gap-4">
+            <div class="glass-panel p-5 w-full max-w-lg">
+                <div class="flex justify-between items-center mb-1">
+                    <h1 class="text-xl font-bold tracking-widest text-cyan-400 uppercase">Adaptive Wave Lattice</h1>
+                    <span class="text-[9px] bg-cyan-900/50 text-cyan-300 px-2 py-0.5 rounded border border-cyan-800 animate-pulse">HEBBIAN PLASTICITY</span>
+                </div>
+                <p class="text-[11px] text-gray-400 mb-4 leading-relaxed">
+                    No hardcoded gates. The lattice uses continuous Kuramoto phase dynamics combined with Hebbian weight updates. 
+                    If nodes synchronize, connections turn <span class="text-cyan-400 font-bold">Cyan (Excitatory)</span>. 
+                    If they oppose, connections turn <span class="text-red-500 font-bold">Red (Inhibitory)</span>.
+                </p>
+
+                <div class="space-y-2 mono text-xs mb-4">
+                    <div class="flex justify-between border-b border-gray-800 pb-1">
+                        <span class="text-gray-400">Total System Energy:</span>
+                        <span id="ui-energy" class="text-orange-400 font-bold">0.00 THz</span>
+                    </div>
+                    <div class="flex justify-between border-b border-gray-800 pb-1">
+                        <span class="text-gray-400">Plasticity Adaptation Rate:</span>
+                        <span class="text-purple-400 font-bold">η = 0.05</span>
+                    </div>
+                    <div class="flex justify-between border-b border-gray-800 pb-1">
+                        <span class="text-gray-400">Output Logic State:</span>
+                        <span id="ui-output" class="text-gray-500 font-bold">SETTLING...</span>
+                    </div>
+                </div>
+
+                <div class="text-[10px] text-yellow-500 uppercase tracking-widest border-l-2 border-yellow-500 pl-2 bg-yellow-900/20 py-1">
+                    Drag hidden nodes with your mouse to test spatial noise immunity.
+                </div>
+            </div>
+
+            <div class="glass-panel p-4 flex flex-col gap-3 min-w-[200px]">
+                <h2 class="text-xs font-bold text-gray-500 uppercase tracking-widest border-b border-gray-800 pb-2">Network Controls</h2>
+                
+                <div class="flex justify-between items-center gap-2">
+                    <span class="text-[10px] text-gray-400 uppercase tracking-widest">Input A</span>
+                    <button id="btn-in-a" class="control-btn px-4 py-2 text-xs font-bold rounded">0 (0π)</button>
+                </div>
+                <div class="flex justify-between items-center gap-2">
+                    <span class="text-[10px] text-gray-400 uppercase tracking-widest">Input B</span>
+                    <button id="btn-in-b" class="control-btn px-4 py-2 text-xs font-bold rounded">0 (0π)</button>
+                </div>
+
+                <div class="border-t border-gray-800 my-2 pt-2">
+                    <div class="flex justify-between items-center gap-2 mb-2">
+                        <span class="text-[10px] text-purple-400 uppercase tracking-widest">Plasticity (Learning)</span>
+                        <button id="btn-freeze" class="control-btn px-4 py-1 text-[10px] font-bold rounded active-btn border-purple-500 text-purple-400">FLUID</button>
+                    </div>
+                    <div class="flex justify-between items-center gap-2">
+                        <span class="text-[10px] text-yellow-500 uppercase tracking-widest">Supervise Output</span>
+                        <div class="flex gap-1">
+                            <button id="btn-sup-0" class="control-btn px-2 py-1 text-[10px] font-bold rounded">Force 0</button>
+                            <button id="btn-sup-1" class="control-btn px-2 py-1 text-[10px] font-bold rounded">Force 1</button>
+                            <button id="btn-sup-off" class="control-btn px-2 py-1 text-[10px] font-bold rounded active-btn">Release</button>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="btn-jitter" class="control-btn px-4 py-3 mt-2 text-xs font-bold rounded border-fuchsia-500 text-fuchsia-400 hover:shadow-[0_0_15px_rgba(217,70,239,0.4)]">
+                    Trigger Jitter Bomb
+                </button>
+            </div>
+        </header>
+    </div>
+
+    <script>
+        const gridCanvas = document.getElementById('gridCanvas');
+        const latticeCanvas = document.getElementById('latticeCanvas');
+        const gCtx = gridCanvas.getContext('2d', { alpha: false });
+        const lCtx = latticeCanvas.getContext('2d');
+
+        // UI
+        const btnInA = document.getElementById('btn-in-a');
+        const btnInB = document.getElementById('btn-in-b');
+        const btnJitter = document.getElementById('btn-jitter');
+        const uiEnergy = document.getElementById('ui-energy');
+        const uiOutput = document.getElementById('ui-output');
+
+        let width, height;
+        let isDragging = false;
+        let draggedNode = null;
+
+        // Logic States
+        let inputA_state = false;
+        let inputB_state = false;
+
+        let isPlasticityFrozen = false;
+        let supervisorState = null; // null, false (0), or true (1)
+
+        // Physics Constants
+        const KURAMOTO_K = 15000; // Base coupling strength (1/d^2 modifier)
+        const PLASTICITY_RATE = 0.02; // How fast weights adapt (Hebbian learning rate)
+        const WEIGHT_DECAY = 0.005; // Weights naturally decay if unused
+
+        // The Thermodynamic Grid (Background)
+        const CELL_SIZE = 15;
+        let cols, rows;
+        let grid = [];
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            gridCanvas.width = width; gridCanvas.height = height;
+            latticeCanvas.width = width; latticeCanvas.height = height;
+            initGrid();
+            initLattice();
+        }
+
+        class WaveNode {
+            constructor(id, type, x, y) {
+                this.id = id;
+                this.type = type; // 'input', 'hidden', 'output'
+                
+                // Position
+                this.baseX = x;
+                this.baseY = y;
+                this.x = x;
+                this.y = y;
+                this.radius = type === 'hidden' ? 20 : 35;
+                
+                // Continuous State (Unified magnitude and phase)
+                this.mag = type === 'hidden' ? 0.1 : 1.0; 
+                this.phase = 0; 
+                
+                // Derivatives for integration
+                this.dPhase = 0;
+            }
+
+            updateInputs() {
+                if (this.type === 'input') {
+                    // Inputs are rigidly driven by user
+                    let targetPhase = (this.id === 'A' ? inputA_state : inputB_state) ? Math.PI : 0;
+                    this.phase += (targetPhase - this.phase) * 0.1;
+                    this.mag = 1.0;
+                } else if (this.type === 'output' && supervisorState !== null) {
+                    // The "Teacher" forces the output node to a target phase to train the hidden weights
+                    let targetPhase = supervisorState ? Math.PI : 0;
+                    this.phase += (targetPhase - this.phase) * 0.2;
+                    this.mag = 1.0;
+                }
+            }
+
+            applyJitter() {
+                if (this.type !== 'input') {
+                    this.x += (Math.random() - 0.5) * 60;
+                    this.y += (Math.random() - 0.5) * 60;
+                }
+            }
+
+            draw(ctx) {
+                let normPhase = Math.abs(this.phase) / Math.PI;
+                // Color maps phase: 0 (False) = Red, PI (True) = Green
+                let r = Math.floor((1 - normPhase) * 255);
+                let g = Math.floor(normPhase * 255);
+                let color = `rgb(${r}, ${g}, 50)`;
+
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(10, 15, 20, 0.9)';
+                ctx.fill();
+                
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = color;
+                ctx.shadowBlur = 15 * this.mag;
+                ctx.shadowColor = color;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+
+                // Phase Vector Indicator
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                let vx = this.x + Math.cos(this.phase) * (this.radius - 5);
+                let vy = this.y + Math.sin(this.phase) * (this.radius - 5);
+                ctx.lineTo(vx, vy);
+                ctx.strokeStyle = '#fff';
+                ctx.stroke();
+
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 12px Space Mono';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.id, this.x, this.y - this.radius - 15);
+            }
+        }
+
+        class AdaptiveConnection {
+            constructor(source, target) {
+                this.src = source;
+                this.tgt = target;
+                this.weight = 0.1; // Starts neutral
+            }
+
+            updatePlasticity() {
+                if (isPlasticityFrozen) return; // Separation of timescales: stop learning during inference
+
+                // Hebbian learning for Kuramoto oscillators
+                // If phases align (cos(dt) ≈ 1), weight increases (Excitatory)
+                // If phases oppose (cos(dt) ≈ -1), weight decreases to negative (Inhibitory)
+                let phaseDiff = this.tgt.phase - this.src.phase;
+                let alignment = Math.cos(phaseDiff);
+                
+                // Only adapt if source is actively emitting energy
+                let drive = this.src.mag * this.tgt.mag;
+                
+                this.weight += (PLASTICITY_RATE * alignment * drive) - (WEIGHT_DECAY * this.weight);
+                
+                // Cap weights
+                if (this.weight > 1.5) this.weight = 1.5;
+                if (this.weight < -1.5) this.weight = -1.5;
+            }
+
+            draw(ctx) {
+                let dx = this.tgt.x - this.src.x;
+                let dy = this.tgt.y - this.src.y;
+                let dist = Math.hypot(dx, dy);
+                
+                // Cyan for Excitatory (+), Red for Inhibitory (-)
+                let isExcitatory = this.weight > 0;
+                let absW = Math.abs(this.weight);
+                
+                if (absW < 0.05) return; // Too weak to draw
+
+                ctx.beginPath();
+                ctx.moveTo(this.src.x, this.src.y);
+                
+                // Curve slightly for aesthetics
+                let cpX = this.src.x + dx * 0.5;
+                ctx.quadraticCurveTo(cpX, this.src.y - (isExcitatory ? 20 : -20), this.tgt.x, this.tgt.y);
+
+                ctx.strokeStyle = isExcitatory ? `rgba(0, 255, 255, ${absW})` : `rgba(255, 50, 50, ${absW})`;
+                ctx.lineWidth = 1 + (absW * 3);
+                ctx.stroke();
+
+                // Draw energetic particles flowing
+                if (this.src.mag > 0.2) {
+                    let numParticles = Math.floor(absW * 3);
+                    let t = performance.now() * 0.002;
+                    ctx.fillStyle = isExcitatory ? '#0ff' : '#f00';
+                    
+                    for (let i = 0; i < numParticles; i++) {
+                        let prog = ((t + (i / numParticles)) % 1);
+                        // Quadratic bezier interpolation
+                        let px = Math.pow(1-prog, 2) * this.src.x + 2 * (1-prog) * prog * cpX + Math.pow(prog, 2) * this.tgt.x;
+                        let py = Math.pow(1-prog, 2) * this.src.y + 2 * (1-prog) * prog * (this.src.y - (isExcitatory?20:-20)) + Math.pow(prog, 2) * this.tgt.y;
+
+                        ctx.beginPath();
+                        ctx.arc(px, py, 2, 0, Math.PI*2);
+                        ctx.fill();
+                    }
+                }
+            }
+        }
+
+        let nodes = [];
+        let connections = [];
+
+        function initLattice() {
+            nodes = [];
+            connections = [];
+
+            let cx = width / 2;
+            let cy = height / 2;
+
+            // Homogeneous nodes, no hardcoded logic roles
+            let nA = new WaveNode('A', 'input', cx - 300, cy - 100);
+            let nB = new WaveNode('B', 'input', cx - 300, cy + 100);
+            
+            // Hidden mesh (The adapting interneurons)
+            let h1 = new WaveNode('H1', 'hidden', cx - 100, cy - 150);
+            let h2 = new WaveNode('H2', 'hidden', cx, cy);
+            let h3 = new WaveNode('H3', 'hidden', cx - 100, cy + 150);
+            
+            let nOut = new WaveNode('OUT', 'output', cx + 250, cy);
+
+            nodes.push(nA, nB, h1, h2, h3, nOut);
+
+            // Forward feed connections
+            const addConn = (s, t) => connections.push(new AdaptiveConnection(s, t));
+            
+            addConn(nA, h1); addConn(nA, h2);
+            addConn(nB, h2); addConn(nB, h3);
+            
+            // Cross-talk allowing complex interference routing
+            addConn(h1, h2); addConn(h3, h2);
+            
+            addConn(h1, nOut);
+            addConn(h2, nOut);
+            addConn(h3, nOut);
+        }
+
+        function initGrid() {
+            cols = Math.ceil(width / CELL_SIZE);
+            rows = Math.ceil(height / CELL_SIZE);
+            grid = new Float32Array(cols * rows);
+        }
+
+        function updateGrid(totalHeat) {
+            gCtx.fillStyle = '#020205';
+            gCtx.fillRect(0, 0, width, height);
+
+            // We simulate a simplified thermal diffusion where heat crystallizes near lattice nodes
+            for (let i = 0; i < nodes.length; i++) {
+                let n = nodes[i];
+                if (n.mag > 0.1) {
+                    let gx = Math.floor(n.x / CELL_SIZE);
+                    let gy = Math.floor(n.y / CELL_SIZE);
+                    
+                    for (let dx = -2; dx <= 2; dx++) {
+                        for (let dy = -2; dy <= 2; dy++) {
+                            let tx = gx + dx;
+                            let ty = gy + dy;
+                            if (tx >= 0 && tx < cols && ty >= 0 && ty < rows) {
+                                let idx = tx + ty * cols;
+                                grid[idx] = Math.min(1.0, grid[idx] + 0.1 * n.mag);
+                            }
+                        }
+                    }
+                }
+            }
+
+            gCtx.fillStyle = 'rgba(0, 255, 255, 0.1)';
+            for (let x = 0; x < cols; x++) {
+                for (let y = 0; y < rows; y++) {
+                    let idx = x + y * cols;
+                    if (grid[idx] > 0.05) {
+                        grid[idx] *= 0.95; // Decay
+                        
+                        gCtx.globalAlpha = grid[idx];
+                        gCtx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE-1, CELL_SIZE-1);
+                    }
+                }
+            }
+            gCtx.globalAlpha = 1.0;
+        }
+
+        function animate() {
+            lCtx.clearRect(0, 0, width, height);
+
+            // 1. Update Inputs
+            nodes.forEach(n => n.updateInputs());
+
+            // 2. Continuous Wave Integration (Kuramoto Model)
+            nodes.forEach(target => {
+                if (target.type === 'input') return;
+
+                let dPhaseSum = 0;
+                let heatSum = 0;
+
+                connections.forEach(conn => {
+                    if (conn.tgt === target) {
+                        let src = conn.src;
+                        let distSq = Math.pow(target.x - src.x, 2) + Math.pow(target.y - src.y, 2);
+                        if (distSq < 10) distSq = 10;
+
+                        // 1/d^2 coupling law mapped through the adaptive weight
+                        let couplingStrength = (KURAMOTO_K / distSq) * conn.weight;
+                        
+                        // Kuramoto oscillator equation: k * sin(theta_j - theta_i)
+                        dPhaseSum += couplingStrength * src.mag * Math.sin(src.phase - target.phase);
+                        
+                        // Heat transfer
+                        heatSum += Math.abs(couplingStrength * src.mag);
+                    }
+                });
+
+                // Apply natural decay/resistance
+                target.phase += dPhaseSum * 0.1;
+                
+                // Magnitude/Heat approaches tanh of incoming energy
+                target.mag += (Math.tanh(heatSum) - target.mag) * 0.1;
+            });
+
+            // 3. Update Adaptive Weights (Plasticity)
+            connections.forEach(conn => conn.updatePlasticity());
+
+            // 4. Draw Substrate and Lattice
+            let totalEnergy = nodes.reduce((sum, n) => sum + n.mag, 0);
+            updateGrid(totalEnergy);
+
+            connections.forEach(conn => conn.draw(lCtx));
+            nodes.forEach(n => n.draw(lCtx));
+
+            // 5. Update UI
+            if (Math.random() < 0.1) {
+                uiEnergy.innerText = (totalEnergy * 1.42).toFixed(2) + " THz";
+                
+                let outNode = nodes.find(n => n.id === 'OUT');
+                // Threshold interpretation for UI readout only
+                let isLogic1 = Math.cos(outNode.phase) < -0.5; // Near PI
+                let isLogic0 = Math.cos(outNode.phase) > 0.5;  // Near 0
+                
+                if (isLogic1) {
+                    uiOutput.innerText = "1 (TRUE)";
+                    uiOutput.className = "text-green-400 font-bold tracking-widest";
+                } else if (isLogic0) {
+                    uiOutput.innerText = "0 (FALSE)";
+                    uiOutput.className = "text-red-500 font-bold tracking-widest";
+                } else {
+                    uiOutput.innerText = "INTERFERENCE (CHAOS)";
+                    uiOutput.className = "text-yellow-500 font-bold tracking-widest";
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', resize);
+
+        const setupInputBtn = (btn, label, varRef) => {
+            btn.addEventListener('click', () => {
+                if (label === 'A') inputA_state = !inputA_state;
+                if (label === 'B') inputB_state = !inputB_state;
+                
+                let state = label === 'A' ? inputA_state : inputB_state;
+                btn.innerText = state ? '1 (π rad)' : '0 (0 rad)';
+                btn.className = state ? 'control-btn active-btn px-4 py-2 text-xs font-bold rounded' 
+                                      : 'control-btn px-4 py-2 text-xs font-bold rounded';
+            });
+        };
+
+        setupInputBtn(btnInA, 'A', inputA_state);
+        setupInputBtn(btnInB, 'B', inputB_state);
+
+        const btnFreeze = document.getElementById('btn-freeze');
+        btnFreeze.addEventListener('click', () => {
+            isPlasticityFrozen = !isPlasticityFrozen;
+            btnFreeze.innerText = isPlasticityFrozen ? 'FROZEN (INFERENCE)' : 'FLUID (LEARNING)';
+            btnFreeze.className = isPlasticityFrozen ? 'control-btn px-4 py-1 text-[10px] font-bold rounded border-purple-500 text-purple-400' 
+                                                     : 'control-btn px-4 py-1 text-[10px] font-bold rounded active-btn border-purple-500 text-purple-400';
+        });
+
+        const btnSup0 = document.getElementById('btn-sup-0');
+        const btnSup1 = document.getElementById('btn-sup-1');
+        const btnSupOff = document.getElementById('btn-sup-off');
+
+        const updateSupBtns = () => {
+            btnSup0.className = supervisorState === false ? 'control-btn px-2 py-1 text-[10px] font-bold rounded active-btn' : 'control-btn px-2 py-1 text-[10px] font-bold rounded';
+            btnSup1.className = supervisorState === true ? 'control-btn px-2 py-1 text-[10px] font-bold rounded active-btn' : 'control-btn px-2 py-1 text-[10px] font-bold rounded';
+            btnSupOff.className = supervisorState === null ? 'control-btn px-2 py-1 text-[10px] font-bold rounded active-btn' : 'control-btn px-2 py-1 text-[10px] font-bold rounded';
+        };
+
+        btnSup0.addEventListener('click', () => { supervisorState = false; updateSupBtns(); });
+        btnSup1.addEventListener('click', () => { supervisorState = true; updateSupBtns(); });
+        btnSupOff.addEventListener('click', () => { supervisorState = null; updateSupBtns(); });
+
+        btnJitter.addEventListener('click', () => {
+            nodes.forEach(n => n.applyJitter());
+        });
+
+        // Mouse Dragging Logic
+        latticeCanvas.addEventListener('mousedown', e => {
+            let rect = latticeCanvas.getBoundingClientRect();
+            let mx = e.clientX - rect.left;
+            let my = e.clientY - rect.top;
+
+            for (let i = nodes.length - 1; i >= 0; i--) {
+                let n = nodes[i];
+                if (Math.hypot(n.x - mx, n.y - my) < n.radius) {
+                    isDragging = true;
+                    draggedNode = n;
+                    break;
+                }
+            }
+        });
+
+        window.addEventListener('mousemove', e => {
+            if (isDragging && draggedNode) {
+                let rect = latticeCanvas.getBoundingClientRect();
+                draggedNode.x = e.clientX - rect.left;
+                draggedNode.y = e.clientY - rect.top;
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+            draggedNode = null;
+        });
+
+        // Boot
+        resize();
+        animate();
+
+    </script>
+</body>
+</html>
