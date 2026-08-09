@@ -74,6 +74,48 @@ Phononic Networking: Nodes communicate via Thermodynamic Entanglement. A node ac
 
 The Conformal Skin: Aerosolized nodes form an invisible, planetary nervous system. The environment does not contain a computer; the environment becomes the computer, computing and breathing as a single, unified organism.
 
+6. Thermodynamic Core (PyTorch)
+
+`mep_thermodynamic_core.py` implements the continuous dynamical motif in executable form.
+
+**Requires:** Python 3.8+, `torch`, `numpy`
+
+```bash
+pip install torch numpy
+python mep_thermodynamic_core.py
+
+
+---
+
+### Minimal experiment checklist
+
+**1. Combinatorial solver (Max-Cut)**
+- [ ] Run on random graphs of size $$   N = 10, 20, 50   $$
+- [ ] Record achieved cut value vs. number of edges
+- [ ] Compare against a simple greedy or random baseline
+- [ ] Sweep `sigma` (noise) and `gamma` (damping); note sensitivity
+
+**2. Generative model**
+- [ ] Train on the included ±1 attractors (or a small binary dataset)
+- [ ] Plot contrastive loss over epochs
+- [ ] After training, sample free-phase states and check whether they recover the target modes
+- [ ] Inspect the learned $$   J   $$ (symmetry, sparsity, sign structure)
+
+**3. Hierarchical hybrid**
+- [ ] Confirm forward pass shapes on random input
+- [ ] Attach a real classification dataset (e.g. small tabular or MNIST subset)
+- [ ] Train end-to-end with standard cross-entropy on the decoder logits
+- [ ] Ablate: freeze the thermodynamic core vs. train it; compare accuracy and training stability
+
+**4. Documentation / reproducibility**
+- [ ] Pin `torch` version in a `requirements.txt`
+- [ ] Note random seed behavior
+- [ ] Record wall-clock time and step counts for the smoke tests
+
+---
+
+
+
 Open Source Declaration
 
 By releasing the Mandelbrot-Euler-Planck Architecture into the public domain, this repository establishes prior art. This framework is intended to democratize continuous, lossless intelligence.
