@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metamaterial Thermal Sandbox</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #020205; /* Deep absolute black/blue */
+            color: #e5e5e5;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            font-family: 'Space Mono', monospace;
+            touch-action: none; /* Prevent scroll on canvas drag */
+        }
+        canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            /* Add a slight grain filter to the canvas for a physical hardware look */
+            filter: contrast(1.2) brightness(1.1); 
+        }
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 1.5rem;
+        }
+        .glass-panel {
+            background: rgba(10, 15, 25, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 255, 255, 0.15);
+            border-radius: 8px;
+            pointer-events: auto;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+        .hud-value {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            text-shadow: 0 0 10px currentColor;
+        }
+        .instructions {
+            background: linear-gradient(90deg, rgba(0,255,255,0.1), transparent);
+            border-left: 2px solid #0ff;
+            padding: 0.5rem 1rem;
+        }
+        
+        /* Custom scrollbar for any future overflow */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #0ff; border-radius: 2px; }
+    </style>
+</head>
+<body>
+
+    <canvas id="chipCanvas"></canvas>
+    
+    <div id="ui-layer">
+        
+        <header class="flex justify-between items-start">
+            <div class="glass-panel p-4 max-w-sm">
+                <div class="flex justify-between items-center mb-2">
+                    <h1 class="text-cyan-400 font-bold text-lg tracking-widest uppercase">Phononic Sandbox</h1>
+                    <span class="text-[9px] bg-cyan-900/50 text-cyan-300 px-2 py-0.5 rounded border border-cyan-800 animate-pulse">LIVE</span>
+                </div>
+                <p class="text-xs text-gray-400 mb-3 leading-relaxed">Inject thermal energy (click/drag) into the grid. Sustained resonance will crystallize chaotic heat into 1.58D lossless topological pathways.</p>
+                
+                <div class="instructions text-xs text-cyan-200">
+                    <span class="font-bold text-white">INPUT:</span> Drag mouse to apply thermal load.<br>
+                    <span class="font-bold text-white">GOAL:</span> Form stable resonance circuits.
+                </div>
+            </div>
+
+            <div class="glass-panel p-4 min-w-[250px]">
+                <h2 class="text-[10px] text-gray-400 uppercase tracking-widest mb-3 border-b border-gray-700 pb-1">System Telemetry</h2>
+                
+                <div class="flex justify-between mb-2">
+                    <span class="text-xs text-gray-500">Active Entropy (Heat)</span>
+                    <span id="stat-entropy" class="text-sm hud-value text-red-500">0.0 THz</span>
+                </div>
+                
+                <div class="flex justify-between mb-2">
+                    <span class="text-xs text-gray-500">Topological Nodes</span>
+                    <span id="stat-nodes" class="text-sm hud-value text-cyan-400">0</span>
+                </div>
+                
+                <div class="flex justify-between mt-4">
+                    <span class="text-xs text-yellow-500">Lossless Compute Gen</span>
+                    <span id="stat-compute" class="text-lg hud-value text-yellow-400">0</span>
+                </div>
+            </div>
+        </header>
+
+        <footer class="flex justify-center items-end pb-4">
+             <button id="btn-flush" class="glass-panel px-6 py-2 text-xs text-white hover:bg-cyan-900/30 hover:border-cyan-400 transition-all uppercase tracking-widest font-bold">
+                 Flush Coolant (Reset Grid)
+             </button>
+        </footer>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('chipCanvas');
+        const ctx = canvas.getContext('2d', { alpha: false }); // Optimize for speed
+
+        // Telemetry DOM
+        const statEntropy = document.getElementById('stat-entropy');
+        const statNodes = document.getElementById('stat-nodes');
+        const statCompute = document.getElementById('stat-compute');
+        const btnFlush = document.getElementById('btn-flush');
+
+        // Grid parameters (Occam's Razor: simple cellular automata grid)
+        const CELL_SIZE = 12; // Size of each metamaterial node
+        let cols, rows;
+        let grid = [];
+        let nextGrid = [];
+        
+        // Interaction state
+        let isDrawing = false;
+        let mouseX = -100;
+        let mouseY = -100;
+
+        // Physics Constants
+        const DIFFUSION_RATE = 0.15; // How fast heat spreads
+        const ENTROPY_DECAY = 0.02;  // How fast heat fades to black
+        const RESONANCE_THRESHOLD = 0.85; // Heat required to trigger crystallization
+        const NODE_STABILITY_TIME = 20; // Frames required at high heat to crystallize
+
+        // Telemetry state
+        let totalCompute = 0;
+
+        // Initialize grid sizes
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            cols = Math.ceil(canvas.width / CELL_SIZE);
+            rows = Math.ceil(canvas.height / CELL_SIZE);
+            initGrid();
+        }
+
+        // Setup the 2D arrays
+        function initGrid() {
+            grid = [];
+            nextGrid = [];
+            totalCompute = 0;
+            for (let x = 0; x < cols; x++) {
+                grid[x] = [];
+                nextGrid[x] = [];
+                for (let y = 0; y < rows; y++) {
+                    // Cell State Object
+                    grid[x][y] = {
+                        heat: 0,           // 0.0 to 1.0+
+                        isTopological: false, // true if crystallized into 1.58D
+                        resonanceFrames: 0 // Counter for sustained heat
+                    };
+                    nextGrid[x][y] = { heat: 0, isTopological: false, resonanceFrames: 0 };
+                }
+            }
+        }
+
+        // Interpolate colors based on heat and state
+        function getCellColor(cell) {
+            if (cell.isTopological) {
+                // If it's a stable 1.58D pathway, it glows Cyan or Gold depending on heat flow
+                if (cell.heat > 0.5) return `rgb(255, 215, 0)`; // Tesla Gold
+                return `rgb(0, 200, 255)`; // Cool Cyan
+            }
+
+            // Otherwise, it's raw chaotic heat (Black -> Dark Red -> Bright Orange -> White)
+            let h = Math.min(Math.max(cell.heat, 0), 1);
+            if (h < 0.05) return '#000000'; // Optimization: return solid black
+            
+            const r = Math.floor(h * 255);
+            const g = Math.floor(Math.pow(h, 2) * 150); // Delayed green for orange transition
+            const b = Math.floor(Math.pow(h, 5) * 200); // Only blue at absolute peak (white hot)
+            
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        function updatePhysics() {
+            let currentEntropy = 0;
+            let activeNodes = 0;
+            let cycleCompute = 0;
+
+            // 1. Process User Input (Injecting Heat)
+            if (isDrawing) {
+                const cx = Math.floor(mouseX / CELL_SIZE);
+                const cy = Math.floor(mouseY / CELL_SIZE);
+                const brushSize = 2; // Radius of heat injection
+
+                for (let i = -brushSize; i <= brushSize; i++) {
+                    for (let j = -brushSize; j <= brushSize; j++) {
+                        let nx = cx + i;
+                        let ny = cy + j;
+                        if (nx >= 0 && nx < cols && ny >= 0 && ny < rows) {
+                            // Inject raw chaotic heat
+                            grid[nx][ny].heat = Math.min(grid[nx][ny].heat + 0.5, 1.5); 
+                        }
+                    }
+                }
+            }
+
+            // 2. Physics Step: Diffusion, Decay, and Crystallization
+            for (let x = 0; x < cols; x++) {
+                for (let y = 0; y < rows; y++) {
+                    let cell = grid[x][y];
+                    let next = nextGrid[x][y];
+                    
+                    // Copy static properties
+                    next.isTopological = cell.isTopological;
+                    next.resonanceFrames = cell.resonanceFrames;
+
+                    // Calculate surrounding heat
+                    let neighborHeat = 0;
+                    let neighbors = 0;
+                    let topoNeighbors = 0;
+
+                    for (let i = -1; i <= 1; i++) {
+                        for (let j = -1; j <= 1; j++) {
+                            if (i === 0 && j === 0) continue; // Skip self
+                            let nx = x + i;
+                            let ny = y + j;
+                            
+                            if (nx >= 0 && nx < cols && ny >= 0 && ny < rows) {
+                                neighborHeat += grid[nx][ny].heat;
+                                neighbors++;
+                                if (grid[nx][ny].isTopological) topoNeighbors++;
+                            }
+                        }
+                    }
+
+                    // Average neighbor heat
+                    let avgNeighborHeat = neighbors > 0 ? neighborHeat / neighbors : 0;
+
+                    if (cell.isTopological) {
+                        // THE TOPOLOGICAL INSULATOR (1.58D)
+                        // It does not decay. It perfectly routes heat.
+                        // It pulls heat from neighbors to maintain itself.
+                        next.heat = cell.heat * 0.95 + avgNeighborHeat * 0.05;
+                        
+                        // Prevent it from dropping to zero, it holds a base charge
+                        if (next.heat < 0.2) next.heat = 0.2; 
+
+                        activeNodes++;
+                        cycleCompute += next.heat; // Generate compute based on flow
+                        
+                        // It can safely shed excess heat to normal neighbors (cooling the chip)
+                    } else {
+                        // NORMAL CHAOTIC SPACE
+                        // Standard diffusion equation: Self + (Neighbors - Self) * Rate
+                        let diffusion = (avgNeighborHeat - cell.heat) * DIFFUSION_RATE;
+                        next.heat = cell.heat + diffusion - ENTROPY_DECAY;
+                        
+                        if (next.heat < 0) next.heat = 0;
+
+                        // CRYSTALLIZATION LOGIC (The Breakthrough)
+                        // If it sustains high heat, OR if it's touching an existing node and gets hot
+                        if (next.heat > RESONANCE_THRESHOLD) {
+                            next.resonanceFrames++;
+                            // Crystallize faster if attached to an existing circuit
+                            let requiredFrames = topoNeighbors > 0 ? NODE_STABILITY_TIME / 2 : NODE_STABILITY_TIME;
+                            
+                            if (next.resonanceFrames >= requiredFrames) {
+                                next.isTopological = true; // IT UPGRADES
+                                next.heat = 1.0; // Flash full power
+                            }
+                        } else {
+                            next.resonanceFrames = 0; // Lost resonance
+                        }
+                    }
+
+                    currentEntropy += next.heat;
+                }
+            }
+
+            // 3. Swap buffers
+            let temp = grid;
+            grid = nextGrid;
+            nextGrid = temp;
+
+            // 4. Update Telemetry
+            totalCompute += cycleCompute;
+            
+            // Only update DOM occasionally to save performance
+            if (Math.random() < 0.1) {
+                statEntropy.innerText = (currentEntropy * 0.1).toFixed(1) + " THz";
+                statNodes.innerText = activeNodes;
+                statCompute.innerText = Math.floor(totalCompute);
+                
+                // Color formatting based on danger
+                if (currentEntropy > (cols * rows * 0.4)) {
+                    statEntropy.className = "text-sm hud-value text-red-500 animate-pulse";
+                } else {
+                    statEntropy.className = "text-sm hud-value text-orange-400";
+                }
+            }
+        }
+
+        function draw() {
+            // Fill background
+            ctx.fillStyle = '#020205';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // We use standard composite operation for drawing
+            ctx.globalCompositeOperation = 'source-over';
+
+            for (let x = 0; x < cols; x++) {
+                for (let y = 0; y < rows; y++) {
+                    let cell = grid[x][y];
+                    
+                    if (cell.heat < 0.02 && !cell.isTopological) continue; // Optimization: skip empty dark cells
+
+                    let px = x * CELL_SIZE;
+                    let py = y * CELL_SIZE;
+
+                    ctx.fillStyle = getCellColor(cell);
+
+                    // Add visual flair: topological nodes are slightly smaller and have a "circuit" look
+                    if (cell.isTopological) {
+                        ctx.fillRect(px + 1, py + 1, CELL_SIZE - 2, CELL_SIZE - 2);
+                        
+                        // Draw connections to adjacent topological nodes
+                        ctx.strokeStyle = `rgba(0, 255, 255, ${Math.min(cell.heat, 0.8)})`;
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        
+                        if (x < cols - 1 && grid[x+1][y].isTopological) {
+                            ctx.moveTo(px + CELL_SIZE/2, py + CELL_SIZE/2);
+                            ctx.lineTo(px + CELL_SIZE * 1.5, py + CELL_SIZE/2);
+                        }
+                        if (y < rows - 1 && grid[x][y+1].isTopological) {
+                            ctx.moveTo(px + CELL_SIZE/2, py + CELL_SIZE/2);
+                            ctx.lineTo(px + CELL_SIZE/2, py + CELL_SIZE * 1.5);
+                        }
+                        ctx.stroke();
+
+                    } else {
+                        // Raw heat is soft and fuzzy
+                        ctx.fillRect(px, py, CELL_SIZE, CELL_SIZE);
+                    }
+                }
+            }
+            
+            // Add global glow effect (bloom)
+            // Note: Canvas filter blur is expensive, so we just use composite lighter for a slight glow
+            ctx.globalCompositeOperation = 'lighter';
+            ctx.fillStyle = 'rgba(0, 255, 255, 0.02)'; // Faint ambient cyan glow over everything
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function animate() {
+            updatePhysics();
+            draw();
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', resize);
+
+        // Input handling
+        function handleInputStart(e) {
+            isDrawing = true;
+            updateMousePos(e);
+        }
+        
+        function handleInputMove(e) {
+            if (isDrawing) updateMousePos(e);
+        }
+        
+        function handleInputEnd() {
+            isDrawing = false;
+        }
+
+        function updateMousePos(e) {
+            if (e.touches && e.touches.length > 0) {
+                mouseX = e.touches[0].clientX;
+                mouseY = e.touches[0].clientY;
+            } else {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            }
+        }
+
+        canvas.addEventListener('mousedown', handleInputStart);
+        window.addEventListener('mousemove', handleInputMove);
+        window.addEventListener('mouseup', handleInputEnd);
+        
+        canvas.addEventListener('touchstart', handleInputStart, {passive: false});
+        window.addEventListener('touchmove', handleInputMove, {passive: false});
+        window.addEventListener('touchend', handleInputEnd);
+
+        btnFlush.addEventListener('click', initGrid);
+
+        // Ignite the sandbox
+        resize();
+        animate();
+    </script>
+</body>
+</html>
