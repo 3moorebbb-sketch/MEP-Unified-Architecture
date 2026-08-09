@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mandelbrot Ignition Sequence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            color: #e5e5e5;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        .mono {
+            font-family: 'Space Mono', monospace;
+        }
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+        }
+        #orbit-canvas {
+            position: absolute;
+            top: 14rem;
+            right: 2rem;
+            width: 300px;
+            height: 300px;
+            z-index: 15;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(5, 5, 5, 0.8);
+            pointer-events: auto;
+            cursor: grab;
+        }
+        #orbit-canvas:active {
+            cursor: grabbing;
+        }
+        #orbit-label {
+            position: absolute;
+            top: calc(14rem - 20px);
+            right: 2rem;
+            z-index: 15;
+            color: #0ff;
+            font-size: 10px;
+            letter-spacing: 1px;
+            pointer-events: none;
+        }
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2rem;
+        }
+        .glass-panel {
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            pointer-events: auto;
+        }
+        
+        .control-btn {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 255, 255, 0.5);
+            color: #0ff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.1) inset;
+            pointer-events: auto;
+        }
+        .control-btn:hover:not(:disabled) {
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.3) inset, 0 0 20px rgba(0, 255, 255, 0.2);
+            transform: translateY(-2px);
+            cursor: pointer;
+        }
+        .control-btn:disabled {
+            border-color: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.3);
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+        .scanlines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container">
+        <canvas id="simCanvas"></canvas>
+    </div>
+    
+    <div id="orbit-label" class="mono uppercase text-shadow">Mandelbrot Orbit Map <span style="text-transform:none;color:#888;">(Scroll/Drag)</span></div>
+    <canvas id="orbit-canvas" width="300" height="300"></canvas>
+    
+    <div class="scanlines"></div>
+
+    <div id="ui-layer">
+        <!-- Top Header -->
+        <header class="flex justify-between items-start">
+            <div class="glass-panel p-4 max-w-md">
+                <h1 class="text-xl font-bold tracking-widest text-white mb-1">MANDELBROT KERNEL</h1>
+                <p class="mono text-xs text-gray-400">SYS.STATE: <span id="sys-status" class="text-cyan-400">IDLE (Z₀ = 0)</span></p>
+                <div class="w-full h-px bg-gray-700 my-3"></div>
+                <p class="mono text-sm text-gray-300">Eq: Zₙ₊₁ = (Zₙ)² * e^(iθ) + C(hν)</p>
+                <p class="mono text-xs text-orange-400 mt-2">Active C = <span id="c-coords">0.000 + 0.000i</span></p>
+            </div>
+            
+            <div class="glass-panel p-4">
+                <div class="flex flex-col gap-2 mono text-xs">
+                    <div class="flex justify-between gap-8">
+                        <span class="text-gray-400">Thermal (hν):</span>
+                        <span id="metric-heat" class="text-cyan-400">0.00 THz</span>
+                    </div>
+                    <div class="flex justify-between gap-8">
+                        <span class="text-gray-400">Phase (θ):</span>
+                        <span id="metric-phase" class="text-cyan-400">0.000 rad</span>
+                    </div>
+                    <div class="flex justify-between gap-8">
+                        <span class="text-gray-400">Depth (n):</span>
+                        <span id="metric-depth" class="text-cyan-400">0</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Bottom Controls & Logs -->
+        <footer class="flex justify-between items-end">
+            <div class="glass-panel p-4 w-1/3 min-w-[300px]">
+                <h2 class="text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">System Output</h2>
+                <div id="terminal-log" class="mono text-[11px] text-gray-300 h-32 overflow-y-auto flex flex-col gap-1">
+                    <div>> System ready...</div>
+                    <div>> Awaiting ignition sequence...</div>
+                </div>
+            </div>
+
+            <div class="flex gap-4">
+                <button id="reset-btn" class="control-btn px-6 py-3 mono font-bold text-sm rounded-xl">
+                    Restart
+                </button>
+                <button id="pause-btn" class="control-btn px-6 py-3 mono font-bold text-sm rounded-xl" disabled>
+                    Pause
+                </button>
+                <button id="ignite-btn" class="control-btn px-8 py-4 mono font-bold text-lg rounded-xl">
+                    Initialize Sequence
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Orbit Canvas
+        const orbitCanvas = document.getElementById('orbit-canvas');
+        const orbitCtx = orbitCanvas.getContext('2d');
+
+        // Buttons
+        const btn = document.getElementById('ignite-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const terminal = document.getElementById('terminal-log');
+        
+        // Metrics DOM
+        const sysStatus = document.getElementById('sys-status');
+        const mHeat = document.getElementById('metric-heat');
+        const mPhase = document.getElementById('metric-phase');
+        const mDepth = document.getElementById('metric-depth');
+        const cCoords = document.getElementById('c-coords');
+
+        // Offscreen canvas for map optimization
+        const bgCanvas = document.createElement('canvas');
+        bgCanvas.width = 300;
+        bgCanvas.height = 300;
+        const bgCtx = bgCanvas.getContext('2d');
+
+        // Resize Canvas
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Terminal Log Helper
+        function log(msg, color = "#e5e5e5") {
+            const el = document.createElement('div');
+            el.innerHTML = `> <span style="color: ${color}">${msg}</span>`;
+            terminal.appendChild(el);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        // Simulation State
+        let phase = 0; // 0 = Idle, 1 = Calculating, 2 = Thermal, 3 = Rotation, 4 = Stable
+        let time = 0;
+        
+        // Physics & Math variables
+        let isRunning = false;
+        let isPaused = false;
+        let iteration = 0;
+        let maxIterations = 50;
+        
+        // Complex number variables (Z = Z^2 + C)
+        let Z_re = 0;
+        let Z_im = 0;
+        let C_re = 0;
+        let C_im = 0;
+
+        // Visual properties
+        let coreRadius = 80;
+        let vibration = 0;
+        let heat = 0; 
+        let rotationAngle = 0; 
+        let bulbRadius = 0;
+        let bulbDistance = 0;
+        let orbitPath = [];
+        let pastOrbits = [];
+        let resetTimer = 0;
+        
+        // Map View State
+        let mapCenterX = -0.5;
+        let mapCenterY = 0;
+        let mapZoom = 1;
+        let mapRange = 3; 
+        let isDraggingMap = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        let dragStartCenterX = 0;
+        let dragStartCenterY = 0;
+        let mapNeedsRedraw = true;
+
+        // Colors (Cold = Base OS, Hot = New calculation)
+        const COLOR_COLD = { r: 0, g: 255, b: 255 }; // Cyan
+        const COLOR_HOT = { r: 255, g: 60, b: 0 };   // Infrared/Orange
+
+        // Interpolate colors based on heat (0.0 to 1.0)
+        function getThermalColor(intensity) {
+            const r = Math.floor(COLOR_COLD.r + (COLOR_HOT.r - COLOR_COLD.r) * intensity);
+            const g = Math.floor(COLOR_COLD.g + (COLOR_HOT.g - COLOR_COLD.g) * intensity);
+            const b = Math.floor(COLOR_COLD.b + (COLOR_HOT.b - COLOR_COLD.b) * intensity);
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        function drawMandelbrotBackground() {
+            if (!mapNeedsRedraw) return;
+            const width = bgCanvas.width;
+            const height = bgCanvas.height;
+            const imageData = bgCtx.createImageData(width, height);
+            
+            const re_range = mapRange / mapZoom;
+            const im_range = mapRange / mapZoom;
+            const re_min = mapCenterX - re_range / 2;
+            const im_min = mapCenterY - im_range / 2;
+            
+            // Render basic Mandelbrot set for the minimap
+            for (let x = 0; x < width; x++) {
+                for (let y = 0; y < height; y++) {
+                    let c_re = re_min + (x / width) * re_range;
+                    let c_im = im_min + (y / height) * im_range;
+                    let z_re = 0;
+                    let z_im = 0;
+                    let i = 0;
+                    
+                    while (z_re * z_re + z_im * z_im <= 4 && i < 30) {
+                        let temp_re = z_re * z_re - z_im * z_im + c_re;
+                        z_im = 2 * z_re * z_im + c_im;
+                        z_re = temp_re;
+                        i++;
+                    }
+                    
+                    const p = (x + y * width) * 4;
+                    if (i === 30) {
+                        imageData.data[p] = 0;   // R
+                        imageData.data[p + 1] = 0; // G
+                        imageData.data[p + 2] = 0; // B
+                        imageData.data[p + 3] = 255; // A
+                    } else {
+                        // Background gradient outside the set
+                        imageData.data[p] = 10;
+                        imageData.data[p + 1] = 10;
+                        imageData.data[p + 2] = 15;
+                        imageData.data[p + 3] = 255;
+                    }
+                }
+            }
+            bgCtx.putImageData(imageData, 0, 0);
+            
+            // Draw coordinate axes
+            bgCtx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+            bgCtx.beginPath();
+            
+            const originPx = complexToPixel(0, 0);
+            if(originPx.y >= 0 && originPx.y <= height) {
+                bgCtx.moveTo(0, originPx.y);
+                bgCtx.lineTo(width, originPx.y);
+            }
+            if(originPx.x >= 0 && originPx.x <= width) {
+                bgCtx.moveTo(originPx.x, 0);
+                bgCtx.lineTo(originPx.x, height);
+            }
+            bgCtx.stroke();
+            
+            mapNeedsRedraw = false;
+        }
+
+        function complexToPixel(re, im) {
+            const w = orbitCanvas.width;
+            const h = orbitCanvas.height;
+            const re_range = mapRange / mapZoom;
+            const im_range = mapRange / mapZoom;
+            const re_min = mapCenterX - re_range / 2;
+            const im_min = mapCenterY - im_range / 2;
+            
+            const px = ((re - re_min) / re_range) * w;
+            const py = ((im - im_min) / im_range) * h;
+            return { x: px, y: py };
+        }
+
+        function drawGlowCircle(x, y, radius, color, glowRadius) {
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            
+            ctx.shadowBlur = glowRadius;
+            ctx.shadowColor = color;
+            ctx.fillStyle = 'rgba(0,0,0,0.8)';
+            ctx.fill();
+            
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = color;
+            ctx.stroke();
+            
+            ctx.shadowBlur = 0; 
+        }
+
+        function renderMinimap() {
+            if (mapNeedsRedraw) {
+                drawMandelbrotBackground();
+            }
+            
+            orbitCtx.clearRect(0, 0, orbitCanvas.width, orbitCanvas.height);
+            orbitCtx.drawImage(bgCanvas, 0, 0);
+
+            pastOrbits.forEach(path => {
+                if (path.length === 0) return;
+                orbitCtx.beginPath();
+                const startPixel = complexToPixel(0, 0);
+                orbitCtx.moveTo(startPixel.x, startPixel.y);
+                for (let i = 0; i < path.length; i++) {
+                    const pixel = complexToPixel(path[i].re, path[i].im);
+                    orbitCtx.lineTo(pixel.x, pixel.y);
+                }
+                orbitCtx.strokeStyle = 'rgba(0, 255, 255, 0.15)';
+                orbitCtx.lineWidth = 1;
+                orbitCtx.stroke();
+            });
+
+            if (orbitPath.length > 0) {
+                orbitCtx.beginPath();
+                const startPixel = complexToPixel(0, 0);
+                orbitCtx.moveTo(startPixel.x, startPixel.y);
+                
+                for (let i = 0; i < orbitPath.length; i++) {
+                    const pixel = complexToPixel(orbitPath[i].re, orbitPath[i].im);
+                    orbitCtx.lineTo(pixel.x, pixel.y);
+                    
+                    orbitCtx.fillStyle = '#0ff';
+                    orbitCtx.fillRect(pixel.x - 1, pixel.y - 1, 3, 3);
+                }
+                orbitCtx.strokeStyle = 'rgba(0, 255, 255, 0.8)';
+                orbitCtx.lineWidth = 1;
+                orbitCtx.stroke();
+                
+                const cPixel = complexToPixel(C_re, C_im);
+                orbitCtx.fillStyle = '#f90'; 
+                orbitCtx.beginPath();
+                orbitCtx.arc(cPixel.x, cPixel.y, 4, 0, Math.PI * 2);
+                orbitCtx.fill();
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            renderMinimap(); // Map updates independently of pause
+
+            if(isPaused) return;
+
+            time += 0.016;
+
+            // Fade clear main screen for trails
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.3)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+
+            // State Machine Logic
+            if (phase === 1) {
+                // Calculation starts - Vibration builds up
+                vibration = Math.min(vibration + 0.5, 12);
+                heat = Math.min(heat + 0.02, 1.0); 
+                if(heat >= 1.0) phase = 2;
+
+            } else if (phase === 2) {
+                // Heat peaks, converting to new spatial dimension
+                bulbDistance = Math.min(bulbDistance + 2, coreRadius * 1.5 + (iteration * 10));
+                bulbRadius = Math.min(bulbRadius + 1, coreRadius * (0.4 / (iteration/2 + 1)));
+                if(bulbDistance >= coreRadius * 1.5 + (iteration * 10)) phase = 3;
+
+            } else if (phase === 3) {
+                // Euler's Phase Shift - Rotate concept to new dimension
+                let targetAngle = -Math.PI / 2 * (iteration + 1);
+                rotationAngle -= 0.05; 
+                
+                if (rotationAngle <= targetAngle) {
+                    rotationAngle = targetAngle;
+                    
+                    // The core math calculation: Z = Z^2 + C
+                    const new_re = (Z_re * Z_re) - (Z_im * Z_im) + C_re;
+                    const new_im = 2 * Z_re * Z_im + C_im;
+                    
+                    Z_re = new_re;
+                    Z_im = new_im;
+                    orbitPath.push({re: Z_re, im: Z_im});
+
+                    phase = 4;
+                    iteration++;
+                    
+                    log(`Calculated Phase ${iteration}: Z stabilizes at ${Z_re.toFixed(3)} + ${Z_im.toFixed(3)}i`, "#0f0");
+                    mDepth.innerText = iteration;
+                }
+            } else if (phase === 4) {
+                // Cooldown and stabilize
+                heat = Math.max(heat - 0.05, 0.2); 
+                vibration = Math.max(vibration - 0.5, 0);
+
+                if (heat <= 0.2 && vibration <= 0) {
+                    // Evaluate Escape vs. Integration
+                    if (Z_re * Z_re + Z_im * Z_im > 4) {
+                        log(`System ESCAPED boundaries at depth ${iteration}. Energy scattered.`, "#f00");
+                        sysStatus.innerText = "ESCAPED (UNBOUNDED)";
+                        sysStatus.className = "text-red-500";
+                        pastOrbits.push([...orbitPath]);
+                        phase = 5;
+                        resetTimer = 60; // Wait 1 second before next sequence
+                    } else if (iteration >= maxIterations) {
+                        log(`Max depth reached (${maxIterations}). Concept fully integrated.`, "#0f0");
+                        sysStatus.innerText = "STABLE (INTEGRATED)";
+                        sysStatus.className = "text-green-500";
+                        pastOrbits.push([...orbitPath]);
+                        phase = 5;
+                        resetTimer = 60; // Wait 1 second before next sequence
+                    } else {
+                        // Loop back for next recursion
+                        phase = 1;
+                        log(`Cycling logic back into Core for depth ${iteration+1}...`, "#888");
+                    }
+                }
+            } else if (phase === 5) {
+                // Wait timer before starting the next autonomous loop
+                resetTimer--;
+                heat = Math.max(heat - 0.02, 0);
+                if (resetTimer <= 0) {
+                    log(`Auto-initiating next sequence...`, "#0ff");
+                    startSequence();
+                }
+            }
+
+            // HUD Update
+            if (isRunning) {
+                mHeat.innerText = (heat * 430).toFixed(2) + " THz";
+                mPhase.innerText = Math.abs(rotationAngle).toFixed(3) + " rad";
+            }
+
+            const currentColor = getThermalColor(heat);
+            const jitterX = (Math.random() - 0.5) * vibration;
+            const jitterY = (Math.random() - 0.5) * vibration;
+
+            // Connecting Lines
+            if (bulbDistance > 0) {
+                const bx = cx + Math.cos(rotationAngle) * bulbDistance;
+                const by = cy + Math.sin(rotationAngle) * bulbDistance;
+                
+                ctx.beginPath();
+                ctx.moveTo(cx + jitterX, cy + jitterY);
+                ctx.lineTo(bx + jitterX, by + jitterY);
+                ctx.strokeStyle = currentColor;
+                ctx.lineWidth = 1 + (heat * 3);
+                ctx.stroke();
+            }
+
+            // Draw Core OS
+            drawGlowCircle(cx + jitterX, cy + jitterY, coreRadius, phase === 0 ? `rgba(0, 255, 255, 0.5)` : currentColor, 20 + (heat * 30));
+
+            // Draw Sprouting Bulb (New Memory)
+            if (bulbRadius > 0) {
+                const bx = cx + Math.cos(rotationAngle) * bulbDistance;
+                const by = cy + Math.sin(rotationAngle) * bulbDistance;
+                
+                drawGlowCircle(bx + jitterX, by + jitterY, bulbRadius, currentColor, 15 + (heat * 20));
+                
+                ctx.fillStyle = currentColor;
+                ctx.font = '14px "Space Mono"';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(`Z_${iteration}`, bx + jitterX, by + jitterY);
+            }
+
+            // Core Label
+            ctx.fillStyle = phase === 0 ? `rgba(0, 255, 255, 0.8)` : currentColor;
+            ctx.font = '20px "Space Mono"';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(iteration === 0 ? "Z₀" : `Z_${iteration-1}`, cx + jitterX, cy + jitterY);
+        }
+
+        function startSequence() {
+            // Reset visual vars
+            vibration = 0; heat = 0; rotationAngle = 0; bulbRadius = 0; bulbDistance = 0;
+            Z_re = 0; Z_im = 0; iteration = 0;
+            orbitPath = [];
+            
+            isRunning = true;
+            isPaused = false;
+            
+            // Pick an interesting random C point (biased slightly towards the boundary)
+            let angle = Math.random() * Math.PI * 2;
+            let radius = Math.random() * 1.5;
+            C_re = Math.cos(angle) * radius - 0.5;
+            C_im = Math.sin(angle) * radius;
+
+            cCoords.innerText = `${C_re.toFixed(3)} + ${C_im.toFixed(3)}i`;
+
+            btn.disabled = true;
+            btn.innerText = "Sequence Running...";
+            pauseBtn.disabled = false;
+            
+            log(`-----------------------------------`, "#444");
+            log(`INITIATING CALCULATION`, "#ffaa00");
+            log(`Mapping Concept C = ${C_re.toFixed(3)} + ${C_im.toFixed(3)}i`, "#0ff");
+            
+            sysStatus.innerText = "CALCULATING...";
+            sysStatus.className = "text-orange-400";
+            
+            phase = 1;
+            log(`Engaging thermal logic loop... Z₀ = 0`);
+        }
+
+        function resetSystem() {
+            isRunning = false;
+            isPaused = false;
+            phase = 0;
+            iteration = 0;
+            Z_re = 0; Z_im = 0; C_re = 0; C_im = 0;
+            vibration = 0; heat = 0; rotationAngle = 0; bulbRadius = 0; bulbDistance = 0;
+            orbitPath = [];
+            pastOrbits = [];
+            
+            mapCenterX = -0.5;
+            mapCenterY = 0;
+            mapZoom = 1;
+            mapNeedsRedraw = true;
+            
+            btn.disabled = false;
+            btn.innerText = "Initialize Sequence";
+            pauseBtn.disabled = true;
+            pauseBtn.innerText = "Pause";
+            
+            sysStatus.innerText = "IDLE (Z₀ = 0)";
+            sysStatus.className = "text-cyan-400";
+            mHeat.innerText = "0.00 THz";
+            mPhase.innerText = "0.000 rad";
+            mDepth.innerText = "0";
+            cCoords.innerText = "0.000 + 0.000i";
+            
+            log(`SYSTEM RESET. Memory cleared.`, "#fff");
+            drawMandelbrotBackground();
+        }
+
+        // Attach listeners
+        btn.addEventListener('click', startSequence);
+        resetBtn.addEventListener('click', resetSystem);
+        
+        pauseBtn.addEventListener('click', () => {
+            if(!isRunning && phase === 0) return;
+            isPaused = !isPaused;
+            if(isPaused) {
+                pauseBtn.innerText = "Resume";
+                log("System clock PAUSED.", "#fff");
+                sysStatus.innerText = "PAUSED";
+                sysStatus.className = "text-white";
+            } else {
+                pauseBtn.innerText = "Pause";
+                log("System clock RESUMED.", "#fff");
+                sysStatus.innerText = "CALCULATING...";
+                sysStatus.className = "text-orange-400";
+            }
+        });
+
+        // Minimap Interactions (Zoom & Pan)
+        orbitCanvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const zoomFactor = 1.1;
+            if (e.deltaY < 0) {
+                mapZoom *= zoomFactor;
+            } else {
+                mapZoom /= zoomFactor;
+            }
+            if (mapZoom < 0.2) mapZoom = 0.2;
+            mapNeedsRedraw = true;
+        });
+
+        orbitCanvas.addEventListener('mousedown', (e) => {
+            isDraggingMap = true;
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            dragStartCenterX = mapCenterX;
+            dragStartCenterY = mapCenterY;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDraggingMap) return;
+            const dx = e.clientX - dragStartX;
+            const dy = e.clientY - dragStartY;
+            
+            const re_range = mapRange / mapZoom;
+            const im_range = mapRange / mapZoom;
+            
+            mapCenterX = dragStartCenterX - (dx / 300) * re_range;
+            mapCenterY = dragStartCenterY - (dy / 300) * im_range;
+            
+            // Only trigger high-res redraw periodically while dragging to prevent lag
+            if (Math.random() > 0.5) mapNeedsRedraw = true;
+        });
+
+        window.addEventListener('mouseup', () => {
+            if(isDraggingMap) {
+                isDraggingMap = false;
+                mapNeedsRedraw = true; // Force a crisp final redraw when releasing the mouse
+            }
+        });
+
+        // Initialize background and start render loop
+        drawMandelbrotBackground();
+        animate();
+    </script>
+</body>
+</html>
