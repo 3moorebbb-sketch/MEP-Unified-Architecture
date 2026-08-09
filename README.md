@@ -52,7 +52,7 @@ thermal_chip_sandbox.html: Early visualization of entropy crystallization into p
 
 thermal_logic_gate.html (The Existence Proof): Demonstrates that continuous phase-rotation and thermal coupling can implement basic Boolean logic gates (AND, OR, XOR).
 
-continuous_logic _cascade.html (Cascaded Continuous Logic): A fixed-topology, distance-weighted wave lattice that tunes into logical regimes via a single global energy parameter.
+continuous_logic_cascade.html (Cascaded Continuous Logic): A fixed-topology, distance-weighted wave lattice that tunes into logical regimes via a single global energy parameter.
 
 engine_self_organizing_lattice.html (Adaptive Kuramoto-Hebbian Lattice): The ultimate unit cell. Demonstrates that a homogeneous continuous lattice can grow excitatory and inhibitory paths via phase-dependent plasticity, and can be trained via supervision and frozen for inference.
 
