@@ -84,6 +84,20 @@ The Conformal Skin: Aerosolized nodes form an invisible, planetary nervous syste
 pip install torch numpy
 python mep_thermodynamic_core.py
 
+Class,Purpose
+ThermodynamicIsingNetwork,Continuous-time Ising / Max-Cut solver (Euler–Maruyama + annealing)
+GenerativeThermodynamicNetwork,Energy-based generative model trained via contrastive (clamped vs free) phases
+HierarchicalThermodynamicNetwork,Hybrid stack: digital encoder → thermodynamic core → digital decoder
+
+
+Shared physics:
+
+Double-well force (x - x^3)
+Symmetric coupling matrix (J)
+Viscous damping + thermal noise
+Stochastic integration over continuous time
+
+These modules extend the browser unit-cell results into trainable, measurable systems. They do not claim thermodynamic advantage over digital baselines; that remains an open experimental question (see epilogue.md).
 
 ---
 
@@ -113,6 +127,8 @@ python mep_thermodynamic_core.py
 - [ ] Record wall-clock time and step counts for the smoke tests
 
 ---
+
+These keep the work aligned with the unit-cell framing: measurable continuous dynamics first, larger thermodynamic claims later.
 
 
 
