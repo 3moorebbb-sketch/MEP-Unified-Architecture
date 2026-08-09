@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Continuous Logic Cascade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #030508;
+            color: #e5e5e5;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            touch-action: none;
+        }
+        .mono { font-family: 'Space Mono', monospace; }
+        canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            filter: drop-shadow(0 0 8px rgba(0, 255, 255, 0.15));
+        }
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2rem;
+        }
+        .glass-panel {
+            background: rgba(8, 12, 18, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 255, 255, 0.1);
+            border-radius: 12px;
+            pointer-events: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+        }
+        .control-btn {
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            color: #0ff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.2s ease;
+        }
+        .control-btn:hover {
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2) inset;
+        }
+        .active-btn {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: #0ff;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.4) inset;
+            color: #fff;
+            text-shadow: 0 0 8px #0ff;
+        }
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #0ff;
+            cursor: pointer;
+            margin-top: -8px;
+            box-shadow: 0 0 10px #0ff;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+        }
+        .state-1 { color: #0f0; text-shadow: 0 0 8px #0f0; }
+        .state-0 { color: #f44336; text-shadow: 0 0 8px #f44336; }
+    </style>
+</head>
+<body>
+
+    <canvas id="simCanvas"></canvas>
+    
+    <div id="ui-layer">
+        <header class="flex justify-between items-start gap-4">
+            <div class="glass-panel p-5 max-w-lg">
+                <h1 class="text-cyan-400 font-bold text-xl tracking-widest uppercase mb-1">Universal Logic Cascade</h1>
+                <p class="text-[11px] text-gray-400 mb-4 leading-relaxed">
+                    A fixed 2-stage topological lattice. Gates are no longer hardcoded. All nodes follow a single continuous wave equation driven by 1/d² distance scaling. The output of Stage 1 cascades natively into Stage 2.
+                </p>
+                
+                <div class="mb-4">
+                    <div class="flex justify-between text-xs text-cyan-300 font-bold tracking-widest uppercase mb-2">
+                        <span>Global Thermal Gain</span>
+                        <span id="gain-readout">45000</span>
+                    </div>
+                    <input type="range" id="gain-slider" min="20000" max="100000" value="45000" step="1000">
+                    <div class="flex justify-between text-[9px] text-gray-500 mt-1 uppercase tracking-widest">
+                        <span>AND (Low)</span>
+                        <span>XOR (Med)</span>
+                        <span>OR (High)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel p-5 min-w-[280px]">
+                <h2 class="text-xs font-bold text-gray-500 mb-3 uppercase tracking-widest border-b border-gray-800 pb-2">Thermodynamic Signature</h2>
+                
+                <div class="flex justify-between items-end mb-4">
+                    <span class="text-xs text-gray-400">Total Integrated Mag:</span>
+                    <span id="stat-heat" class="mono text-lg font-bold text-orange-400">0.00 THz</span>
+                </div>
+
+                <h2 class="text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest border-b border-gray-800 pb-2">Cascade Readout</h2>
+                <div class="mono text-sm space-y-2">
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Stage 1 (C1):</span>
+                        <span id="readout-c1" class="font-bold state-0">0</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-400">Final (Out):</span>
+                        <span id="readout-out" class="font-bold text-xl state-0">0</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <footer class="flex justify-center items-end gap-12 pb-6">
+            <div class="flex flex-col items-center gap-2">
+                <span class="text-[10px] text-cyan-500 font-bold uppercase tracking-widest">Input A</span>
+                <button id="toggle-a" class="glass-panel control-btn px-8 py-4 rounded-xl text-xl w-32 mono font-bold active-btn">1</button>
+            </div>
+            <div class="flex flex-col items-center gap-2">
+                <span class="text-[10px] text-cyan-500 font-bold uppercase tracking-widest">Input B</span>
+                <button id="toggle-b" class="glass-panel control-btn px-8 py-4 rounded-xl text-xl w-32 mono font-bold">0</button>
+            </div>
+            <div class="w-px h-16 bg-gray-800 mx-4"></div>
+            <div class="flex flex-col items-center gap-2">
+                <span class="text-[10px] text-cyan-500 font-bold uppercase tracking-widest">Input D (Stage 2)</span>
+                <button id="toggle-d" class="glass-panel control-btn px-8 py-4 rounded-xl text-xl w-32 mono font-bold">0</button>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d', { alpha: false });
+        
+        const gainSlider = document.getElementById('gain-slider');
+        const gainReadout = document.getElementById('gain-readout');
+        const statHeat = document.getElementById('stat-heat');
+        const readoutC1 = document.getElementById('readout-c1');
+        const readoutOut = document.getElementById('readout-out');
+
+        const btnA = document.getElementById('toggle-a');
+        const btnB = document.getElementById('toggle-b');
+        const btnD = document.getElementById('toggle-d');
+
+        let width, height;
+        let GLOBAL_GAIN = parseInt(gainSlider.value);
+        const BASE_STATE = -0.5; // Represents the physical "False" ground state
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            alignTopology();
+        }
+        window.addEventListener('resize', resize);
+
+        class WaveNode {
+            constructor(id, type, logicState = false) {
+                this.id = id;
+                this.type = type; // 'input', 'excitatory', 'inhibitory', 'output'
+                this.x = 0;
+                this.y = 0;
+                
+                this.logicalState = logicState; // Only used by inputs
+                
+                // Unified Complex State
+                this.Z = { re: BASE_STATE, im: 0 }; 
+                this.history = []; 
+                this.radius = type === 'input' || type === 'output' ? 35 : 25;
+            }
+
+            get phase() { return Math.atan2(this.Z.im, this.Z.re); }
+            get magnitude() { return Math.hypot(this.Z.re, this.Z.im); }
+            
+            // Nodes only emit usable energy when their real component is positive (Phase 0)
+            get emission() { return Math.max(0, this.Z.re); }
+
+            update(dt, allNodes) {
+                if (this.type === 'input') {
+                    // Drive to +1.0 (True) or BASE_STATE (False)
+                    let targetRe = this.logicalState ? 1.0 : BASE_STATE;
+                    this.Z.re += (targetRe - this.Z.re) * 0.15;
+                    this.Z.im *= 0.8;
+                } else {
+                    let z_in_re = BASE_STATE;
+                    let z_in_im = 0;
+
+                    allNodes.forEach(src => {
+                        if (src === this) return;
+                        // Forward propagation only (left to right) to prevent chaotic oscillation
+                        if (src.x >= this.x) return;
+
+                        let dx = this.x - src.x;
+                        let dy = this.y - src.y;
+                        let distSq = (dx * dx) + (dy * dy);
+                        
+                        // The core physics: 1/d² scaling
+                        let W = GLOBAL_GAIN / distSq;
+                        
+                        // Destructive interference: Inhibitory nodes emit a π-shifted wave
+                        let sign = src.type === 'inhibitory' ? -1 : 1;
+                        
+                        let emittedSignal = src.emission * W;
+                        z_in_re += emittedSignal * sign * Math.cos(src.phase);
+                        z_in_im += emittedSignal * sign * Math.sin(src.phase);
+                    });
+
+                    // Saturation (prevent infinite magnitude)
+                    let inMag = Math.hypot(z_in_re, z_in_im);
+                    let inPhase = Math.atan2(z_in_im, z_in_re);
+                    
+                    let boundedMag = Math.tanh(inMag);
+                    let targetRe = boundedMag * Math.cos(inPhase);
+                    let targetIm = boundedMag * Math.sin(inPhase);
+
+                    this.Z.re += (targetRe - this.Z.re) * 0.1;
+                    this.Z.im += (targetIm - this.Z.im) * 0.1;
+                }
+
+                this.history.unshift(this.Z.re); // Track Real component for oscilloscope
+                if (this.history.length > 40) this.history.pop();
+            }
+
+            draw() {
+                // Determine color based on pure continuous dynamics (Positive Real = Cyan, Negative Real = Red)
+                let isPositive = this.Z.re > 0;
+                let intensity = Math.min(1.0, Math.abs(this.Z.re));
+                
+                let r = isPositive ? 0 : Math.floor(intensity * 255);
+                let g = isPositive ? Math.floor(intensity * 255) : 0;
+                let b = isPositive ? Math.floor(intensity * 255) : 0;
+                
+                let baseColor = `rgb(${r},${g},${b})`;
+                let glowColor = `rgba(${r},${g},${b},${intensity * 0.6})`;
+
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(10, 15, 20, 0.95)`;
+                ctx.fill();
+                
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = baseColor;
+                ctx.shadowBlur = 20 * intensity;
+                ctx.shadowColor = glowColor;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+
+                // Draw Phase Vector
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(this.x + Math.cos(this.phase) * (this.radius - 5), this.y + Math.sin(this.phase) * (this.radius - 5));
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Draw Mini Oscilloscope (History of Real Component)
+                if (this.history.length > 1) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(255,255,255,0.4)`;
+                    ctx.lineWidth = 1.5;
+                    for (let i = 0; i < this.history.length; i++) {
+                        let hx = this.x - this.radius + (i / 40) * (this.radius * 2);
+                        // Map -1.0 to 1.0 into the radius bounds
+                        let mappedY = (this.history[i] / 1.0) * (this.radius * 0.5); 
+                        let hy = this.y - mappedY;
+                        if (i === 0) ctx.moveTo(hx, hy);
+                        else ctx.lineTo(hx, hy);
+                    }
+                    ctx.stroke();
+                }
+
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 12px Space Mono';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.id, this.x, this.y - this.radius - 15);
+                
+                if (this.type === 'inhibitory') {
+                    ctx.fillStyle = '#f44336';
+                    ctx.font = '10px Inter';
+                    ctx.fillText("π-SHIFT", this.x, this.y + this.radius + 15);
+                }
+            }
+        }
+
+        let nodes = [];
+        let nA, nB, nE1, nI1, nC1; // Stage 1
+        let nD, nE2, nI2, nOut;    // Stage 2
+
+        function initNodes() {
+            nodes = [];
+            // Stage 1
+            nA = new WaveNode('A', 'input', true);
+            nB = new WaveNode('B', 'input', false);
+            nE1 = new WaveNode('E1', 'excitatory');
+            nI1 = new WaveNode('I1', 'inhibitory');
+            nC1 = new WaveNode('C1 (S1 Out)', 'output');
+            
+            // Stage 2
+            nD = new WaveNode('D', 'input', false);
+            nE2 = new WaveNode('E2', 'excitatory');
+            nI2 = new WaveNode('I2', 'inhibitory');
+            nOut = new WaveNode('FINAL OUT', 'output');
+
+            nodes.push(nA, nB, nE1, nI1, nC1, nD, nE2, nI2, nOut);
+        }
+
+        function alignTopology() {
+            let startX = width * 0.15;
+            let startY = height * 0.4;
+            let scale = Math.min(width / 1200, 1.0); // Responsive scaling
+            let stepX = 180 * scale;
+            let stepY = 150 * scale;
+
+            // Stage 1 coordinates (Engineered to leverage 1/d² laws naturally)
+            nA.x = startX;               nA.y = startY - stepY;
+            nB.x = startX;               nB.y = startY + stepY;
+            
+            // E1 is equidistant to A and B, but closer than I1
+            nE1.x = startX + stepX;      nE1.y = startY;
+            nI1.x = startX + stepX * 1.8; nI1.y = startY; 
+            
+            // C1 is placed so I1's proximity heavily overpowers E1
+            nC1.x = startX + stepX * 2.5; nC1.y = startY;
+
+            // Stage 2 coordinates (C1 acts as top input, D as bottom input)
+            nD.x = nC1.x;                nD.y = startY + stepY * 1.5;
+            
+            let s2MidY = (nC1.y + nD.y) / 2;
+            nE2.x = nC1.x + stepX;       nE2.y = s2MidY;
+            nI2.x = nC1.x + stepX * 1.8; nI2.y = s2MidY;
+            nOut.x = nC1.x + stepX * 2.5; nOut.y = s2MidY;
+        }
+
+        function drawConnections() {
+            nodes.forEach(target => {
+                if (target.type === 'input') return;
+                
+                nodes.forEach(src => {
+                    if (src.x >= target.x) return; // Forward flow only
+                    
+                    let dx = target.x - src.x;
+                    let dy = target.y - src.y;
+                    let d = Math.hypot(dx, dy);
+                    let W = GLOBAL_GAIN / (d * d);
+                    
+                    // Only draw structurally significant connections
+                    if (W < 0.2) return;
+
+                    let isActive = src.emission > 0.1;
+                    let isDopamine = src.type === 'inhibitory';
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(src.x, src.y);
+                    
+                    // Add slight curve for aesthetics
+                    let cpX = src.x + dx * 0.5;
+                    ctx.quadraticCurveTo(cpX, src.y, target.x, target.y);
+
+                    if (isActive) {
+                        ctx.strokeStyle = isDopamine ? `rgba(244, 67, 54, ${src.emission})` : `rgba(0, 255, 255, ${src.emission})`;
+                        ctx.lineWidth = 2 + (src.emission * W * 3); // Thickness indicates heat transfer
+                    } else {
+                        ctx.strokeStyle = `rgba(50, 60, 70, 0.3)`;
+                        ctx.lineWidth = 1;
+                    }
+                    ctx.stroke();
+
+                    // Draw thermodynamic particles flowing
+                    if (isActive) {
+                        let numParticles = Math.floor(src.emission * W * 5);
+                        let t = performance.now() * 0.001;
+                        ctx.fillStyle = isDopamine ? '#f44336' : '#0ff';
+                        
+                        for (let i = 0; i < numParticles; i++) {
+                            let prog = ((t + (i / numParticles)) % 1);
+                            // Ease in out
+                            let eProg = prog < 0.5 ? 2 * prog * prog : 1 - Math.pow(-2 * prog + 2, 2) / 2;
+                            
+                            let px = src.x + (target.x - src.x) * eProg;
+                            let py = src.y + (target.y - src.y) * eProg;
+                            
+                            // Follow the curve
+                            py += (eProg * (1 - eProg)) * (src.y - target.y) * 0.5;
+
+                            ctx.beginPath();
+                            ctx.arc(px, py, 1.5 + src.emission * 2, 0, Math.PI*2);
+                            ctx.fill();
+                        }
+                    }
+                });
+            });
+        }
+
+        function animate() {
+            ctx.fillStyle = 'rgba(3, 5, 8, 0.3)'; // Motion blur trail
+            ctx.fillRect(0, 0, width, height);
+
+            // 1. Update Physics
+            nodes.forEach(n => n.update(0.016, nodes));
+
+            // 2. Draw 
+            drawConnections();
+            nodes.forEach(n => n.draw());
+
+            // 3. Update UI Telemetry
+            if (Math.random() < 0.1) {
+                // Calculate Thermodynamic Signature (Total Magnitude)
+                let totalMag = nodes.reduce((sum, n) => sum + n.magnitude, 0);
+                statHeat.innerText = (totalMag * 1.42).toFixed(2) + " THz";
+
+                // Pure binary readout based strictly on the Real component being > 0
+                let c1State = nC1.Z.re > 0.1 ? 1 : 0;
+                let outState = nOut.Z.re > 0.1 ? 1 : 0;
+
+                readoutC1.innerText = c1State;
+                readoutC1.className = c1State ? 'font-bold text-xl state-1' : 'font-bold text-xl state-0';
+                
+                readoutOut.innerText = outState;
+                readoutOut.className = outState ? 'font-bold text-2xl state-1 animate-pulse' : 'font-bold text-2xl state-0';
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // UI Listeners
+        gainSlider.addEventListener('input', (e) => {
+            GLOBAL_GAIN = parseInt(e.target.value);
+            gainReadout.innerText = GLOBAL_GAIN;
+        });
+
+        function setupToggle(btn, node) {
+            btn.addEventListener('click', () => {
+                node.logicalState = !node.logicalState;
+                btn.innerText = node.logicalState ? '1' : '0';
+                btn.className = node.logicalState 
+                    ? 'glass-panel control-btn active-btn px-8 py-4 rounded-xl text-xl w-32 mono font-bold' 
+                    : 'glass-panel control-btn px-8 py-4 rounded-xl text-xl w-32 mono font-bold';
+            });
+        }
+
+        // Boot Sequence
+        initNodes();
+        resize();
+        setupToggle(btnA, nA);
+        setupToggle(btnB, nB);
+        setupToggle(btnD, nD);
+        animate();
+
+    </script>
+</body>
+</html>
