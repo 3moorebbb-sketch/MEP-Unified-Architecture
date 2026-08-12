@@ -25,24 +25,29 @@ class ThermodynamicIsingNetwork(nn.Module):
         self.dt = dt          # Time integration interval
         
         # J matrix explicitly set by the graph configuration (no gradients required)
+        # registered as a buffer so it follows .to(device) and is saved with the module
         self.register_buffer('J', torch.zeros(num_nodes, num_nodes))
 
     def set_problem_topology(self, adjacency_matrix):
         """
         Maps a problem graph directly to the physical system coupling weights.
-        Antiferromagnetic coupling (negative weights) forces adjacent nodes into opposite states.
+        Performs an in-place copy into the registered buffer so the buffer object
+        and its device/dtype are preserved.
         """
-        self.J = -1.0 * adjacency_matrix.float()
+        with torch.no_grad():
+            adj = (-1.0 * adjacency_matrix).to(self.J.dtype).to(self.J.device)
+            self.J.copy_(adj)
 
     def forward(self, steps=250, batch_size=4):
         device = self.J.device
+        dtype = self.J.dtype
         
         # Initialize continuous macrostates with near-zero random thermal offsets
-        x = (torch.rand(batch_size, self.num_nodes, device=device) - 0.5) * 0.2
-        v = (torch.rand(batch_size, self.num_nodes, device=device) - 0.5) * 0.1
+        x = (torch.rand(batch_size, self.num_nodes, device=device, dtype=dtype) - 0.5) * 0.2
+        v = (torch.rand(batch_size, self.num_nodes, device=device, dtype=dtype) - 0.5) * 0.1
         
-        # Matrix buffer tracking trajectories over time for structural analysis
-        trajectory = []
+        # Preallocate trajectory tensor for performance and lower fragmentation
+        trajectory = torch.empty(steps, batch_size, self.num_nodes, device=device, dtype=dtype)
 
         # Time evolution using Stochastic Euler-Maruyama integration
         for step in range(steps):
@@ -65,9 +70,9 @@ class ThermodynamicIsingNetwork(nn.Module):
             
             # Prevent numerical boundary escape
             x = torch.clamp(x, -2.2, 2.2)
-            trajectory.append(x.clone())
+            trajectory[step].copy_(x)
             
-        return x, torch.stack(trajectory)
+        return x, trajectory
 
 # =============================================================================
 # 2. THE GENERATIVE CONTRASTIVE DIVERGENCE MODEL
@@ -98,11 +103,18 @@ class GenerativeThermodynamicNetwork(nn.Module):
 
     def evolve_system(self, steps=150, clamped_mask=None, clamped_states=None, batch_size=32):
         device = self.J_raw.device
+        dtype = self.J_raw.dtype
         J = self.get_coupling_matrix()
         
         # Initialize continuous macrostates near the unstable center ridge (0.0)
-        x = (torch.rand(batch_size, self.num_nodes, device=device) - 0.5) * 0.2
-        v = (torch.rand(batch_size, self.num_nodes, device=device) - 0.5) * 0.1
+        x = (torch.rand(batch_size, self.num_nodes, device=device, dtype=dtype) - 0.5) * 0.2
+        v = (torch.rand(batch_size, self.num_nodes, device=device, dtype=dtype) - 0.5) * 0.1
+        
+        # Ensure clamped masks/states are on the correct device/dtype if provided
+        if clamped_mask is not None:
+            clamped_mask = clamped_mask.to(device)
+        if clamped_states is not None:
+            clamped_states = clamped_states.to(device).to(dtype)
         
         for _ in range(steps):
             # Apply data clamping to visible boundary nodes if a mask is provided
@@ -147,7 +159,6 @@ class HierarchicalThermodynamicNetwork(nn.Module):
         self.dt = dt
 
         # --- DIGITAL INTERFACE: ENCODER ---
-        # Maps regular numerical data to target continuous well coordinates
         self.digital_encoder = nn.Sequential(
             nn.Linear(d_in, d_l0),
             nn.Tanh() # Restricts initialization to the boundaries of the double-well landscape
@@ -159,56 +170,74 @@ class HierarchicalThermodynamicNetwork(nn.Module):
         self.bias = nn.Parameter(torch.zeros(self.total_nodes))
 
         # --- DIGITAL INTERFACE: DECODER ---
-        # Processes finalized spatial features into normal categorical output probabilities
         self.digital_decoder = nn.Linear(self.total_nodes, d_out)
 
     def _get_hierarchical_coupling(self):
-        """
-        Enforces strict symmetric constraints and clears self-loops.
-        Ensures energy functions remain mathematically stable across layered jumps.
-        """
+        """Enforces strict symmetric constraints and clears self-loops."""
         J = (self.J_raw + self.J_raw.T) / 2.0
         mask = torch.eye(self.total_nodes, device=J.device)
         return J * (1.0 - mask)
 
     def evolve_core_physics(self, inputs_clamped_l0, steps=120):
+        """
+        Optimized evolution that only integrates the free (hidden + latent) nodes
+        while keeping the visible/clamped Layer 0 fixed. This reduces compute and
+        memory while preserving end-to-end differentiability.
+        """
         batch_size = inputs_clamped_l0.size(0)
         device = self.J_raw.device
-        J = self._get_hierarchical_coupling()
+        dtype = self.J_raw.dtype
 
-        # Initialize full system state tensors (All layers concatenated)
-        x = (torch.rand(batch_size, self.total_nodes, device=device) - 0.5) * 0.1
-        v = (torch.rand(batch_size, self.total_nodes, device=device) - 0.5) * 0.05
+        # Ensure inputs are on the right device/dtype
+        inputs_clamped_l0 = inputs_clamped_l0.to(device=device, dtype=dtype)
 
-        # Create a boolean selection template to force-clamp only Layer 0
-        clamped_mask = torch.zeros(batch_size, self.total_nodes, dtype=torch.bool, device=device)
-        clamped_mask[:, :self.d_l0] = True
+        # 1. Isolate parameters for the free nodes
+        J = self._get_hierarchical_coupling()             # (total_nodes, total_nodes)
+        # Rows of J corresponding to free node dynamics (free rows x total_nodes)
+        J_free_rows = J[self.d_l0:, :].contiguous()       # (d_free, total_nodes)
+        # Pre-transpose for efficient matmul with x_full (batch, total_nodes) @ (total_nodes, d_free)
+        J_free_rows_T = J_free_rows.t().contiguous()      # (total_nodes, d_free)
+        bias_free = self.bias[self.d_l0:].to(device=device, dtype=dtype)  # (d_free,)
 
-        for step in range(steps):
-            # Enforce Layer 0 clamping based on input data
-            x = torch.where(clamped_mask, inputs_clamped_l0.repeat(1, 1), x)
-            v = torch.where(clamped_mask, torch.zeros_like(v), v)
+        d_free = self.d_l1 + self.d_l2
+        if d_free == 0:
+            # nothing to evolve; just return inputs (ensure shape matches decoder input)
+            return inputs_clamped_l0
 
-            # Continuous physical dynamics calculations
-            f_internal = x - torch.pow(x, 3)  # Restoring force within the wells
-            f_coupling = torch.matmul(x, J.T) + self.bias
-            noise = torch.randn_like(x) * self.sigma * (self.dt ** 0.5)
+        # Initialize only the free nodes
+        x_free = (torch.rand(batch_size, d_free, device=device, dtype=dtype) - 0.5) * 0.1
+        v_free = (torch.rand(batch_size, d_free, device=device, dtype=dtype) - 0.5) * 0.05
 
-            dv = (f_internal + f_coupling - self.gamma * v) * self.dt + noise
-            v = v + dv
-            x = x + v * self.dt
-            
-            x = torch.clamp(x, -2.2, 2.2)
+        # Optional: preallocate x_full to avoid repeated torch.cat allocations
+        x_full = torch.empty(batch_size, self.total_nodes, device=device, dtype=dtype)
 
-        # Final pass verification ensuring visible values remained locked
-        x = torch.where(clamped_mask, inputs_clamped_l0, x)
-        return x
+        # 2. Time evolution loop
+        for _ in range(steps):
+            # fill x_full by copying slices (no new allocation for whole tensor)
+            x_full[:, :self.d_l0] = inputs_clamped_l0
+            x_full[:, self.d_l0:] = x_free
+
+            # forces for free nodes
+            f_internal = x_free - torch.pow(x_free, 3)                         # (batch, d_free)
+            # matmul with pre-transposed contiguous matrix for performance
+            f_coupling = torch.matmul(x_full, J_free_rows_T) + bias_free
+            noise = torch.randn_like(x_free) * self.sigma * (self.dt ** 0.5)
+
+            dv_free = (f_internal + f_coupling - self.gamma * v_free) * self.dt + noise
+            v_free = v_free + dv_free
+            x_free = x_free + v_free * self.dt
+
+            x_free = torch.clamp(x_free, -2.2, 2.2)
+
+        # 3. Recombine for the final decoder pass
+        final_full_state = torch.cat([inputs_clamped_l0, x_free], dim=1)
+        return final_full_state
 
     def forward(self, raw_digital_data, steps=120):
         # 1. Encode digital data into initial continuous coordinates
         clamped_l0 = self.digital_encoder(raw_digital_data)
 
-        # 2. Allow physics engine to settle into an energy-optimized state
+        # 2. Allow physics engine to settle (gradients will naturally flow back through this)
         finalized_structural_states = self.evolve_core_physics(clamped_l0, steps=steps)
 
         # 3. Decode spatial vectors back into regular categorical outputs
@@ -228,15 +257,36 @@ def generate_random_graph(num_nodes, edge_probability=0.4):
     adj.fill_diagonal_(0)         # Remove node self-loops
     return adj.float()
 
+
 def calculate_cut_value(state_assignments, adjacency_matrix):
-    """Computes the total structural cut weight of the current configuration."""
-    num_nodes = adjacency_matrix.shape[0]
-    cut_value = 0
-    for i in range(num_nodes):
-        for j in range(i + 1, num_nodes):
-            if adjacency_matrix[i, j] > 0 and state_assignments[i] != state_assignments[j]:
-                cut_value += 1
-    return cut_value
+    """Computes the total structural cut weight of the current configuration.
+
+    Supports both binary (0/1) or sign {-1,+1} assignments and weighted adjacency matrices.
+    Returns a scalar integer/float depending on adjacency_matrix dtype.
+    """
+    # Convert to torch tensors if numpy was provided
+    if not torch.is_tensor(state_assignments):
+        state_assignments = torch.tensor(state_assignments)
+    if not torch.is_tensor(adjacency_matrix):
+        adjacency_matrix = torch.tensor(adjacency_matrix)
+
+    # Convert 0/1 to ±1 for algebraic cut calculation
+    s = state_assignments.clone()
+    if s.dtype != torch.float:
+        s = s.float()
+    if torch.all((s == 0) | (s == 1)):
+        p = 2.0 * s - 1.0
+    else:
+        p = s
+
+    # Cut value = 0.5 * sum_{i,j} A_{ij} * (1 - p_i p_j)
+    outer = torch.ger(p, p)
+    cut = 0.5 * torch.sum(adjacency_matrix * (1.0 - outer))
+    # If adjacency matrix is integer/binary, return as int
+    try:
+        return int(cut.item())
+    except Exception:
+        return cut.item()
 
 
 # =============================================================================
