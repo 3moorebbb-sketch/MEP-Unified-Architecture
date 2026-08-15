@@ -1,0 +1,18 @@
+Release Notes: MEP Architecture V3.0
+Date: August 15, 2026
+Major Architectural Pivot: Open Dissipative Systems
+Version 3.0 represents a massive fundamental shift in the theoretical underpinnings of the Mandelbrot-Euler-Planck Architecture. Following rigorous physical peer review regarding the Carnot limits and the Second Law of Thermodynamics, the MEP Architecture has abandoned the claim of a "closed-loop, lossless" system.
+The architecture now formally operates as an open, dissipative stochastic system governed by the Fluctuation-Dissipation Theorem.
+Key Changes:
+1. The Master Equation (Rewritten):
+The Master Equation has been upgraded to a thermodynamically consistent Langevin-style discrete map. It now explicitly includes:
+   * $\gamma$  (Dissipation): The unavoidable Landauer entropy tax required to erase or map states.
+   * $\boldsymbol{\xi}_n$  (Thermal Noise): The fluctuating thermal noise inherent in any open physical system.
+   * $\alpha$  (Free Energy): Harvested from an external Carnot gradient, rather than recycled isothermally.
+      2. Hardware Restructuring (The Carnot Engine):
+The theoretical hardware substrate now explicitly requires an environmental temperature gradient ($\Delta T$). The phononic metamaterials are paired with micro-TEGs that draw from a hot face (e.g., solar, mammalian body heat) and radiate entropy to a cold ambient sink, ensuring no violation of the Second Law.
+      3. Simulation Upgrades:
+The interactive sandboxes (phononic_swarm_sandbox.html) and the PyTorch emulator (mep_swarm_core.py) have been entirely rebuilt. They no longer simulate magical, perpetual resonance. Nodes now harvest free energy from a simulated left-to-right environmental gradient, pay an explicit entropy tax when aligning phases, and experience Langevin noise.
+      4. Engineering Constraints Published:
+A new document, mep_open_problems.md, has been added to the repository. This formally details the severe engineering hurdles that remain, specifically regarding the gap between micro-TEG power densities (nanowatts) and optical cavity pump requirements (microwatts).
+V3.0 transforms the MEP Architecture from a visionary philosophy into a mathematically valid, thermodynamically legal engineering roadmap.
