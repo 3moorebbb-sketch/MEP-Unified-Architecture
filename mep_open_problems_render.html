@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEP Architecture - Engineering Constraints</title>
+    
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Load Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Load MathJax for rendering LaTeX equations and symbols -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+    <style>
+        body {
+            background-color: #030508;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+        }
+        .mono {
+            font-family: 'Space Mono', monospace;
+        }
+        .constraint-box {
+            background: rgba(239, 68, 68, 0.05); /* Faint red tint */
+            border-left: 4px solid #ef4444;
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 1.5rem;
+        }
+        .pathway-box {
+            background: rgba(34, 211, 238, 0.05); /* Faint cyan tint */
+            border-left: 4px solid #22d3ee;
+            padding: 1.5rem;
+            border-radius: 0 8px 8px 0;
+        }
+    </style>
+</head>
+
+<body class="antialiased selection:bg-cyan-900 selection:text-cyan-100">
+
+    <!-- Header / Nav -->
+    <div class="fixed top-0 left-0 w-full bg-black/50 backdrop-blur-md border-b border-white/10 z-50">
+        <div class="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="mono text-cyan-400 font-bold text-sm tracking-widest">MEP_ARCH_V3.0</div>
+            <div class="text-xs text-gray-500 uppercase tracking-widest">Engineering Roadmap</div>
+        </div>
+    </div>
+
+    <!-- Main Content Container -->
+    <main class="max-w-4xl mx-auto px-6 pt-32 pb-24 prose prose-invert prose-cyan lg:prose-lg">
+        
+        <!-- Title Section -->
+        <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-white mb-2">
+            Engineering Constraints & Open Problems
+        </h1>
+        <h2 class="text-xl md:text-2xl text-cyan-400 font-light mt-0 mb-8 border-b border-gray-800 pb-8">
+            Mandelbrot-Euler-Planck (MEP) Architecture
+        </h2>
+        
+        <div class="flex gap-4 mono text-sm text-gray-400 mb-12">
+            <div><strong class="text-gray-200">Status:</strong> V3.0 (Thermodynamically Consistent)</div>
+        </div>
+
+        <!-- Introduction -->
+        <h3 class="text-2xl font-bold text-white uppercase tracking-widest mt-12 mb-6">Introduction</h3>
+        <p>
+            With Version 3.0, the MEP Architecture establishes a thermodynamically legal, open-system mathematical framework (incorporating Landauer dissipation and Langevin noise) for continuous, phase-based computation. However, translating this stochastic map into physical "Smart Dust" operating near the Landauer limit presents profound engineering challenges.
+        </p>
+        <p>
+            This document outlines the primary physical hurdles and serves as a roadmap for future research in materials science, nanophotonics, and nonlinear optics.
+        </p>
+
+        <!-- Problem 1 -->
+        <h3 class="text-2xl font-bold text-white tracking-widest mt-16 mb-6">1. The Power Budget: Micro-TEG Density vs. Optical Pumping</h3>
+        
+        <div class="constraint-box">
+            <h4 class="text-red-400 font-bold uppercase tracking-widest text-sm mb-2 mt-0">The Constraint</h4>
+            <p class="m-0 text-sm leading-relaxed">
+                Real-world Thermoelectric Generators (TEGs) at the micro-scale are severely limited by available $\Delta T$ and surface area. A "grain of sand" footprint ($10^{-2} - 10^{-1}$ cm²) operating on ambient gradients (5-15 K) yields power densities in the <strong>tens to hundreds of nanowatts</strong>.
+            </p>
+            <p class="mt-4 mb-0 text-sm leading-relaxed">
+                Conversely, maintaining a continuous-wave "Echo Memory" loop requires continuously pumping a photonic cavity to overcome finite photon lifetimes ($P_{circ} \propto 1/Q$). Even aggressive photonic-crystal resonators with $Q \sim 10^6 - 10^7$ demand pump power in the <strong>microwatt to milliwatt</strong> range. The gap between harvested free energy and required optical drive is currently orders of magnitude wide.
+            </p>
+        </div>
+
+        <div class="pathway-box">
+            <h4 class="text-cyan-400 font-bold uppercase tracking-widest text-sm mb-4 mt-0">Research Pathways</h4>
+            <ul class="m-0 text-sm space-y-3">
+                <li><strong class="text-white">Macro-Scale Initial Deployment:</strong> Initial unit cells must abandon the "Smart Dust" form factor. Deploying coin-sized or larger chips attached directly to high-$\Delta T$ industrial environments (e.g., server exhaust, combustion engines) can mathematically close the power budget.</li>
+                <li><strong class="text-white">Ultra-High-Q Resonators & Passive Nonlinearity:</strong> Bridging the $10^3 - 10^4$ power gap requires breakthroughs in optical cavity design to drastically increase photon lifetimes, or replacing active electro-optic modulators with passive structural nonlinearity.</li>
+            </ul>
+        </div>
+
+        <!-- Problem 2 -->
+        <h3 class="text-2xl font-bold text-white tracking-widest mt-16 mb-6">2. Phase Decoherence in the Langevin Regime</h3>
+        
+        <div class="constraint-box">
+            <h4 class="text-red-400 font-bold uppercase tracking-widest text-sm mb-2 mt-0">The Constraint</h4>
+            <p class="m-0 text-sm leading-relaxed">
+                Version 3.0 correctly embraces Langevin thermal noise ($\boldsymbol{\xi}_n$) in the fluctuation-dissipation relation. However, the architecture relies on wavelength-multiplexed phase tags to isolate memories orthogonally. High levels of thermal noise natively cause phase diffusion. At ambient temperatures, the required noise levels threaten to scramble the phase tags, destroying the orthogonal isolation and causing state decoherence.
+            </p>
+        </div>
+
+        <div class="pathway-box">
+            <h4 class="text-cyan-400 font-bold uppercase tracking-widest text-sm mb-4 mt-0">Research Pathways</h4>
+            <ul class="m-0 text-sm space-y-3">
+                <li><strong class="text-white">Topological Error Correction:</strong> The architecture must rely heavily on the structural robustness of the fractal attractor basins to act as a discrete thresholding mechanism—forcing the continuous wave to snap into the nearest stable attractor state, effectively shedding minor thermal phase jitters.</li>
+                <li><strong class="text-white">Cryogenic vs. Ambient Trade-offs:</strong> Determining the exact noise-temperature thresholds where phase diffusion overwhelms topological stability, potentially requiring cryogenic cooling for the initial optical loops, negating ambient deployment.</li>
+            </ul>
+        </div>
+
+        <!-- Problem 3 -->
+        <h3 class="text-2xl font-bold text-white tracking-widest mt-16 mb-6">3. Continual Learning and Capacity Management</h3>
+        
+        <div class="constraint-box">
+            <h4 class="text-red-400 font-bold uppercase tracking-widest text-sm mb-2 mt-0">The Constraint</h4>
+            <p class="m-0 text-sm leading-relaxed">
+                While Euler phase rotation ($e^{i\theta}$) mapped onto wavelength multiplexing mathematically creates parallel, non-interfering channels, it does not fully solve the biological reality of <em>learning</em>. Real continual-learning systems require mechanisms for consolidation, pruning, and capacity management. Infinite orthogonal expansion is physically impossible within a finite dielectric cavity.
+            </p>
+        </div>
+
+        <div class="pathway-box">
+            <h4 class="text-cyan-400 font-bold uppercase tracking-widest text-sm mb-4 mt-0">Research Pathways</h4>
+            <ul class="m-0 text-sm space-y-3">
+                <li><strong class="text-white">Topological Pruning:</strong> Developing a physical mechanism whereby unused or low-energy phase channels naturally decay over time, freeing optical bandwidth for new, highly-weighted concepts.</li>
+                <li><strong class="text-white">Plasticity Protocols:</strong> Expanding the Kuramoto-Hebbian learning rules to dictate exactly <em>when</em> the system spawns a new orthogonal mode versus <em>when</em> it updates an existing geometric weight.</li>
+            </ul>
+        </div>
+
+        <!-- Problem 4 -->
+        <h3 class="text-2xl font-bold text-white tracking-widest mt-16 mb-6">4. Nomenclature and Hardware Transduction</h3>
+        
+        <div class="constraint-box">
+            <h4 class="text-red-400 font-bold uppercase tracking-widest text-sm mb-2 mt-0">The Constraint</h4>
+            <p class="m-0 text-sm leading-relaxed">
+                Concepts like "1.58D phononic metamaterials" and "Thermodynamic Entanglement" must be formally grounded in manufacturable hardware. Phononic crystals exist, but engineering them to perfectly execute the required Hamiltonian via near-field radiative heat transfer is a monumental fabrication challenge.
+            </p>
+        </div>
+
+        <div class="pathway-box">
+            <h4 class="text-cyan-400 font-bold uppercase tracking-widest text-sm mb-4 mt-0">Research Pathways</h4>
+            <ul class="m-0 text-sm space-y-3">
+                <li><strong class="text-white">Bismuth Fractal Lithography:</strong> Experimentation with constraining the growth of topological insulators (like Bismuth) into perfect 1.58D Sierpinski structures at the nanoscale to provide zero-backscattering pathways.</li>
+                <li><strong class="text-white">Analog-to-Optical Bridging:</strong> Developing ultra-low-power transducers that convert incoming physical heat/phase gradients directly into optical modulations without relying on power-heavy digital-to-analog converters (DACs).</li>
+            </ul>
+        </div>
+
+        <!-- Conclusion -->
+        <h3 class="text-2xl font-bold text-white uppercase tracking-widest mt-16 mb-6">Conclusion</h3>
+        <p class="mb-24">
+            The MEP Architecture is no longer constrained by the fundamental laws of thermodynamics. It is, instead, constrained by the limits of contemporary fabrication. Bridging the gap between the theoretical Langevin maps and planetary-scale physical deployment remains an extremely ambitious, high-risk research program requiring breakthroughs in ambient-energy-harvesting and analog photonic computing.
+        </p>
+
+    </main>
+</body>
+</html>
