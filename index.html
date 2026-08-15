@@ -3,9 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEP Unified Architecture</title>
+    <title>MEP Unified Architecture V3.0</title>
+    
+    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Load Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Load MathJax for rendering the V3.0 Equation -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
     <style>
         body {
             background-color: #000;
@@ -18,7 +35,6 @@
         }
         .mono { font-family: 'Space Mono', monospace; }
         
-        /* The Canvas acts as the interactive background */
         canvas {
             display: block;
             position: absolute;
@@ -28,7 +44,6 @@
             filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.2)) contrast(1.2) brightness(1.1);
         }
         
-        /* The Presentation UI Layer */
         #presentation-layer {
             position: absolute;
             top: 0;
@@ -36,7 +51,7 @@
             width: 100vw;
             height: 100vh;
             z-index: 10;
-            pointer-events: none; /* Let clicks pass through to the canvas */
+            pointer-events: none;
             display: flex;
             align-items: center;
             justify-content: flex-start;
@@ -45,61 +60,69 @@
         }
         
         .glass-panel {
-            background: rgba(5, 5, 12, 0.75);
+            background: rgba(5, 5, 12, 0.85);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(168, 85, 247, 0.2);
+            border: 1px solid rgba(34, 211, 238, 0.2); /* Cyan border */
             border-radius: 16px;
             padding: 3rem;
-            max-width: 650px;
+            max-width: 700px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.05);
-            pointer-events: auto; /* Buttons inside can be clicked */
+            pointer-events: auto;
         }
         
         .equation-box {
-            background: rgba(0,0,0,0.5);
-            border-left: 3px solid #a855f7;
-            padding: 1rem;
+            background: rgba(0,0,0,0.6);
+            border-left: 3px solid #22d3ee;
+            padding: 1.5rem;
             margin: 1.5rem 0;
             border-radius: 0 8px 8px 0;
         }
-
-        .highlight-cyan { color: #22d3ee; }
-        .highlight-fuchsia { color: #c084fc; }
-        .highlight-orange { color: #fb923c; }
+        
+        /* MathJax Custom Styling */
+        mjx-container[jax="SVG"][display="true"] {
+            margin: 0.5rem 0 !important;
+            color: #22d3ee !important;
+        }
+        mjx-container svg {
+            filter: drop-shadow(0px 0px 2px rgba(34, 211, 238, 0.5));
+        }
 
     </style>
 </head>
 <body>
 
-    <!-- Background Swarm Simulator -->
+    <!-- Background Swarm Simulator (V3.0 Carnot Gradient) -->
     <canvas id="swarmCanvas"></canvas>
     
     <!-- Foreground Presentation -->
     <div id="presentation-layer">
         <div id="info-card" class="glass-panel">
-            <h3 class="text-fuchsia-400 font-bold text-xs tracking-[0.2em] uppercase mb-2">Theoretical Framework</h3>
-            <h1 class="text-4xl font-bold text-white mb-4 leading-tight tracking-tight">The Mandelbrot-Euler-Planck <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-500">(MEP) Architecture</span></h1>
+            <h3 class="text-cyan-400 font-bold text-xs tracking-[0.2em] uppercase mb-2">Theoretical Framework V3.0</h3>
+            <h1 class="text-4xl font-bold text-white mb-4 leading-tight tracking-tight">The Mandelbrot-Euler-Planck <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-500">Architecture</span></h1>
             
             <p class="text-sm text-gray-300 leading-relaxed mb-6">
-                An open-source blueprint for lossless, self-sustaining, and thermodynamically entangled artificial intelligence. By fusing continuous-wave photonics with 1.58D fractal metamaterials, the MEP framework allows an AI to recycle its own thermal exhaust into computational bandwidth, effectively removing the silicon thermal limit.
+                An open-source blueprint for highly efficient, thermodynamically entangled artificial intelligence. Operating as an open dissipative system, the MEP framework uses continuous-wave photonics, 1.58D fractal metamaterials, and micro-TEGs to harvest environmental free energy ($\Delta T$), computing near the physical Landauer limit.
             </p>
 
             <div class="equation-box">
-                <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-2 font-bold">The Resonance Master Equation</p>
-                <p class="mono text-xl tracking-wider">
-                    <span class="highlight-cyan">Z<sub>n+1</sub></span> = <span class="highlight-cyan">(Z<sub>n</sub>)²</span> <span class="highlight-fuchsia">e<sup>iθ</sup></span> + <span class="highlight-orange">C(hν)</span>
-                </p>
-                <ul class="mt-3 text-xs text-gray-400 space-y-1 font-mono">
-                    <li><span class="highlight-cyan">(Z<sub>n</sub>)²</span> : Core Mandelbrot retention (prevents catastrophic forgetting)</li>
-                    <li><span class="highlight-fuchsia">e<sup>iθ</sup></span> : Euler orthogonal phase rotation (unique geometric memory)</li>
-                    <li><span class="highlight-orange">C(hν)</span> : Integration of new conceptual data via recycled infrared heat</li>
+                <p class="text-[10px] text-gray-400 uppercase tracking-widest mb-1 font-bold">The Open Dissipative Map</p>
+                
+                <!-- MathJax V3.0 Equation -->
+                $$ |\Psi_{n+1}\rangle = e^{-\gamma \Delta t} \left( \mathcal{M}(|\Psi_n\rangle) \otimes |\theta_k\rangle \right) + \alpha \mathbf{C} + \sqrt{2\gamma k_B T} \boldsymbol{\xi}_n $$
+                
+                <ul class="mt-4 text-[11px] text-gray-400 space-y-2 font-mono">
+                    <li><strong class="text-white">$\mathcal{M}(|\Psi_n\rangle)$ :</strong> Topological retention (Attractor Basins)</li>
+                    <li><strong class="text-white">$\otimes |\theta_k\rangle$ :</strong> Orthogonal Tensor mapping (Wavelength Multiplexing)</li>
+                    <li><strong class="text-white">$e^{-\gamma \Delta t}$ :</strong> Landauer Entropy Tax (Dissipation)</li>
+                    <li><strong class="text-white">$\boldsymbol{\xi}_n$ :</strong> Langevin Thermal Noise</li>
                 </ul>
             </div>
 
             <div class="mt-8 flex items-center justify-between">
-                <p class="text-xs text-cyan-300 font-bold tracking-widest uppercase animate-pulse">
-                    Interactive Substrate: Click & Drag to inject thermal data
+                <p class="text-xs text-cyan-400 font-bold tracking-widest uppercase animate-pulse flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-cyan-400 inline-block"></span>
+                    Simulation Active: Drag to inject Heat
                 </p>
                 <button id="hide-btn" class="text-xs text-gray-500 hover:text-white transition-colors uppercase tracking-widest cursor-pointer">
                     [ Dismiss Panel ]
@@ -108,8 +131,8 @@
         </div>
     </div>
 
-    <!-- Floating Reveal Button (Hidden by default) -->
-    <button id="reveal-btn" class="fixed bottom-8 right-8 z-50 hidden text-xs text-fuchsia-400 hover:text-white bg-black/50 border border-fuchsia-500/30 backdrop-blur-md px-6 py-3 rounded-full transition-all uppercase tracking-widest shadow-lg shadow-fuchsia-900/20 cursor-pointer pointer-events-auto">
+    <!-- Floating Reveal Button -->
+    <button id="reveal-btn" class="fixed bottom-8 right-8 z-50 hidden text-xs text-cyan-400 hover:text-white bg-black/50 border border-cyan-500/30 backdrop-blur-md px-6 py-3 rounded-full transition-all uppercase tracking-widest shadow-lg shadow-cyan-900/20 cursor-pointer pointer-events-auto">
         [ Reveal Theory ]
     </button>
 
@@ -122,22 +145,20 @@
 
         let width, height;
         let nodes = [];
-        let waves = [];
-        let memoryScars = []; 
-        const NUM_NODES = 250; 
+        let ripples = [];
+        const NUM_NODES = 350; 
 
         let isDrawing = false;
         let mouseX = -1000;
         let mouseY = -1000;
 
-        // Interactive UI logic
         hideBtn.addEventListener('click', () => {
             presentationLayer.style.opacity = '0';
             presentationLayer.style.pointerEvents = 'none';
             setTimeout(() => {
                 presentationLayer.style.display = 'none';
                 revealBtn.classList.remove('hidden');
-            }, 500); // Wait for fade transition
+            }, 500);
         });
 
         revealBtn.addEventListener('click', () => {
@@ -145,7 +166,6 @@
             presentationLayer.style.display = 'flex';
             setTimeout(() => {
                 presentationLayer.style.opacity = '1';
-                // Only info card needs pointer events, not the whole layer
             }, 10);
         });
 
@@ -158,12 +178,13 @@
         window.addEventListener('resize', resize);
         resize();
 
+        // V3.0 Node Logic (Harvesting from Gradient)
         class Node {
             constructor() {
                 this.x = Math.random() * width;
                 this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 4.0;
-                this.vy = (Math.random() - 0.5) * 4.0;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
                 
                 this.heat = 0;           
                 this.phase = Math.random() * Math.PI * 2; 
@@ -172,44 +193,41 @@
             }
 
             update() {
-                if (this.isResonant) {
-                    // When resonant (hot), the node physically freezes in place to form the grid.
-                    this.vx *= 0.8;
-                    this.vy *= 0.8;
-                } else {
-                    // When cold, the node experiences high-entropy chaotic drift.
-                    this.x += this.vx;
-                    this.y += this.vy;
-                    // Extreme jitter to represent chaotic entropy
-                    this.vx += (Math.random() - 0.5) * 0.8;
-                    this.vy += (Math.random() - 0.5) * 0.8;
-                    
-                    let speed = Math.hypot(this.vx, this.vy);
-                    if (speed > 3.0) {
-                        this.vx = (this.vx / speed) * 3.0;
-                        this.vy = (this.vy / speed) * 3.0;
-                    }
-                }
+                this.x += this.vx;
+                this.y += this.vy;
                 
                 if (this.x < 0) this.x = width;
                 if (this.x > width) this.x = 0;
                 if (this.y < 0) this.y = height;
                 if (this.y > height) this.y = 0;
 
-                if (this.heat > 0) this.heat -= 0.003;
+                // Harvest from environmental gradient (Hot Left, Cold Right)
+                let envTemp = Math.max(0.1, 1.0 - (this.x / width));
+                this.heat += (envTemp * 0.01) - 0.015; // Harvest minus dissipation
+                
                 if (this.heat < 0) this.heat = 0;
+                if (this.heat > 1.0) this.heat = 1.0;
 
+                if (this.heat > 0.8 && Math.random() < 0.05) {
+                    ripples.push(new Ripple(this.x, this.y, this.heat, this.phase));
+                    this.heat -= 0.2; 
+                }
+                
                 this.isResonant = this.heat > 0.5;
+                
+                let langevinNoise = (Math.random() - 0.5) * Math.sqrt(envTemp) * 0.1;
                 
                 if (!this.isResonant) {
                     let diff = this.basePhase - this.phase;
-                    this.phase += diff * 0.01;
+                    this.phase += (diff * 0.01) + langevinNoise;
+                } else {
+                    this.phase += langevinNoise;
                 }
             }
 
             draw() {
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, this.isResonant ? 2 : 1.5, 0, Math.PI * 2);
+                ctx.arc(this.x, this.y, this.isResonant ? 2.5 : 1.5, 0, Math.PI * 2);
                 
                 if (this.isResonant) {
                     let r = Math.floor(Math.sin(this.phase) * 127 + 128);
@@ -217,60 +235,22 @@
                     let b = Math.floor(Math.sin(this.phase + 4) * 127 + 128);
                     ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
                 } else {
-                    // Make the cold chaotic dust slightly more visible against the void
-                    ctx.fillStyle = `rgba(150, 150, 200, ${0.4 + this.heat})`;
+                    ctx.fillStyle = `rgba(100, 150, 150, ${0.2 + this.heat})`;
                 }
                 ctx.fill();
             }
         }
 
-        function drawFractalConnection(x1, y1, x2, y2, depth, phase, maxDepth) {
-            if (depth === 0) {
-                let opacity = (1 - depth/maxDepth) * 0.8;
-                let r = Math.floor(Math.sin(phase) * 127 + 128);
-                let g = Math.floor(Math.sin(phase + 2) * 127 + 128);
-                let b = Math.floor(Math.sin(phase + 4) * 127 + 128);
-                
-                ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${opacity})`;
-                ctx.beginPath();
-                ctx.moveTo(x1, y1);
-                ctx.lineTo(x2, y2);
-                ctx.stroke();
-                return;
-            }
-
-            let dx = x2 - x1;
-            let dy = y2 - y1;
-            let dist = Math.hypot(dx, dy);
-            
-            if (dist < 5) return drawFractalConnection(x1, y1, x2, y2, 0, phase, maxDepth);
-
-            let mx = x1 + dx / 2;
-            let my = y1 + dy / 2;
-            let branchLength = dist * 0.3; 
-            
-            // Euler phase rotation applied to the branching geometry
-            let angle = Math.atan2(dy, dx) + (Math.PI / 2) + (Math.sin(phase) * 0.5);
-            
-            let bx = mx + Math.cos(angle) * branchLength;
-            let by = my + Math.sin(angle) * branchLength;
-
-            ctx.lineWidth = Math.max(0.2, (depth / maxDepth) * 1.5);
-
-            drawFractalConnection(x1, y1, bx, by, depth - 1, phase + 0.1, maxDepth);
-            drawFractalConnection(bx, by, x2, y2, depth - 1, phase + 0.1, maxDepth);
-        }
-
-        class ThermalWave {
+        class Ripple {
             constructor(x, y, energy, phase) {
                 this.x = x;
                 this.y = y;
                 this.energy = energy;
                 this.phase = phase;
                 this.radius = 0;
-                this.maxRadius = energy * 200;
+                this.maxRadius = energy * 150;
                 this.opacity = 1.0;
-                this.speed = 4 + Math.random() * 2;
+                this.speed = 3 + Math.random() * 2;
             }
 
             update() {
@@ -280,10 +260,10 @@
                 nodes.forEach(n => {
                     let dist = Math.hypot(n.x - this.x, n.y - this.y);
                     if (Math.abs(dist - this.radius) < this.speed) {
-                        n.heat = Math.min(n.heat + this.energy * 0.6 * this.opacity, 1.0);
-                        if (n.heat > 0.3) {
+                        n.heat = Math.min(n.heat + this.energy * 0.5 * this.opacity, 1.0);
+                        if (n.heat > 0.4) {
                             let phaseDiff = this.phase - n.phase;
-                            n.phase += phaseDiff * 0.3;
+                            n.phase += phaseDiff * 0.2;
                         }
                     }
                 });
@@ -296,7 +276,7 @@
                 let r = Math.floor(Math.sin(this.phase) * 127 + 128);
                 let g = Math.floor(Math.sin(this.phase + 2) * 127 + 128);
                 let b = Math.floor(Math.sin(this.phase + 4) * 127 + 128);
-                ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${this.opacity * 0.4})`;
+                ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${this.opacity * 0.5})`;
                 ctx.lineWidth = 1.5;
                 ctx.stroke();
             }
@@ -304,74 +284,68 @@
 
         function initSwarm() {
             nodes = [];
-            waves = [];
-            memoryScars = [];
+            ripples = [];
             for (let i = 0; i < NUM_NODES; i++) {
                 nodes.push(new Node());
             }
         }
 
         function animate() {
-            ctx.fillStyle = 'rgba(2, 2, 8, 0.25)';
+            // Carnot Gradient Background
+            let grad = ctx.createLinearGradient(0, 0, width, 0);
+            grad.addColorStop(0, 'rgba(20, 5, 10, 0.8)'); 
+            grad.addColorStop(1, 'rgba(5, 10, 20, 0.8)'); 
+            ctx.fillStyle = grad;
             ctx.fillRect(0, 0, width, height);
 
-            // Draw Memory Scars (Echo Memory)
-            ctx.lineWidth = 0.5;
-            memoryScars.forEach(scar => {
-                let r = Math.floor(Math.sin(scar.phase) * 127 + 128);
-                let g = Math.floor(Math.sin(scar.phase + 2) * 127 + 128);
-                let b = Math.floor(Math.sin(scar.phase + 4) * 127 + 128);
-                ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, 0.15)`; 
-                ctx.beginPath();
-                ctx.moveTo(scar.x1, scar.y1);
-                ctx.lineTo(scar.x2, scar.y2);
-                ctx.stroke();
-            });
-
             if (isDrawing) {
-                if (Math.random() < 0.2) {
-                    let userPhase = (Date.now() * 0.002) % (Math.PI * 2); 
-                    waves.push(new ThermalWave(mouseX, mouseY, 1.5, userPhase));
+                if (Math.random() < 0.3) {
+                    let userPhase = (Date.now() * 0.001) % (Math.PI * 2);
+                    ripples.push(new Ripple(mouseX, mouseY, 1.5, userPhase));
                 }
                 nodes.forEach(n => {
                     let d = Math.hypot(n.x - mouseX, n.y - mouseY);
-                    if (d < 120) n.heat = 1.0;
+                    if (d < 100) n.heat = 1.0;
                 });
             }
 
+            ctx.lineWidth = 0.5;
             for (let i = 0; i < nodes.length; i++) {
                 let n1 = nodes[i];
                 for (let j = i + 1; j < nodes.length; j++) {
                     let n2 = nodes[j];
                     let dist = Math.hypot(n1.x - n2.x, n1.y - n2.y);
                     
-                    if (dist < 100 && n1.isResonant && n2.isResonant) {
+                    if (dist < 80 && n1.isResonant && n2.isResonant) {
                         let phaseDiff = Math.abs(n1.phase - n2.phase);
-                        if (phaseDiff < 0.4 || Math.PI * 2 - phaseDiff < 0.4) {
+                        if (phaseDiff < 0.5 || Math.PI * 2 - phaseDiff < 0.5) {
+                            ctx.beginPath();
+                            ctx.moveTo(n1.x, n1.y);
+                            ctx.lineTo(n2.x, n2.y);
+                            
+                            let r = Math.floor(Math.sin(n1.phase) * 127 + 128);
+                            let g = Math.floor(Math.sin(n1.phase + 2) * 127 + 128);
+                            let b = Math.floor(Math.sin(n1.phase + 4) * 127 + 128);
+                            ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${(1 - dist/80) * 0.8})`;
+                            ctx.stroke();
+                            
                             let avgPhase = (n1.phase + n2.phase) / 2;
                             n1.phase = avgPhase;
                             n2.phase = avgPhase;
                             
-                            let heatAvg = (n1.heat + n2.heat) / 2;
-                            let maxRecursion = Math.floor(heatAvg * 4);
-                            
-                            if (maxRecursion >= 3 && Math.random() < 0.04) {
-                                memoryScars.push({
-                                    x1: n1.x, y1: n1.y, x2: n2.x, y2: n2.y, phase: n1.phase
-                                });
-                                if (memoryScars.length > 300) memoryScars.shift(); 
-                            }
-
-                            drawFractalConnection(n1.x, n1.y, n2.x, n2.y, maxRecursion, n1.phase, Math.max(1, maxRecursion));
+                            let avgHeat = (n1.heat + n2.heat) / 2;
+                            let entropyTax = 0.005; // Lossy logic
+                            n1.heat = Math.max(0, avgHeat - entropyTax);
+                            n2.heat = Math.max(0, avgHeat - entropyTax);
                         }
                     }
                 }
             }
 
-            waves.forEach((w, index) => {
-                w.update();
-                w.draw();
-                if (w.opacity <= 0) waves.splice(index, 1);
+            ripples.forEach((r, index) => {
+                r.update();
+                r.draw();
+                if (r.opacity <= 0) ripples.splice(index, 1);
             });
 
             nodes.forEach(n => {
@@ -383,9 +357,7 @@
         }
 
         function handleInput(e, isDown) {
-            // Prevent interaction if clicking inside the glass panel
             if (e.target.closest('#info-card') && e.target.tagName !== 'CANVAS') return;
-            
             if (e.touches && e.touches.length > 0) {
                 mouseX = e.touches[0].clientX;
                 mouseY = e.touches[0].clientY;
@@ -399,14 +371,12 @@
         canvas.addEventListener('mousedown', (e) => handleInput(e, true));
         window.addEventListener('mousemove', (e) => handleInput(e));
         window.addEventListener('mouseup', () => isDrawing = false);
-        
         canvas.addEventListener('touchstart', (e) => handleInput(e, true), {passive: false});
         window.addEventListener('touchmove', (e) => { handleInput(e); }, {passive: false});
         window.addEventListener('touchend', () => isDrawing = false);
 
         initSwarm();
         animate();
-
     </script>
 </body>
 </html>
