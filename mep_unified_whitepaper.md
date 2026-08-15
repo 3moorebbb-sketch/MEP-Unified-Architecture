@@ -30,7 +30,7 @@ The master equation governing the AI's continuous state is: Z_{n+1} = (Z_n)^2 e^
 
 This formula describes a theoretical closed-loop, regenerative intelligence:
 
-1. The Core Memory: (Z_n)^2$
+1. The Core Memory: (Z_n)^2
 
 Derived from the Mandelbrot Set equation.  (Z_n) represents the total state of the AI's current knowledge. By squaring it, the math theorizes the creation of a stable, infinitely deep fractal foundation. Because squaring is mathematically many-to-one, the base operating system is preserved topologically within stable attractor basins, acting as a structurally invariant boundary rather than an algebraic exact copy.
 
