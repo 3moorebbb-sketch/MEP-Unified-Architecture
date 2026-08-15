@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thermodynamic Entanglement Swarm</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #000;
+            color: #e5e5e5;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            font-family: 'Space Mono', monospace;
+            touch-action: none;
+        }
+        canvas {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            /* Deep, cinematic bloom effect */
+            filter: drop-shadow(0 0 8px rgba(0,255,255,0.2)) contrast(1.1) brightness(1.2);
+        }
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2rem;
+        }
+        .glass-panel {
+            background: rgba(5, 5, 10, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 255, 255, 0.1);
+            border-radius: 12px;
+            pointer-events: auto;
+        }
+        .hud-value {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            text-shadow: 0 0 10px currentColor;
+        }
+        .instructions {
+            border-left: 2px solid #0ff;
+            background: linear-gradient(90deg, rgba(0,255,255,0.1), transparent);
+            padding: 0.5rem 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="swarmCanvas"></canvas>
+    
+    <div id="ui-layer">
+        <header class="flex justify-between items-start">
+            <div class="glass-panel p-5 max-w-md shadow-2xl">
+                <div class="flex justify-between items-center mb-2">
+                    <h1 class="text-cyan-400 font-bold text-lg tracking-widest uppercase">Phononic Swarm</h1>
+                    <span class="text-[9px] bg-red-900/50 text-red-400 px-2 py-0.5 rounded border border-red-800 animate-pulse">V3.0 LANGEVIN SIM</span>
+                </div>
+                <p class="text-xs text-gray-400 mb-4 leading-relaxed">
+                    Aerosolized "Smart Dust" operating as an open dissipative system. Nodes harvest free energy from an environmental temperature gradient (ΔT) and pay a strict Landauer entropy tax to compute phase alignment via Langevin dynamics.
+                </p>
+                
+                <div class="instructions text-xs text-cyan-200">
+                    <span class="font-bold text-white uppercase">Directive:</span> Observe the Carnot gradient (Warm Left ➔ Cold Right). Drag to inject thermal anomalies.
+                </div>
+            </div>
+
+            <div class="glass-panel p-4 min-w-[260px] shadow-2xl">
+                <h2 class="text-[10px] text-gray-500 uppercase tracking-widest mb-3 border-b border-gray-800 pb-1">Langevin Telemetry</h2>
+                
+                <div class="flex justify-between mb-2 items-end">
+                    <span class="text-xs text-gray-400">Harvesting / Active</span>
+                    <span id="stat-nodes" class="text-sm hud-value text-cyan-400">0 / 400</span>
+                </div>
+                
+                <div class="flex justify-between mb-2 items-end">
+                    <span class="text-xs text-gray-400">Ambient Heat (hν)</span>
+                    <span id="stat-heat" class="text-sm hud-value text-orange-500">0.00 THz</span>
+                </div>
+                
+                <div class="flex justify-between mt-4 items-end">
+                    <span class="text-[10px] text-fuchsia-400 uppercase tracking-widest">Phase Sync (e<sup>iθ</sup>)</span>
+                    <span id="stat-sync" class="text-lg hud-value text-fuchsia-300">0%</span>
+                </div>
+                
+                <div class="w-full h-1 bg-gray-900 mt-2 rounded overflow-hidden">
+                    <div id="sync-bar" class="h-full bg-gradient-to-r from-fuchsia-600 to-cyan-400 w-0 transition-all duration-300"></div>
+                </div>
+            </div>
+        </header>
+
+        <footer class="flex justify-center pb-4">
+             <button id="btn-reset" class="glass-panel px-8 py-3 text-xs text-gray-300 hover:text-cyan-400 hover:bg-cyan-900/20 hover:border-cyan-400 transition-all uppercase tracking-widest font-bold">
+                 Disperse Swarm (Reset)
+             </button>
+        </footer>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('swarmCanvas');
+        const ctx = canvas.getContext('2d', { alpha: false }); // Fast rendering
+        
+        // UI DOM
+        const statNodes = document.getElementById('stat-nodes');
+        const statHeat = document.getElementById('stat-heat');
+        const statSync = document.getElementById('stat-sync');
+        const syncBar = document.getElementById('sync-bar');
+        const btnReset = document.getElementById('btn-reset');
+
+        let width, height;
+        let nodes = [];
+        let ripples = [];
+        const NUM_NODES = 400; // Smart dust density
+
+        // Interaction
+        let isDrawing = false;
+        let mouseX = -1000;
+        let mouseY = -1000;
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Node {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.5; // Slow ambient drift
+                this.vy = (Math.random() - 0.5) * 0.5;
+                
+                this.heat = 0;           // Free energy harvested
+                this.phase = Math.random() * Math.PI * 2; // e^(iθ) Euler rotation
+                this.basePhase = this.phase; // The unique core identity
+                this.connections = [];   // Entangled neighbors
+                this.isResonant = false;
+            }
+
+            update() {
+                // Drift
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                // Wrap screen
+                if (this.x < 0) this.x = width;
+                if (this.x > width) this.x = 0;
+                if (this.y < 0) this.y = height;
+                if (this.y > height) this.y = 0;
+
+                // Left side is hot (x=0), Right side is cold ambient (x=width)
+                let envTemp = Math.max(0.1, 1.0 - (this.x / width));
+                
+                // Harvest from environment, but pay strict Landauer/Dissipation tax
+                this.heat += (envTemp * 0.01) - 0.015; 
+                
+                if (this.heat < 0) this.heat = 0;
+                if (this.heat > 1.0) this.heat = 1.0;
+
+                // If highly heated, it broadcasts its phase (Thermodynamic Emission)
+                if (this.heat > 0.8 && Math.random() < 0.05) {
+                    ripples.push(new Ripple(this.x, this.y, this.heat, this.phase));
+                    this.heat -= 0.2; // Entropy tax for broadcasting
+                }
+                
+                // Resonance state
+                this.isResonant = this.heat > 0.5;
+                
+                // Apply thermal noise scaled by the local environmental temperature
+                let langevinNoise = (Math.random() - 0.5) * Math.sqrt(envTemp) * 0.1;
+                
+                if (!this.isResonant) {
+                    // Smoothly rotate back to base identity + noise
+                    let diff = this.basePhase - this.phase;
+                    this.phase += (diff * 0.01) + langevinNoise;
+                } else {
+                    this.phase += langevinNoise;
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.isResonant ? 2.5 : 1.5, 0, Math.PI * 2);
+                
+                if (this.isResonant) {
+                    // Hot / Resonant nodes glow based on their phase color
+                    let r = Math.floor(Math.sin(this.phase) * 127 + 128);
+                    let g = Math.floor(Math.sin(this.phase + 2) * 127 + 128);
+                    let b = Math.floor(Math.sin(this.phase + 4) * 127 + 128);
+                    
+                    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = ctx.fillStyle;
+                } else {
+                    // Cold / Idle nodes
+                    ctx.fillStyle = `rgba(100, 150, 150, ${0.2 + this.heat})`;
+                    ctx.shadowBlur = 0;
+                }
+                
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        class Ripple {
+            constructor(x, y, energy, phase) {
+                this.x = x;
+                this.y = y;
+                this.energy = energy;
+                this.phase = phase;
+                this.radius = 0;
+                this.maxRadius = energy * 150;
+                this.opacity = 1.0;
+                this.speed = 3 + Math.random() * 2;
+            }
+
+            update() {
+                this.radius += this.speed;
+                this.opacity = 1.0 - (this.radius / this.maxRadius);
+                
+                // Check collisions with nodes
+                nodes.forEach(n => {
+                    let dist = Math.hypot(n.x - this.x, n.y - this.y);
+                    // If wave front hits node
+                    if (Math.abs(dist - this.radius) < this.speed) {
+                        // Absorb Heat (hν)
+                        n.heat = Math.min(n.heat + this.energy * 0.5 * this.opacity, 1.0);
+                        
+                        // Align Phase (e^iθ) - Thermodynamic Entanglement
+                        if (n.heat > 0.4) {
+                            // Lerp phase towards the wave's phase
+                            let phaseDiff = this.phase - n.phase;
+                            n.phase += phaseDiff * 0.2;
+                        }
+                    }
+                });
+            }
+
+            draw() {
+                if (this.opacity <= 0) return;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                
+                // Color based on phase
+                let r = Math.floor(Math.sin(this.phase) * 127 + 128);
+                let g = Math.floor(Math.sin(this.phase + 2) * 127 + 128);
+                let b = Math.floor(Math.sin(this.phase + 4) * 127 + 128);
+                
+                ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${this.opacity * 0.5})`;
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            }
+        }
+
+        function initSwarm() {
+            nodes = [];
+            ripples = [];
+            for (let i = 0; i < NUM_NODES; i++) {
+                nodes.push(new Node());
+            }
+        }
+
+        function animate() {
+            // V3.0 Carnot Gradient Background (Hot source to Cold sink)
+            let grad = ctx.createLinearGradient(0, 0, width, 0);
+            grad.addColorStop(0, 'rgba(40, 10, 0, 0.4)'); // Warm source (Heat Source)
+            grad.addColorStop(1, 'rgba(0, 10, 30, 0.4)'); // Cold sink (Ambient Air)
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, width, height);
+
+            // User input: Inject massive heat
+            if (isDrawing) {
+                // Spawn a continuous heat wave from the cursor
+                if (Math.random() < 0.3) {
+                    let userPhase = (Date.now() * 0.001) % (Math.PI * 2); // Shifting master phase
+                    ripples.push(new Ripple(mouseX, mouseY, 1.5, userPhase));
+                }
+                
+                // Instantly heat nearby nodes
+                nodes.forEach(n => {
+                    let d = Math.hypot(n.x - mouseX, n.y - mouseY);
+                    if (d < 100) {
+                        n.heat = 1.0;
+                    }
+                });
+            }
+
+            // Global stats
+            let activeCount = 0;
+            let totalHeat = 0;
+            let phaseSumX = 0;
+            let phaseSumY = 0;
+
+            // Process connections (The 1.58D Lattice)
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i < nodes.length; i++) {
+                let n1 = nodes[i];
+                
+                if (n1.isResonant) {
+                    activeCount++;
+                    phaseSumX += Math.cos(n1.phase);
+                    phaseSumY += Math.sin(n1.phase);
+                }
+                totalHeat += n1.heat;
+
+                for (let j = i + 1; j < nodes.length; j++) {
+                    let n2 = nodes[j];
+                    let dist = Math.hypot(n1.x - n2.x, n1.y - n2.y);
+                    
+                    // If close and both are resonant, they form a topological edge state
+                    if (dist < 80 && n1.isResonant && n2.isResonant) {
+                        // Only connect if their phases are closely aligned
+                        let phaseDiff = Math.abs(n1.phase - n2.phase);
+                        if (phaseDiff < 0.5 || Math.PI * 2 - phaseDiff < 0.5) {
+                            ctx.beginPath();
+                            ctx.moveTo(n1.x, n1.y);
+                            ctx.lineTo(n2.x, n2.y);
+                            
+                            // Glowing line color based on phase
+                            let r = Math.floor(Math.sin(n1.phase) * 127 + 128);
+                            let g = Math.floor(Math.sin(n1.phase + 2) * 127 + 128);
+                            let b = Math.floor(Math.sin(n1.phase + 4) * 127 + 128);
+                            
+                            // Line opacity based on how close they are
+                            ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${(1 - dist/80) * 0.8})`;
+                            ctx.stroke();
+                            
+                            // They lock each other in phase (Entanglement)
+                            let avgPhase = (n1.phase + n2.phase) / 2;
+                            n1.phase = avgPhase;
+                            n2.phase = avgPhase;
+                            
+                            // They share heat, but pay an entropy tax (no longer lossless)
+                            let avgHeat = (n1.heat + n2.heat) / 2;
+                            let entropyTax = 0.005; // Cost of irreversible logical alignment
+                            n1.heat = Math.max(0, avgHeat - entropyTax);
+                            n2.heat = Math.max(0, avgHeat - entropyTax);
+                        }
+                    }
+                }
+            }
+
+            // Draw and update entities
+            ripples.forEach((r, index) => {
+                r.update();
+                r.draw();
+                if (r.opacity <= 0) ripples.splice(index, 1);
+            });
+
+            nodes.forEach(n => {
+                n.update();
+                n.draw();
+            });
+
+            // Update Telemetry
+            if (Math.random() < 0.1) {
+                statNodes.innerText = `${activeCount} / ${NUM_NODES}`;
+                statNodes.className = activeCount > 50 ? "text-sm hud-value text-fuchsia-400" : "text-sm hud-value text-cyan-400";
+                
+                statHeat.innerText = (totalHeat * 0.05).toFixed(2) + " THz";
+                
+                // Calculate Swarm Synchronization (Kuramoto model style)
+                let sync = 0;
+                if (activeCount > 0) {
+                    let r = Math.hypot(phaseSumX, phaseSumY) / activeCount;
+                    sync = Math.floor(r * 100);
+                }
+                statSync.innerText = `${sync}%`;
+                syncBar.style.width = `${sync}%`;
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        function handleInput(e, isDown) {
+            if (e.touches && e.touches.length > 0) {
+                mouseX = e.touches[0].clientX;
+                mouseY = e.touches[0].clientY;
+            } else {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            }
+            if (isDown !== undefined) isDrawing = isDown;
+        }
+
+        canvas.addEventListener('mousedown', (e) => handleInput(e, true));
+        window.addEventListener('mousemove', (e) => handleInput(e));
+        window.addEventListener('mouseup', () => isDrawing = false);
+        
+        canvas.addEventListener('touchstart', (e) => handleInput(e, true), {passive: false});
+        window.addEventListener('touchmove', (e) => { handleInput(e); e.preventDefault(); }, {passive: false});
+        window.addEventListener('touchend', () => isDrawing = false);
+
+        btnReset.addEventListener('click', initSwarm);
+
+        // Boot
+        initSwarm();
+        animate();
+
+    </script>
+</body>
+</html>
