@@ -7,7 +7,7 @@ This document outlines the primary physical hurdles and serves as a roadmap for 
 1. The Power Budget: Micro-TEG Density vs. Optical Pumping
 The Constraint:
 Real-world Thermoelectric Generators (TEGs) at the micro-scale are severely limited by available $\Delta T$  and surface area. A "grain of sand" footprint ($10^{-2}-10^{-1}$ cm²) operating on ambient gradients (5-15 K) yields power densities in the tens to hundreds of nanowatts.
-Conversely, maintaining a continuous-wave "Echo Memory" loop requires continuously pumping a photonic cavity to overcome finite photon lifetimes ( $P_{circ} \propto 1/Q$). Even aggressive photonic-crystal resonators with   demand pump power in the microwatt to milliwatt range. The gap between harvested free energy and required optical drive is currently orders of magnitude wide.
+Conversely, maintaining a continuous-wave "Echo Memory" loop requires continuously pumping a photonic cavity to overcome finite photon lifetimes ( $P_{circ} \propto 1/Q$). Even aggressive photonic-crystal resonators with ($ \sim 10^7$)  demand pump power in the microwatt to milliwatt range. The gap between harvested free energy and required optical drive is currently orders of magnitude wide.
 Research Pathways:
 ●	Macro-Scale Initial Deployment: Initial unit cells must abandon the "Smart Dust" form factor. Deploying coin-sized or larger chips attached directly to high-  industrial environments (e.g., server exhaust, combustion engines) can mathematically close the power budget.
 ●	Ultra-High-Q Resonators & Passive Nonlinearity: Bridging the   power gap requires breakthroughs in optical cavity design to drastically increase photon lifetimes, or replacing active electro-optic modulators with passive structural nonlinearity.
