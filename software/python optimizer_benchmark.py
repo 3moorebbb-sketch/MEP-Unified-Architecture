@@ -44,13 +44,13 @@ def run_benchmark(optimizer_name, epochs=250):
     if optimizer_name == "Adam":
         optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
     elif optimizer_name == "MEP_Thermodynamic":
-        # Using the MEP architecture!
+        # Using the MEP architecture! [RIEMANNIAN LANGEVIN PHYSICS]
         optimizer = ThermodynamicOptimizer(
             model.parameters(), 
-            lr=0.01, 
-            gamma=0.01,      # Entropy tax
-            base_temp=0.5,   # Initial thermal noise to bounce out of bad valleys
-            annealing_rate=0.98 # Cooling schedule
+            lr=0.05,             # Aggressive base speed
+            base_temp=0.1,       # Warm thermal noise to bounce out of Adam's local minima
+            annealing_rate=0.99, # Smooth cooling curve
+            mass=0.90            # Heavy rolling momentum
         )
 
     print(f"\n--- Starting {optimizer_name} Training ---")
@@ -93,4 +93,4 @@ if __name__ == "__main__":
         print("\n🏆 MEP Architecture Wins!")
         print("The Langevin thermal noise successfully kicked the model out of local minima!")
     else:
-        print("\nAdam won this round. Try adjusting the 'gamma' and 'base_temp' in the MEP optimizer!")
+        print("\nAdam won this round. Try adjusting the parameters in the MEP optimizer!")
