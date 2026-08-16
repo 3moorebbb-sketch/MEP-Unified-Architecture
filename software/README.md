@@ -1,2 +1,25 @@
-MEP Software SuiteWelcome to the software implementation of the Mandelbrot-Euler-Planck (MEP) Architecture.While the broader MEP project focuses on post-silicon physics (nanophotonics, 1.58D Bismuth metamaterials), this directory translates the core mathematical engine—continuous-wave thermodynamics and Kuramoto phase-locking—into usable, everyday software tools running on standard Python.By treating data not as discrete digital bits, but as continuous physical waves, these modules offer novel approaches to machine learning optimization, operating system thread scheduling, and combinatorial logic.📦 RequirementsThe core engine relies heavily on vectorized tensor math.pip install torch numpy
-🛠️ The ModulesYou can drop these three files directly into your existing Python or PyTorch projects:1. mep_optimizer.py (The ML Library)Contains ThermodynamicOptimizer. This is a drop-in replacement for standard PyTorch optimizers like Adam or SGD. Instead of stepping blindly down a gradient hill, it treats your neural network's weights as a physical landscape. It applies Landauer dissipation (entropy tax) and Langevin thermal noise to naturally bump your model out of shallow local minima, acting as physically-grounded simulated annealing.2. mep_scheduler.py (The OS Layer)Contains ThermodynamicScheduler. Modern Operating Systems stop and start background threads rapidly using rigid digital queues, causing massive context-switching overhead and CPU heat. This class uses the Kuramoto model to treat tasks as continuous oscillators. It allows background tasks to naturally phase-lock with each other, grouping them into smooth, resonant batches for single-execution CPU waves.3. mep_solver.py (The Enterprise API)Contains MEP_GraphSolver. A continuous solver for NP-Hard routing and logistics problems (like the Max-Cut or Traveling Salesperson problem). Standard CPUs choke on these problems due to exponential branching. This class maps an adjacency matrix to a physical energy landscape and uses Euler-Maruyama physics to naturally let the nodes relax into the optimal solution.📖 DocumentationFor complete setup instructions, code examples, and training loops, please open the mep_software_docs.html file in your web browser.Part of the MEP Unified Architecture Project. Open-Source / Public Domain.
+MEP Software SuiteWelcome to the software implementation of the Mandelbrot-Euler-Planck (MEP) Architecture.
+
+While the broader MEP project focuses on post-silicon physics (nanophotonics, 1.58D Bismuth metamaterials), this directory translates the core mathematical engine—continuous-wave thermodynamics and Kuramoto phase-locking—into usable, everyday software tools running on standard Python.
+
+By treating data not as discrete digital bits, but as continuous physical waves, these modules offer novel approaches to machine learning optimization, operating system thread scheduling, and combinatorial logic.
+
+📦 Requirements
+
+The core engine relies heavily on vectorized tensor math.pip install torch numpy
+
+🛠️ The Modules
+
+You can drop these three files directly into your existing Python or PyTorch projects:
+
+1. mep_optimizer.py (The ML Library)Contains ThermodynamicOptimizer. This is a drop-in replacement for standard PyTorch optimizers like Adam or SGD. Instead of stepping blindly down a gradient hill, it treats your neural network's weights as a physical landscape. It applies Landauer dissipation (entropy tax) and Langevin thermal noise to naturally bump your model out of shallow local minima, acting as physically-grounded simulated annealing.
+
+2. mep_scheduler.py (The OS Layer)Contains ThermodynamicScheduler. Modern Operating Systems stop and start background threads rapidly using rigid digital queues, causing massive context-switching overhead and CPU heat. This class uses the Kuramoto model to treat tasks as continuous oscillators. It allows background tasks to naturally phase-lock with each other, grouping them into smooth, resonant batches for single-execution CPU waves.
+
+3. mep_solver.py (The Enterprise API)Contains MEP_GraphSolver. A continuous solver for NP-Hard routing and logistics problems (like the Max-Cut or Traveling Salesperson problem). Standard CPUs choke on these problems due to exponential branching. This class maps an adjacency matrix to a physical energy landscape and uses Euler-Maruyama physics to naturally let the nodes relax into the optimal solution.
+
+5. 📖 Documentation
+
+7. For complete setup instructions, code examples, and training loops, please open the mep_software_docs.html file in your web browser.
+
+9. Part of the MEP Unified Architecture Project. Open-Source / Public Domain.
