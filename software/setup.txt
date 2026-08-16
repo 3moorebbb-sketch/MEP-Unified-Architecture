@@ -1,1 +1,12 @@
-temp
+=========================================
+MEP SOFTWARE SUITE - SETUP & INSTRUCTIONSWelcome to the software implementation of the Mandelbrot-Euler-Planck (MEP) Architecture.
+These files translate the continuous-wave physics and thermodynamic principles of the MEP framework into usable Python classes.ENVIRONMENT SETUPTo use these tools, you will need a standard Python environment (3.9 or higher).
+The core engine relies on PyTorch for tensor operations and gradients, and NumPy for array manipulations.Open your terminal and install the required dependencies:
+pip install torch numpyTHE FILESThis directory contains three core modules. You can drop these directly into your existing projects.mep_optimizer.py (The ML Library)
+Contains ThermodynamicOptimizer. A drop-in replacement for Adam/SGD in PyTorch.
+It treats neural network weights as a physical landscape, applying Landauer dissipation and Langevin thermal noise to escape shallow local minima.mep_scheduler.py (The OS Layer)
+Contains ThermodynamicScheduler. A conceptual thread scheduler based on the Kuramoto model.
+Instead of rigid digital queues, it allows background tasks to naturally phase-lock and execute in resonant batches, reducing CPU context-switching overhead.mep_solver.py (The Enterprise API)
+Contains MEP_GraphSolver. A combinatorial solver for NP-Hard routing and logistics problems (like Max-Cut).
+It maps an adjacency matrix to an energy landscape, letting continuous Euler-Maruyama physics naturally relax the nodes into the optimal solution.DOCUMENTATIONFor complete code examples, integration guides, and training loops, please open the mep_software_docs.html file in your web browser.=========================================
+License: Open-Source / Public Domain
