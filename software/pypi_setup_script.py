@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='mep-suite',
-    version='3.0.0',
+    version='3.1.0', # V3.1 Update: Refactored optimizer to Riemannian Momentum based on ablation data, fixed hardware trig quadrature, and updated Master Equation tensor projections.
     packages=find_packages(),
     description='Mandelbrot-Euler-Planck (MEP) Architecture Software Suite. Physics-based, continuous-wave solvers and optimizers.',
     long_description=open('README.md').read() if open('README.md').read() else '',
