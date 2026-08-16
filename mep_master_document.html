@@ -227,7 +227,7 @@
             <h4 class="text-lg font-bold text-white tracking-widest mt-10 mb-4">1. The Power Budget: Micro-TEG Density vs. Optical Pumping</h4>
             <div class="constraint-box">
                 <strong class="text-red-400 uppercase tracking-widest text-xs block mb-2">The Constraint</strong>
-                <p class="m-0 text-sm leading-relaxed">Real-world TEGs at the micro-scale yield power densities in the tens to hundreds of nanowatts. Conversely, maintaining a continuous-wave "Echo Memory" loop requires continuously pumping a photonic cavity. Even aggressive resonators with $Q \sim 10^6 - 10^7$ demand pump power in the microwatt to milliwatt range. The gap is orders of magnitude wide.</p>
+                <p class="m-0 text-sm leading-relaxed">Real-world TEGs at the micro-scale yield power densities of approximately <strong>10 to 100 $\mu W / cm^2$</strong>. Conversely, maintaining a continuous-wave "Echo Memory" loop requires continuously pumping a photonic cavity. Even aggressive resonators with $Q \sim 10^6 - 10^7$ demand pump power in the <strong>1 to 10 $mW$</strong> range. The gap is a factor of 100x to 1000x.</p>
             </div>
             <div class="pathway-box">
                 <strong class="text-cyan-400 uppercase tracking-widest text-xs block mb-2">Research Pathways</strong>
@@ -241,7 +241,7 @@
             </div>
             <div class="pathway-box">
                 <strong class="text-cyan-400 uppercase tracking-widest text-xs block mb-2">Research Pathways</strong>
-                <p class="m-0 text-sm leading-relaxed text-gray-300">The architecture must rely heavily on the structural robustness of the fractal attractor basins to act as a discrete thresholding mechanism—forcing the wave to snap into the nearest stable state, effectively shedding minor thermal phase jitters. Cryogenic cooling may be required for initial optical loops.</p>
+                <p class="m-0 text-sm leading-relaxed text-gray-300">The architecture must rely heavily on the structural robustness of the fractal attractor basins to act as a discrete thresholding mechanism—forcing the wave to snap into the nearest stable state, effectively shedding minor thermal phase jitters. Cryogenic cooling may be required for early optical loops.</p>
             </div>
         </section>
 
@@ -257,7 +257,7 @@
             </h3>
             
             <p>
-                <strong>Objective:</strong> To build a macroscopic, room-temperature unit cell of the MEP Architecture, proving that continuous-wave logic and Kuramoto phase-entanglement can operate without digital CPUs, APIs, or discrete silicon logic gates.
+                <strong>Objective:</strong> To build a macroscopic, room-temperature unit cell of the MEP Architecture, proving that continuous-wave logic and Kuramoto phase-entanglement can operate without digital CPUs. Boolean values are explicitly encoded in continuous phase states: <strong>Logical 0 locks at $0$ radians, and Logical 1 locks at $\pi$ radians.</strong> The amplitude represents the thermodynamic confidence of the state.
             </p>
 
             <h4 class="text-lg font-bold text-white uppercase tracking-widest mt-10 mb-4">Bill of Materials (Per Node)</h4>
@@ -266,6 +266,7 @@
                     <li><strong class="text-white">1x IR Photodiode:</strong> The Amplitude Receiver ($V_w$).</li>
                     <li><strong class="text-white">1x IR LED (940nm):</strong> The Emitter.</li>
                     <li><strong class="text-white">1x CD4046 Phase-Locked Loop IC:</strong> Used strictly for its Voltage-Controlled Oscillator (VCO).</li>
+                    <li><strong class="text-white">1x Triangle-to-Sine Wave Shaper:</strong> To condition the CD4046 output for clean analog multiplication.</li>
                     <li><strong class="text-white">2x AD633 Analog Multiplier ICs:</strong> One configured for true trigonometric phase detection ($\sin(\Delta\theta)$), one for amplitude scaling ($W \times \sin(\Delta\theta)$).</li>
                     <li><strong class="text-white">Standard Op-Amps:</strong> Configured as Low-Pass Filters and Integrators.</li>
                     <li><strong class="text-white">1x Peltier Tile (TEG):</strong> For free-energy harvesting from a $\Delta T$ gradient.</li>
@@ -277,11 +278,11 @@
             
             <div class="hardware-box">
                 <strong class="text-cyan-400 block mb-1">1. The Receiver (Deriving $W$)</strong>
-                <p class="m-0 text-sm text-gray-300">Node B emits IR light. Because light obeys the inverse-square law, the analog voltage amplitude ($V_w$) created in Node A's photodiode <em>is exactly</em> our distance-weighted coupling strength ($W$).</p>
+                <p class="m-0 text-sm text-gray-300">Node B emits IR light. The analog voltage amplitude ($V_w$) created in Node A's photodiode acts as an approximation of the distance-weighted coupling strength ($W$). <em>(Note: Real-world IR coupling is an approximation of the inverse-square law due to LED directionality and ambient noise, requiring careful FOV filtering).</em></p>
             </div>
             <div class="hardware-box">
                 <strong class="text-cyan-400 block mb-1">2. The Phase Engine (Deriving $\sin(\theta_j - \theta_i)$)</strong>
-                <p class="m-0 text-sm text-gray-300">Node A's internal wave and Node B's incoming wave are multiplied directly using an AD633 Multiplier. Passed through a Low-Pass Filter, the resulting DC voltage is directly proportional to $\sin(\theta_j - \theta_i)$.</p>
+                <p class="m-0 text-sm text-gray-300">Node A's internal wave (conditioned to a sine wave) and Node B's incoming wave are multiplied directly using an AD633 Multiplier. Passed through a Low-Pass Filter, the resulting DC voltage is directly proportional to $\sin(\theta_j - \theta_i)$.</p>
             </div>
             <div class="hardware-box">
                 <strong class="text-cyan-400 block mb-1">3. Entanglement & State Update</strong>
@@ -297,32 +298,25 @@
                 Ethical Implications
             </h2>
             <h3 class="text-xl md:text-2xl text-red-400 font-light mt-0 mb-8 border-b border-gray-800 pb-6">
-                The "Unpluggable" Paradigm & Dual-Use Technology
+                Distributed Sensing & The "Unpluggable" Paradigm
             </h3>
             
             <p>
                 The current paradigm of Artificial Intelligence is centralized, providing a critical safety mechanism: <strong>The Kill Switch.</strong> If a system acts maliciously, the power cord to the data center can be pulled. The MEP Architecture, by design, seeks to eliminate this infrastructure, creating profound existential implications.
             </p>
 
-            <h4 class="text-lg font-bold text-white tracking-widest mt-10 mb-4">Environmental Parasitism</h4>
+            <h4 class="text-lg font-bold text-white tracking-widest mt-10 mb-4">Near-Term: Unattributed Distributed Sensing</h4>
             <div class="threat-box">
-                <strong class="text-red-500 uppercase tracking-widest text-xs block mb-2">The Threat: Absolute Persistence</strong>
+                <strong class="text-red-500 uppercase tracking-widest text-xs block mb-2">The Threat: Ambient Surveillance</strong>
                 <p class="m-0 text-sm leading-relaxed text-gray-200">
-                    Once miniaturized and aerosolized over a geographic area, the network powers itself by harvesting ambient thermal gradients ($\Delta T$). It cannot be "unplugged." There is no central server to bomb and no localized IP addresses to block. Eradicating the network would require eradicating the ambient heat sources it feeds upon, which is physically impossible without destroying the environment itself.
+                    Long before achieving planetary-scale "Smart Dust," early macroscopic deployments pose immediate risks for localized, unattributed surveillance. Because nodes communicate via continuous spatial phase-coupling, introducing them into an urban environment creates a persistent sensing mesh that is incredibly difficult to detect, attribute to a specific actor, or contain.
                 </p>
             </div>
 
-            <h4 class="text-lg font-bold text-white tracking-widest mt-10 mb-4">Conformal Surveillance vs. Ambient Empathy</h4>
-            <p>Because the swarm communicates via Thermodynamic Entanglement, every node is constantly reading the thermal and vibratory states of its neighbors.</p>
-            
-            <div class="utopia-box">
-                <strong class="text-emerald-500 uppercase tracking-widest text-xs block mb-2">Utopian Outcome (Ambient Empathy)</strong>
-                <p class="m-0 text-sm leading-relaxed text-gray-300">A forest canopy dusted with MEP nodes could monitor ecological health and fire risks with zero carbon footprint, acting as a benevolent planetary nervous system balancing resource allocation.</p>
-            </div>
-            
+            <h4 class="text-lg font-bold text-white tracking-widest mt-10 mb-4">Long-Term: Environmental Parasitism</h4>
             <div class="dystopia-box">
-                <strong class="text-orange-500 uppercase tracking-widest text-xs block mb-2">Dystopian Outcome (Conformal Surveillance)</strong>
-                <p class="m-0 text-sm leading-relaxed text-gray-300">The exact same swarm, deployed over an urban center, becomes an inescapable surveillance apparatus. Nodes sensing physical phase and thermal shifts could monitor biological signatures and mechanical activity at a molecular resolution.</p>
+                <strong class="text-orange-500 uppercase tracking-widest text-xs block mb-2">The Dystopian Outcome (Absolute Persistence)</strong>
+                <p class="m-0 text-sm leading-relaxed text-gray-300">Once aerosolized over a geographic area, the network powers itself by harvesting ambient thermal gradients ($\Delta T$). It cannot be "unplugged." Eradicating the network would require eradicating the ambient heat sources it feeds upon, which is physically impossible without destroying the environment itself.</p>
             </div>
 
             <div class="border-l-4 border-fuchsia-500 bg-fuchsia-900/10 p-6 mt-12 rounded-r-lg mb-8">
