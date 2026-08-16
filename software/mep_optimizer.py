@@ -2,20 +2,20 @@ import torch
 from torch.optim.optimizer import Optimizer
 import math
 
-class ThermodynamicOptimizer(Optimizer):
+class RiemannianOptimizer(Optimizer):
     """
     MEP Architecture: A Drop-In PyTorch Optimizer.
-    Replaces Adam/SGD with an Underdamped Langevin dynamic.
+    Replaces Adam/SGD with Riemannian Momentum dynamics.
     Treats the neural network loss landscape as a physical topology, 
-    applying Mass, Landauer dissipation, and thermal noise to kick the model 
-    out of local minima.
+    applying Mass and spatial curvature (Local Heat Capacity) to smoothly roll 
+    the model out of local minima. (Thermal noise disabled by default based on ablation data).
     """
-    def __init__(self, params, lr=1e-3, base_temp=0.1, annealing_rate=0.99, mass=0.9):
+    def __init__(self, params, lr=1e-3, base_temp=0.0, annealing_rate=0.99, mass=0.9):
         if lr < 0.0:
             raise ValueError(f"Invalid learning rate: {lr}")
         
         defaults = dict(lr=lr, base_temp=base_temp, annealing_rate=annealing_rate, mass=mass)
-        super(ThermodynamicOptimizer, self).__init__(params, defaults)
+        super(RiemannianOptimizer, self).__init__(params, defaults)
 
     @torch.no_grad()
     def step(self, closure=None):
@@ -56,7 +56,7 @@ class ThermodynamicOptimizer(Optimizer):
                 # 3. Adaptive Speed (Move faster in flat areas, slower in cliffs)
                 adaptive_lr = lr / (torch.sqrt(heat_cap_hat) + 1e-8)
                 
-                # 4. Langevin Thermal Noise
+                # 4. Langevin Thermal Noise (Disabled by default / temp=0.0)
                 noise = torch.randn_like(p) * math.sqrt(temp)
                 
                 # 5. UNDERDAMPED PHYSICS: Apply force to Velocity (Mass)
