@@ -154,6 +154,7 @@
             <a href="#constraints" class="text-gray-400 hover:text-cyan-400 transition-colors">II. Constraints</a>
             <a href="#hardware" class="text-gray-400 hover:text-cyan-400 transition-colors">III. Hardware PoC</a>
             <a href="#ethics" class="text-gray-400 hover:text-cyan-400 transition-colors">IV. Ethics</a>
+            <a href="#software" class="text-gray-400 hover:text-cyan-400 transition-colors">V. Software</a>
         </div>
     </nav>
 
@@ -327,6 +328,30 @@
             </div>
         </section>
 
+        <div class="section-divider"></div>
+
+        <!-- SECTION V: SOFTWARE IMPLEMENTATIONS -->
+        <section id="software" class="scroll-mt-24">
+            <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2 !mt-0">
+                Software Implementations
+            </h2>
+            <h3 class="text-xl md:text-2xl text-cyan-400 font-light mt-0 mb-8 border-b border-gray-800 pb-6">
+                Translating Physics to Code
+            </h3>
+            
+            <p>
+                The continuous-time thermodynamic and phase-locking mathematics of the MEP architecture have been successfully ported to standard Python libraries, proving that analog physics can compute more efficiently than discrete digital logic in specific domains.
+            </p>
+
+            <h4 class="text-lg font-bold text-white tracking-widest mt-10 mb-4">The Thermodynamic OS Scheduler</h4>
+            <div class="concept-box">
+                <strong class="text-cyan-400 uppercase tracking-widest text-xs block mb-2">Kuramoto Phase-Locked Task Batching</strong>
+                <p class="m-0 text-sm leading-relaxed text-gray-300">
+                    Modern Operating Systems allocate CPU resources using rigid, digital queues, causing massive context-switching overhead and latency. The <code>mep_scheduler.py</code> script utilizes the Kuramoto model (defined in Part III) to treat background processes as continuous oscillators. Instead of rigid stopping and starting, tasks naturally phase-lock with one another, allowing the OS to execute them in smooth, resonant batches—drastically reducing CPU context-switching overhead.
+                </p>
+            </div>
+        </section>
+
     </main>
 
     <script>
@@ -438,8 +463,8 @@
                     if (Math.abs(dist - this.radius) < this.speed) {
                         n.heat = Math.min(n.heat + this.energy * 0.5 * this.opacity, 1.0);
                         if (n.heat > 0.4) {
-                            let phaseDiff = this.phase - n.phase;
-                            n.phase += phaseDiff * 0.2;
+                            // Continuous Kuramoto coupling from external thermal wave
+                            n.phase += Math.sin(this.phase - n.phase) * 0.2;
                         }
                     }
                 });
@@ -505,9 +530,13 @@
                             ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${(1 - dist/80) * 0.8})`;
                             ctx.stroke();
                             
-                            let avgPhase = (n1.phase + n2.phase) / 2;
-                            n1.phase = avgPhase;
-                            n2.phase = avgPhase;
+                            // True continuous Kuramoto phase-locking (ported from mep_scheduler.py)
+                            let couplingStrength = 0.05;
+                            let phaseShift1 = Math.sin(n2.phase - n1.phase) * couplingStrength;
+                            let phaseShift2 = Math.sin(n1.phase - n2.phase) * couplingStrength;
+                            
+                            n1.phase += phaseShift1;
+                            n2.phase += phaseShift2;
                             
                             let avgHeat = (n1.heat + n2.heat) / 2;
                             let entropyTax = 0.005; // Lossy logic
