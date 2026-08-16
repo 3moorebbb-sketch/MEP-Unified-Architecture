@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEP Software Suite - Documentation</title>
+    
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Load Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Highlight.js for code syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+        body {
+            background-color: #050505;
+            color: #e5e5e5;
+            font-family: 'Inter', sans-serif;
+        }
+        .mono { font-family: 'Space Mono', monospace; }
+        
+        .code-block-wrapper {
+            position: relative;
+            margin: 1.5rem 0;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            border: 1px solid rgba(34, 211, 238, 0.2);
+            background-color: #1e1e24;
+        }
+        .code-block-header {
+            background-color: #101014;
+            padding: 0.5rem 1rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            color: #22d3ee;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .copy-btn {
+            background: transparent;
+            border: 1px solid rgba(34, 211, 238, 0.4);
+            color: #22d3ee;
+            border-radius: 0.25rem;
+            padding: 0.2rem 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover {
+            background: rgba(34, 211, 238, 0.1);
+        }
+        pre { margin: 0 !important; padding: 1rem !important; }
+        
+        .nav-link {
+            transition: color 0.2s;
+        }
+        .nav-link:hover { color: #22d3ee; }
+        
+        .feature-box {
+            background: rgba(34, 211, 238, 0.03);
+            border-left: 3px solid #22d3ee;
+            padding: 1.25rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-cyan-900 selection:text-cyan-100">
+
+    <nav class="fixed top-0 left-0 w-full bg-black/80 backdrop-blur-md border-b border-white/10 z-50">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="mono text-cyan-400 font-bold text-sm tracking-widest">MEP_SOFTWARE_SUITE</div>
+            <div class="flex gap-6 text-xs font-bold tracking-widest uppercase mono">
+                <a href="#setup" class="text-gray-400 nav-link">Setup</a>
+                <a href="#optimizer" class="text-gray-400 nav-link">PyTorch Optimizer</a>
+                <a href="#scheduler" class="text-gray-400 nav-link">OS Scheduler</a>
+                <a href="#solver" class="text-gray-400 nav-link">Graph Solver</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto px-6 pt-32 pb-24 prose prose-invert prose-cyan">
+        
+        <h1 class="text-4xl md:text-5xl font-bold tracking-tight text-white mb-4 !mt-0">
+            Getting Started: MEP Software Suite
+        </h1>
+        <p class="text-lg text-gray-400 mb-12">
+            Harness the power of continuous thermodynamic physics and Kuramoto phase-locking in your standard Python applications today. No specialized hardware required.
+        </p>
+
+        <section id="setup" class="scroll-mt-24 mb-16">
+            <h2 class="text-2xl font-bold text-white uppercase tracking-widest border-b border-gray-800 pb-4 mb-6">1. Setup & Installation</h2>
+            
+            <p>Ensure you have a modern Python environment (>=3.9) and PyTorch installed. Save the provided Python files into your project directory.</p>
+            
+            <div class="code-block-wrapper">
+                <div class="code-block-header">
+                    <span>Terminal</span>
+                    <button class="copy-btn" onclick="copyCode(this, 'install-code')">Copy</button>
+                </div>
+                <pre><code id="install-code" class="language-bash"># Required dependencies
+pip install torch numpy</code></pre>
+            </div>
+        </section>
+
+        <section id="optimizer" class="scroll-mt-24 mb-16">
+            <h2 class="text-2xl font-bold text-white uppercase tracking-widest border-b border-gray-800 pb-4 mb-6">2. The PyTorch Optimizer</h2>
+            
+            <div class="feature-box">
+                <h3 class="text-cyan-400 text-sm font-bold uppercase tracking-widest mt-0 mb-2">ThermodynamicOptimizer</h3>
+                <p class="m-0 text-sm text-gray-300">
+                    A drop-in replacement for standard PyTorch optimizers like Adam or SGD. It treats the neural network's loss landscape as a physical topology, using Landauer dissipation and Langevin thermal noise to naturally kick models out of shallow local minima.
+                </p>
+            </div>
+
+            <p>Import `ThermodynamicOptimizer` from `mep_optimizer.py` and use it exactly as you would any other PyTorch optimizer.</p>
+
+            <div class="code-block-wrapper">
+                <div class="code-block-header">
+                    <span>train.py</span>
+                    <button class="copy-btn" onclick="copyCode(this, 'opt-code')">Copy</button>
+                </div>
+                <pre><code id="opt-code" class="language-python">import torch
+import torch.nn as nn
+from mep_optimizer import ThermodynamicOptimizer
+
+# Define your standard model
+model = nn.Sequential(
+    nn.Linear(10, 50),
+    nn.ReLU(),
+    nn.Linear(50, 2)
+)
+
+# Replace Adam with the Thermodynamic Optimizer
+# base_temp controls the initial Langevin noise amplitude
+# gamma controls the Landauer dissipation (friction/weight decay)
+optimizer = ThermodynamicOptimizer(
+    model.parameters(), 
+    lr=0.01, 
+    gamma=0.01, 
+    base_temp=0.1, 
+    annealing_rate=0.99
+)
+
+# Standard training loop
+criterion = nn.MSELoss()
+dummy_data = torch.randn(5, 10)
+dummy_target = torch.randn(5, 2)
+
+for epoch in range(100):
+    optimizer.zero_grad()
+    output = model(dummy_data)
+    loss = criterion(output, dummy_target)
+    loss.backward()
+    
+    # Physics step: weights are updated via dissipative map + thermal noise
+    optimizer.step()
+    
+    if epoch % 20 == 0:
+        print(f"Epoch {epoch} | Loss: {loss.item():.4f}")</code></pre>
+            </div>
+        </section>
+
+        <section id="scheduler" class="scroll-mt-24 mb-16">
+            <h2 class="text-2xl font-bold text-white uppercase tracking-widest border-b border-gray-800 pb-4 mb-6">3. The OS Task Scheduler</h2>
+            
+            <div class="feature-box">
+                <h3 class="text-cyan-400 text-sm font-bold uppercase tracking-widest mt-0 mb-2">ThermodynamicScheduler</h3>
+                <p class="m-0 text-sm text-gray-300">
+                    A conceptual logic engine for batching OS threads. Instead of rigidly stopping and starting tasks (causing context-switching overhead), it treats tasks as Kuramoto oscillators, allowing them to naturally phase-lock and execute in smooth resonant waves.
+                </p>
+            </div>
+
+            <p>Import `ThermodynamicScheduler` from `mep_scheduler.py`. This class manages the continuous phases of tasks. You step the physics forward and listen for batches of tasks that have synchronized.</p>
+
+            <div class="code-block-wrapper">
+                <div class="code-block-header">
+                    <span>os_kernel.py</span>
+                    <button class="copy-btn" onclick="copyCode(this, 'sched-code')">Copy</button>
+                </div>
+                <pre><code id="sched-code" class="language-python">from mep_scheduler import ThermodynamicScheduler
+import time
+
+# Initialize a scheduler managing 100 background processes
+scheduler = ThermodynamicScheduler(num_tasks=100, coupling_k=1.5, dt=0.05)
+
+print("Starting Thermodynamic Scheduler Loop...")
+
+# Simulate CPU clock cycles
+for tick in range(50):
+    # Step the continuous wave physics forward
+    scheduler.step_physics()
+    
+    # Check if any tasks have phase-locked and crossed the execution threshold
+    # The threshold determines how tightly grouped they must be to fire
+    ready_batch = scheduler.execute_batch(threshold_phase=0.1)
+    
+    if len(ready_batch) > 0:
+        print(f"Tick {tick}: Executing Phase-Locked Batch -> Tasks: {ready_batch}")
+        
+        # Here is where the OS would physically execute those thread IDs
+        # ... execution logic ...
+        
+        # Optionally, remove or reset executed tasks
+        
+    time.sleep(0.01)</code></pre>
+            </div>
+        </section>
+
+        <section id="solver" class="scroll-mt-24 mb-16">
+            <h2 class="text-2xl font-bold text-white uppercase tracking-widest border-b border-gray-800 pb-4 mb-6">4. The Graph Solver</h2>
+            
+            <div class="feature-box">
+                <h3 class="text-cyan-400 text-sm font-bold uppercase tracking-widest mt-0 mb-2">MEP_GraphSolver</h3>
+                <p class="m-0 text-sm text-gray-300">
+                    A combinatorial optimization solver for NP-Hard routing and logistics problems (like Max-Cut). It maps an adjacency matrix to a physical energy landscape, letting the continuous Euler-Maruyama physics naturally relax the nodes into the optimal solution.
+                </p>
+            </div>
+
+            <p>Import `MEP_GraphSolver` from `mep_solver.py`. Pass it an adjacency matrix tensor representing your problem graph.</p>
+
+            <div class="code-block-wrapper">
+                <div class="code-block-header">
+                    <span>logistics.py</span>
+                    <button class="copy-btn" onclick="copyCode(this, 'solve-code')">Copy</button>
+                </div>
+                <pre><code id="solve-code" class="language-python">import torch
+from mep_solver import MEP_GraphSolver
+
+# Define a simple 5-node problem graph (Adjacency Matrix)
+# 1 indicates a connection/conflict between nodes
+adjacency_matrix = torch.tensor([
+    [0, 1, 1, 0, 0],
+    [1, 0, 1, 1, 0],
+    [1, 1, 0, 0, 1],
+    [0, 1, 0, 0, 1],
+    [0, 0, 1, 1, 0]
+], dtype=torch.float32)
+
+print("Initializing MEP Physics Solver...")
+# gamma is friction, start_temp controls initial thermal noise
+solver = MEP_GraphSolver(adjacency_matrix, gamma=0.25, start_temp=0.40)
+
+# Run the physics simulation to let the nodes relax into the lowest energy state
+# Higher steps allow for deeper simulated annealing
+optimal_state = solver.solve(steps=300)
+
+print("Optimal Binary Configuration Found:")
+print(optimal_state.numpy())
+
+# Evaluate the efficiency of the cut
+score = solver.evaluate_cut(optimal_state)
+print(f"Max-Cut Score (Crossed Edges): {score}")</code></pre>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        function copyCode(btn, elementId) {
+            const codeEl = document.getElementById(elementId);
+            const text = codeEl.innerText || codeEl.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = btn.innerText;
+                btn.innerText = 'Copied!';
+                btn.style.backgroundColor = 'rgba(34, 211, 238, 0.2)';
+                
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.backgroundColor = 'transparent';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
