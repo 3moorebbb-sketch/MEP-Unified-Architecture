@@ -244,7 +244,7 @@
             </p>
 
             <div class="note-box">
-                <strong class="text-blue-500 uppercase tracking-widest text-xs block mb-2">Methodological Clarifications & Protocol Deviations</strong>
+                <strong class="text-blue-500 uppercase tracking-widest text-xs block mb-2">V5.1 Methodological Clarifications & Deviations</strong>
                 <ul class="m-0 text-sm leading-relaxed text-gray-300 space-y-2">
                     <li><strong>Sample Truncation:</strong> V5.1 truncated the 5,000-image protocol to a fast 1,500-image subset.</li>
                     <li><strong>Resource Budget Illusion:</strong> The "equal" 50-sample budget severely understated the JVP method's advantage, which queried an entire frozen Task-A network, making the subsequent failure even more profound.</li>
@@ -270,7 +270,14 @@
                 <strong>$H_{5.2}$:</strong> The V5.1 tether failed because it was attached at the wrong representational level. By constraining raw input pixels, the deep convolutional feature extractors were free to scramble. Applying the JVP tether directly to the <strong>Latent Feature Space</strong> will lock the deep geometry.
             </p>
 
-            <div class="bg-gray-900/80 border border-gray-700 rounded-lg p-6 mb-8 backdrop-blur-md font-mono text-sm">
+            <div class="note-box mt-4">
+                <strong class="text-blue-500 uppercase tracking-widest text-xs block mb-2">V5.2 Executable-Provenance Deviation</strong>
+                <p class="m-0 text-sm leading-relaxed text-gray-300">
+                    While a Git hash was frozen prior to the V5.2 crucible, post-execution peer review revealed the hashed artifact was syntactically contaminated with LLM drafting prose and markdown tags. Therefore, the registered hash did not point to the exact clean executable script that ultimately generated the result. V5.2 is formally recorded as: <em>Failed Result + Executable-Provenance Deviation</em>.
+                </p>
+            </div>
+
+            <div class="bg-gray-900/80 border border-gray-700 rounded-lg p-6 mb-8 mt-6 backdrop-blur-md font-mono text-sm">
                 <h4 class="text-red-500 font-bold mb-4 uppercase tracking-widest border-b border-gray-800 pb-2">V5.2 Results: Latent-Space Jacobian</h4>
                 <div class="data-row">
                     <span class="text-gray-400">Experience Replay Baseline (50 Samples)</span>
