@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEP Architecture V5.0 - Unified Master Document</title>
+    <title>MEP Architecture - Software Limits & Hardware Horizons</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -18,7 +18,6 @@
 
     <style>
         body {
-            /* Let the canvas provide the primary background color */
             background-color: #000;
             color: #e2e8f0;
             font-family: 'Inter', sans-serif;
@@ -26,7 +25,6 @@
         }
         .mono { font-family: 'Space Mono', monospace; }
         
-        /* Swarm Canvas - Now fixed to the background of the entire viewport! */
         #swarmCanvas {
             display: block;
             position: fixed;
@@ -34,16 +32,16 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: -1; /* Keeps it behind all text and boxes */
+            z-index: -1; 
             filter: drop-shadow(0 0 5px rgba(16, 185, 129, 0.2)) contrast(1.2) brightness(1.1);
         }
 
         #hero-container {
             position: relative;
             width: 100%;
-            height: 70vh;
-            min-height: 500px;
-            background-color: transparent; /* Made transparent to show canvas */
+            height: 80vh;
+            min-height: 600px;
+            background-color: transparent; 
             border-bottom: 1px solid rgba(16, 185, 129, 0.2);
         }
         
@@ -70,16 +68,16 @@
             border: 1px solid rgba(16, 185, 129, 0.2);
             border-radius: 16px;
             padding: 3rem;
-            max-width: 650px;
+            max-width: 750px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.05);
             pointer-events: auto;
         }
 
-        /* Box Styles */
         .equation-box { background: rgba(0,0,0,0.6); border-left: 3px solid #10b981; padding: 1.5rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0; }
-        .constraint-box, .threat-box, .bom-box, .failure-box { background: rgba(239, 68, 68, 0.05); border-left: 4px solid #ef4444; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; backdrop-filter: blur(4px); }
-        .pathway-box, .hardware-box, .concept-box { background: rgba(16, 185, 129, 0.05); border-left: 4px solid #10b981; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; backdrop-filter: blur(4px); }
-        .discovery-box { background: rgba(249, 115, 22, 0.05); border-left: 4px solid #f97316; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; backdrop-filter: blur(4px); }
+        .constraint-box, .threat-box, .failure-box { background: rgba(239, 68, 68, 0.05); border-left: 4px solid #ef4444; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; backdrop-filter: blur(4px); }
+        .pathway-box, .concept-box { background: rgba(16, 185, 129, 0.05); border-left: 4px solid #10b981; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; backdrop-filter: blur(4px); }
+        .discovery-box, .hardware-box { background: rgba(249, 115, 22, 0.05); border-left: 4px solid #f97316; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; backdrop-filter: blur(4px); }
+        .note-box { background: rgba(59, 130, 246, 0.05); border-left: 4px solid #3b82f6; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; backdrop-filter: blur(4px); }
         
         mjx-container[jax="SVG"][display="true"] {
             background: rgba(10, 15, 25, 0.8);
@@ -115,7 +113,7 @@
             left: 50%;
             transform: translateX(-50%);
             color: #10b981;
-            background: #030508;
+            background: #000;
             padding: 0 10px;
         }
         .data-row { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 0.75rem 0; }
@@ -124,17 +122,16 @@
 </head>
 <body class="antialiased selection:bg-emerald-900 selection:text-emerald-100">
 
-    <!-- The Swarm Canvas is now independent of the Hero container! -->
     <canvas id="swarmCanvas"></canvas>
 
     <div id="hero-container">
         <div id="presentation-layer">
             <div class="glass-panel-hero">
                 <h3 class="text-emerald-400 font-bold text-xs tracking-[0.2em] uppercase mb-2">Interactive Substrate</h3>
-                <h1 class="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight tracking-tight">The Mandelbrot-Euler-Planck <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-500">Architecture V5.0</span></h1>
+                <h1 class="text-3xl md:text-5xl font-bold text-white mb-4 leading-tight tracking-tight">The MEP Architecture: <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-500">Software Limits & Hardware Horizons</span></h1>
                 
-                <p class="text-sm text-gray-300 leading-relaxed mb-6">
-                    A formally verified framework bridging physical thermodynamics with topological machine learning. V5.0 establishes the empirical reality of the <strong>Jacobian Topological Tether</strong> to defeat Catastrophic Forgetting, and the <strong>Riemannian Engine</strong> for out-navigating industry-standard optimizers in non-convex space.
+                <p class="text-sm md:text-base text-gray-300 leading-relaxed mb-6">
+                    A formal, transparent record bridging theoretical thermodynamics with machine learning. This document logs the empirical successes of the <strong>Riemannian Optimizer</strong>, the rigorous falsification crucibles of the <strong>Jacobian Topological Tether</strong>, and the ultimate necessity of post-silicon photonic hardware.
                 </p>
 
                 <div class="equation-box">
@@ -142,51 +139,33 @@
                     $$ \mathcal{Loss}_{total} = \mathcal{Loss}_{TaskB} + \lambda \vert\vert J_{current}(X_A) \cdot v - J_{A}(X_A) \cdot v \vert\vert^2 $$
                 </div>
 
-                <div class="mt-6 flex items-center justify-between">
+                <div class="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
                     <p class="text-[11px] text-emerald-400 font-bold tracking-widest uppercase animate-pulse flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
-                        Simulation Active: Scroll or Drag to inject Heat globally
+                        Simulation Active: Scroll to inject Heat globally
                     </p>
+                    <div class="flex gap-4 mono text-[10px] text-gray-500">
+                        <div>AUTHOR: 3MOORE. BBB</div>
+                        <div>|</div>
+                        <div>STATUS: EMPIRICALLY MAPPED</div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <nav class="sticky-nav py-4 px-6 shadow-lg">
-        <div class="max-w-4xl mx-auto flex flex-wrap justify-center md:justify-between items-center gap-4 text-xs md:text-sm font-bold tracking-widest uppercase mono">
-            <a href="#whitepaper" class="text-gray-400 hover:text-emerald-400 transition-colors">I. Whitepaper V5.0</a>
-            <a href="#optimizer" class="text-gray-400 hover:text-emerald-400 transition-colors">II. The Optimizer</a>
-            <a href="#memory" class="text-gray-400 hover:text-emerald-400 transition-colors">III. Jacobian Memory</a>
-            <a href="#hardware" class="text-gray-400 hover:text-emerald-400 transition-colors">IV. Hardware PoC</a>
-            <a href="#crucible" class="text-gray-400 hover:text-emerald-400 transition-colors">V. The Crucible & Lessons</a>
+        <div class="max-w-5xl mx-auto flex flex-wrap justify-center md:justify-between items-center gap-4 text-xs font-bold tracking-widest uppercase mono">
+            <a href="#optimizer" class="text-gray-400 hover:text-emerald-400 transition-colors">I. Riemannian Optimizer</a>
+            <a href="#memory-success" class="text-gray-400 hover:text-emerald-400 transition-colors">II. MNIST Success (V5.0)</a>
+            <a href="#crucibles" class="text-gray-400 hover:text-red-400 transition-colors">III. CIFAR Crucibles (V5.1-V5.2)</a>
+            <a href="#hardware" class="text-gray-400 hover:text-orange-400 transition-colors">IV. The Hardware Manifesto</a>
         </div>
     </nav>
 
     <main class="max-w-4xl mx-auto px-6 py-16 prose prose-invert prose-emerald lg:prose-lg relative z-10">
 
-        <section id="whitepaper" class="scroll-mt-24 bg-black/40 p-8 rounded-2xl backdrop-blur-sm border border-white/5 mb-12">
-            <div class="mb-12">
-                <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2 !mt-0">
-                    Formal Specification V5.0
-                </h2>
-                <h3 class="text-xl md:text-2xl text-emerald-400 font-light mt-0 mb-6 border-b border-gray-800 pb-6">
-                    A Framework for Thermodynamic Optimization and Topological Memory
-                </h3>
-                <div class="flex gap-4 mono text-sm text-gray-400">
-                    <div><strong class="text-gray-200">Author:</strong> 3MOORE. BBB</div>
-                    <div>|</div>
-                    <div><strong class="text-emerald-400">Status:</strong> Empirically Verified (Software Substrate)</div>
-                </div>
-            </div>
-
-            <h3 class="text-xl font-bold text-white uppercase tracking-widest mt-12 mb-4">Abstract</h3>
-            <p>
-                Current artificial neural networks are constrained by discrete logic, resulting in two fundamental bottlenecks: the inability to escape high-dimensional saddle points efficiently, and Catastrophic Forgetting. The Mandelbrot-Euler-Planck (MEP) Architecture introduces a physics-based, continuous-space framework to solve these issues. By treating the loss landscape as a physical topology governed by Riemannian geometry and Langevin dynamics, we achieve superior optimization. Furthermore, by operationalizing memory as an "Elastic Fabric" protected by Jacobian-Vector Products, we successfully preserve prior knowledge without freezing internal parameters.
-            </p>
-        </section>
-
-        <div class="section-divider"></div>
-
+        <!-- SECTION I: OPTIMIZER -->
         <section id="optimizer" class="scroll-mt-24 bg-black/40 p-8 rounded-2xl backdrop-blur-sm border border-white/5 mb-12">
             <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2 !mt-0">
                 Part I: The Optimization Substrate
@@ -203,168 +182,148 @@
                 <strong class="text-emerald-400 uppercase tracking-widest text-xs block mb-2">The APM (Adaptive Physical Momentum) Mechanism</strong>
                 <ul class="m-0 text-sm leading-relaxed text-gray-200 space-y-3">
                     <li><strong>1. Local Heat Capacity (Curvature):</strong> We calculate a diagonal metric tensor to map the spatial curvature of the environment.</li>
-                    <li><strong>2. Underdamped Momentum:</strong> We apply physical mass to the gradients, preventing immediate oscillation and allowing the system to roll through shallow traps.</li>
-                    <li><strong>3. Langevin Thermal Noise:</strong> In high-dimensional spaces, ambient thermal noise is injected to physically bounce the state out of deep saddle points.</li>
+                    <li><strong>2. Underdamped Momentum:</strong> We apply physical mass to the gradients, preventing immediate oscillation.</li>
+                    <li><strong>3. Langevin Thermal Noise:</strong> Ambient thermal noise is injected to physically bounce the state out of deep saddle points.</li>
                 </ul>
             </div>
 
             <p class="text-gray-400 italic mb-8">
-                *Empirical Validation:* On a highly non-linear regression landscape, the MEP Thermodynamic Engine successfully out-navigated the industry-standard Adam baseline, utilizing physical momentum to roll through traps and find the absolute mathematical floor.
+                *Empirical Validation:* On a 100-D non-convex Rastrigin function, the MEP Thermodynamic Engine successfully out-navigated the PyTorch AdamW baseline, utilizing physical momentum and thermal shock to find a lower global minimum.
             </p>
-
-            <!-- Embedded Image 1 -->
-            <figure class="my-10 relative group">
-                <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
-                <img src="Riemannian_Optimization_VS_Adam_in_a_Non_Convex_Landscape.png" alt="Riemannian Optimization vs Adam" class="relative w-full rounded-xl border border-gray-700 shadow-[0_0_30px_rgba(16,185,129,0.1)]">
-                <figcaption class="text-center text-sm text-emerald-400/80 mt-4 font-mono tracking-wide">
-                    Fig 1. Visual Proof: The MEP Riemannian Engine rolls through traps where Adam stalls.
-                </figcaption>
-            </figure>
         </section>
 
         <div class="section-divider"></div>
 
-        <section id="memory" class="scroll-mt-24 bg-black/40 p-8 rounded-2xl backdrop-blur-sm border border-white/5 mb-12">
+        <!-- SECTION II: MNIST SUCCESS -->
+        <section id="memory-success" class="scroll-mt-24 bg-black/40 p-8 rounded-2xl backdrop-blur-sm border border-white/5 mb-12">
             <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2 !mt-0">
-                Part II: The Memory Substrate
+                Part II: Topological Memory (V5.0)
             </h2>
             <h3 class="text-xl md:text-2xl text-emerald-400 font-light mt-0 mb-8 border-b border-gray-800 pb-6">
-                Topological Jacobian Tethering
+                The "Elastic Fabric" Paradigm
             </h3>
             
             <p>
-                The most severe limitation of sequential machine learning is Catastrophic Forgetting. Previous attempts to solve this within the MEP framework failed because they focused on the <em>internal mechanisms</em> of the network:
-            </p>
-            <ul class="text-gray-300">
-                <li><strong>V3.2 ($L_2$ Clamping):</strong> Freezing exact weight coordinates shattered the manifold.</li>
-                <li><strong>V3.3 (Complex Phase-Multiplexing):</strong> Digital ReLUs sheared phase angles, causing "phase leakage."</li>
-                <li><strong>V4.0 (Neural ODEs):</strong> Continuous integration failed because the weight matrix was shared.</li>
-            </ul>
-
-            <h4 class="text-lg font-bold text-white tracking-widest mt-10 mb-4">The "Elastic Fabric" Paradigm</h4>
-            <p class="text-gray-300">
-                In V5.0, we abandon the internal parameters completely. To preserve the memory of Task A, <strong>it does not matter if the internal weights scramble, so long as the final functional surface of Task A remains unwarped.</strong> To measure this surface, we utilize the Jacobian Matrix ($J$).
+                To solve Catastrophic Forgetting, we abandoned the idea of freezing internal parameters. We hypothesized that it does not matter if internal weights scramble, so long as the <strong>functional surface of the prior task remains unwarped.</strong> We utilized Hutchinson's trace estimator to calculate a Jacobian-Vector Product (JVP) acting as an elastic tether.
             </p>
 
-            <div class="pathway-box">
-                <strong class="text-emerald-400 uppercase tracking-widest text-xs block mb-2">The $\mathcal{P}$ Operator (Jacobian-Vector Products)</strong>
-                <p class="m-0 text-sm leading-relaxed text-gray-200">
-                    Calculating the full Jacobian is computationally impossible. Instead, we use Hutchinson's trace estimator to calculate a Jacobian-Vector Product (JVP) using a random perturbation vector $v$. This elastic tether tells the network: <em>"Learn Task B however you want, but if your internal changes cause the topological surface of Task A to deform, you will be penalized."</em>
-                </p>
-            </div>
-
-            <!-- Embedded Image 2 -->
-            <figure class="my-10 relative group">
-                <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
-                <img src="Catastrophic_Forgetting_VS_MEP_Jacobian_Topological_Teather.png" alt="Catastrophic Forgetting vs MEP Jacobian Topological Tether" class="relative w-full rounded-xl border border-gray-700 shadow-[0_0_30px_rgba(16,185,129,0.1)]">
-                <figcaption class="text-center text-sm text-emerald-400/80 mt-4 font-mono tracking-wide">
-                    Fig 2. Visual Proof: The Jacobian Tether preserves the exact functional curve of Task A while learning Task B.
-                </figcaption>
-            </figure>
-
-            <div class="bg-gray-900/80 border border-gray-700 rounded-lg p-6 mb-8 mt-8 backdrop-blur-md">
-                <h4 class="text-emerald-400 font-bold mono text-sm mb-4 uppercase tracking-widest border-b border-gray-800 pb-2">V5.0 Crucible Results (Split-MNIST)</h4>
+            <div class="bg-gray-900/80 border border-gray-700 rounded-lg p-6 mb-8 mt-8 backdrop-blur-md font-mono text-sm">
+                <h4 class="text-emerald-400 font-bold mb-4 uppercase tracking-widest border-b border-gray-800 pb-2">V5.0 Crucible Results (Split-MNIST)</h4>
                 <div class="data-row">
                     <span class="text-gray-400">Naive SGD (No Protection)</span>
-                    <span class="font-bold text-red-400">1.76%</span>
+                    <span class="font-bold text-red-400">1.76% Retention</span>
                 </div>
                 <div class="data-row">
                     <span class="text-gray-400">EWC (Industry Baseline)</span>
-                    <span class="font-bold text-gray-200">4.65%</span>
+                    <span class="font-bold text-gray-200">4.65% Retention</span>
                 </div>
                 <div class="data-row bg-emerald-900/40 -mx-6 px-6 border-y border-emerald-900/50 mt-2">
                     <span class="text-emerald-400 font-bold">MEP Jacobian Tether</span>
-                    <span class="font-bold text-emerald-400">91.49%</span>
+                    <span class="font-bold text-emerald-400">91.49% Retention</span>
                 </div>
             </div>
             
-            <p class="text-gray-400 italic mt-4">
-                This perfectly operationalizes the theory of the "Lossy Geometric Scar." Absolute coordinates are lost, but the functional shape of the prior memory is permanently scarred into the manifold's surface tension.
+            <p class="text-gray-400 italic">
+                This proved the concept of the "Lossy Geometric Scar" on simple Multi-Layer Perceptrons. However, a rigorous scientific architecture must survive external review. This led to the CIFAR-10 Crucibles.
             </p>
         </section>
 
         <div class="section-divider"></div>
 
-        <section id="hardware" class="scroll-mt-24 bg-black/40 p-8 rounded-2xl backdrop-blur-sm border border-white/5 mb-12">
+        <!-- SECTION III: THE CRUCIBLES -->
+        <section id="crucibles" class="scroll-mt-24 bg-black/40 p-8 rounded-2xl backdrop-blur-sm border border-white/5 mb-12">
             <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2 !mt-0">
-                Macro-Scale Hardware
+                Part III: The Strict Crucibles
             </h2>
-            <h3 class="text-xl md:text-2xl text-emerald-400 font-light mt-0 mb-8 border-b border-gray-800 pb-6">
-                The Analog Transceiver & Thermodynamic Entanglement Circuit
+            <h3 class="text-xl md:text-2xl text-red-500 font-light mt-0 mb-8 border-b border-gray-800 pb-6">
+                Split-CIFAR10 & Methodological Rigor
             </h3>
             
             <p>
-                <strong>Objective:</strong> To build a macroscopic, room-temperature unit cell of the MEP Architecture, proving that continuous-wave logic and Kuramoto phase-entanglement can operate without digital CPUs. Boolean values are explicitly encoded in continuous phase states: <strong>Logical 0 locks at $0$ radians, and Logical 1 locks at $\pi$ radians.</strong>
+                Following strict peer review, the architecture was subjected to a cryptographically frozen crucible on a genuinely unseen dataset (Split-CIFAR10) to test deep Convolutional Neural Networks (CNNs) against an equal-memory Experience Replay baseline.
             </p>
 
-            <h4 class="text-lg font-bold text-white uppercase tracking-widest mt-10 mb-4">The Analog Transceiver Loop</h4>
-            <p>Instead of a Python script running the Kuramoto equation, the node physically executes the math using Quadrature integration:</p>
-            
-            <div class="hardware-box">
-                <strong class="text-emerald-400 block mb-1">1. The Receiver (Deriving $W$)</strong>
-                <p class="m-0 text-sm text-gray-300">Node B emits IR light. The analog voltage amplitude ($V_w$) created in Node A's photodiode acts as an approximation of the distance-weighted coupling strength ($W$).</p>
+            <div class="note-box">
+                <strong class="text-blue-500 uppercase tracking-widest text-xs block mb-2">Methodological Clarifications & Protocol Deviations</strong>
+                <ul class="m-0 text-sm leading-relaxed text-gray-300 space-y-2">
+                    <li><strong>Sample Truncation:</strong> V5.1 truncated the 5,000-image protocol to a fast 1,500-image subset.</li>
+                    <li><strong>Resource Budget Illusion:</strong> The "equal" 50-sample budget severely understated the JVP method's advantage, which queried an entire frozen Task-A network, making the subsequent failure even more profound.</li>
+                    <li><strong>Statistical Design:</strong> Future evaluations within the same seed must utilize paired analyses of differences, rather than independent Welch's t-tests.</li>
+                </ul>
+                <p class="mt-3 text-xs text-blue-400 font-mono">Status: Methodological Success. Mechanistic Failure.</p>
             </div>
-            <div class="hardware-box">
-                <strong class="text-emerald-400 block mb-1">2. The Phase Engine (Quadrature & $\sin(\theta_j - \theta_i)$)</strong>
-                <p class="m-0 text-sm text-gray-300">Node B's incoming wave is passed through a 90-degree RC Phase-Shifter (converting sine to cosine). Node A's internal wave and Node B's shifted wave are multiplied using an AD633 Multiplier. Passed through a Low-Pass Filter, the resulting DC voltage mathematically yields exactly $\sin(\theta_j - \theta_i)$.</p>
-            </div>
-            <div class="hardware-box">
-                <strong class="text-emerald-400 block mb-1">3. Entanglement & State Update</strong>
-                <p class="m-0 text-sm text-gray-300">A second AD633 scales the voltage by $W$. This voltage feeds into an Op-Amp Integrator, smoothly shifting Node A's internal CD4046 VCO frequency to align with Node B, mimicking continuous physical time-stepping.</p>
-            </div>
-        </section>
 
-        <div class="section-divider"></div>
+            <div class="bg-gray-900/80 border border-gray-700 rounded-lg p-6 mb-8 mt-8 backdrop-blur-md font-mono text-sm">
+                <h4 class="text-red-500 font-bold mb-4 uppercase tracking-widest border-b border-gray-800 pb-2">V5.1 Results: Input-Space Jacobian</h4>
+                <div class="data-row">
+                    <span class="text-gray-400">Experience Replay Baseline (50 Samples)</span>
+                    <span class="font-bold text-white">20.95% Harmonic Mean</span>
+                </div>
+                <div class="data-row bg-red-900/40 -mx-6 px-6 border-y border-red-900/50 mt-2">
+                    <span class="text-red-400 font-bold">MEP Input-Pixel JVP Tether</span>
+                    <span class="font-bold text-red-400">0.00% Harmonic Mean</span>
+                </div>
+            </div>
 
-        <section id="crucible" class="scroll-mt-24 bg-black/40 p-8 rounded-2xl backdrop-blur-sm border border-white/5 mb-12">
-            <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2 !mt-0">
-                Part V: The Preregistration Crucible
-            </h2>
-            <h3 class="text-xl md:text-2xl text-emerald-400 font-light mt-0 mb-8 border-b border-gray-800 pb-6">
-                The Split-CIFAR10 Reality Check
-            </h3>
-            
-            <p class="mb-6">
-                A scientific architecture must be able to lose. Following the 91.49% retention success on Split-MNIST, a strict peer review identified a critical vulnerability: <strong>Conceptual Overfitting.</strong> Split-MNIST had become a familiar training set. To prove the validity of the Jacobian Tether, it had to survive a formally preregistered, cryptographically frozen crucible on a genuinely unseen dataset against an equal-memory baseline.
+            <h4 class="text-lg font-bold text-white tracking-widest mt-10 mb-4">Hypothesis 5.2: The Latent Space Tether</h4>
+            <p class="text-gray-300 text-sm mb-6">
+                <strong>$H_{5.2}$:</strong> The V5.1 tether failed because it was attached at the wrong representational level. By constraining raw input pixels, the deep convolutional feature extractors were free to scramble. Applying the JVP tether directly to the <strong>Latent Feature Space</strong> will lock the deep geometry.
             </p>
 
-            <div class="bg-gray-900/80 border border-gray-700 rounded-lg p-6 mb-8 font-mono text-sm backdrop-blur-md">
-                <div class="data-row border-b border-gray-800 pb-4 mb-4">
-                    <span class="text-gray-400 uppercase tracking-widest text-xs">V5.1 Strict Parameters</span>
-                </div>
+            <div class="bg-gray-900/80 border border-gray-700 rounded-lg p-6 mb-8 backdrop-blur-md font-mono text-sm">
+                <h4 class="text-red-500 font-bold mb-4 uppercase tracking-widest border-b border-gray-800 pb-2">V5.2 Results: Latent-Space Jacobian</h4>
                 <div class="data-row">
-                    <span class="text-gray-400">Dataset</span>
-                    <span class="font-bold text-white">Split-CIFAR10 (Task A: 0-4, Task B: 5-9)</span>
+                    <span class="text-gray-400">Experience Replay Baseline (50 Samples)</span>
+                    <span class="font-bold text-white">20.97% Harmonic Mean</span>
                 </div>
-                <div class="data-row">
-                    <span class="text-gray-400">Primary Metric</span>
-                    <span class="font-bold text-white">Harmonic Mean (Stability & Plasticity)</span>
-                </div>
-                <div class="data-row">
-                    <span class="text-gray-400">Strict Memory Budget</span>
-                    <span class="font-bold text-emerald-400">Exactly 50 Samples (Replay vs Anchors)</span>
+                <div class="data-row bg-red-900/40 -mx-6 px-6 border-y border-red-900/50 mt-2">
+                    <span class="text-red-400 font-bold">MEP Latent-Space JVP Tether</span>
+                    <span class="font-bold text-red-400">0.00% Harmonic Mean</span>
                 </div>
             </div>
 
             <div class="failure-box mt-8">
-                <strong class="text-red-500 uppercase tracking-widest text-xs block mb-2">The V5.1 Results: Catastrophic Failure</strong>
+                <strong class="text-red-500 uppercase tracking-widest text-xs block mb-2">The "Toothpick" Reality: The Limits of Software</strong>
                 <p class="m-0 text-sm leading-relaxed text-gray-200">
-                    The preregistered failure condition was explicit: <em>"The hypothesis fails if MEP fails to outperform the Experience Replay baseline by a statistically significant margin."</em> The Jacobian Tether failed completely. Across all 10 independent seeds, the simple 50-sample Experience Replay baseline achieved a <strong>20.95%</strong> Harmonic Mean. The MEP Jacobian Tether achieved a <strong>0.00%</strong> Harmonic Mean. It learned Task B but retained exactly 0.0% of Task A.
+                    $H_{5.2}$ was falsified. A deep Convolutional Neural Network contains millions of parameters, creating an incredibly flexible manifold. Constraining the topology at a strict budget of only 50 anchor points—even in the latent space—is like trying to hold down a circus tent in a hurricane using 50 toothpicks. The network simply routed its internal geometry <em>around</em> those 50 constraints, satisfied the math, learned Task B, and destroyed Task A.
                 </p>
             </div>
+        </section>
 
-            <h4 class="text-lg font-bold text-white tracking-widest mt-10 mb-4">The Post-Mortem & The Lesson</h4>
-            <div class="discovery-box">
-                <strong class="text-orange-500 uppercase tracking-widest text-xs block mb-2">The Convolutional Manifold Problem</strong>
-                <p class="m-0 text-sm leading-relaxed text-gray-300">
-                    The data reveals a profound lesson in deep learning mechanics. The JVP operator calculated the derivative of the network's outputs with respect to its <em>raw input pixels</em>. On a simple MLP mapping MNIST pixels, this constrained the surface tension perfectly. However, CIFAR-10 requires a Convolutional Neural Network (CNN). By applying the tether to the raw input pixels, we only constrained the absolute lowest layer. The network completely scrambled its deep convolutional filters to learn Task B, destroying the complex feature extractors required for Task A while technically satisfying the pixel-level gradient constraint. <strong>The tether was attached to the wrong end of the manifold.</strong>
-                </p>
-            </div>
+        <div class="section-divider"></div>
 
-            <p class="text-gray-400 italic mt-8 border-l-4 border-emerald-900 pl-4 bg-emerald-900/10 py-3 pr-3 rounded-r-lg">
-                "The preregistration trap worked flawlessly. It prevented post-hoc victory language, exposed the conceptual overfitting to MNIST, and isolated exactly how convolutional manifolds behave differently than simple MLPs. A scientific architecture must be able to lose in order to evolve."
+        <!-- SECTION IV: THE HARDWARE MANIFESTO -->
+        <section id="hardware" class="scroll-mt-24 bg-black/40 p-8 rounded-2xl backdrop-blur-sm border border-white/5 mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2 !mt-0">
+                Part IV: The Hardware Manifesto
+            </h2>
+            <h3 class="text-xl md:text-2xl text-orange-500 font-light mt-0 mb-8 border-b border-gray-800 pb-6">
+                Why Thermodynamics Requires Post-Silicon Architecture
+            </h3>
+            
+            <p class="mb-6 leading-relaxed">
+                Throughout the development of the MEP Architecture, we have subjected our theories to strict, preregistered scientific crucibles. We have tested $L_2$ constraints, complex-valued phase rotations, continuous-time Neural ODEs, and deep Latent-Space Jacobian Tethers. Every single mathematical attempt to solve Catastrophic Forgetting in software at a strict budget has failed.
             </p>
 
+            <div class="hardware-box">
+                <strong class="text-orange-500 uppercase tracking-widest text-xs block mb-2">The Problem: Parameter Superposition</strong>
+                <p class="m-0 text-sm leading-relaxed text-gray-300">
+                    In a digital CNN running on a GPU, memory is stored in discrete floating-point numbers within a shared silicon matrix. When it learns Task B, it must physically overwrite the transistors used for Task A. The software cannot hold two conflicting memories in the same register. Mathematical "traffic cops" (like Jacobians) fail because the overparameterized network simply routes around them. <strong>You cannot use math to negotiate with a shared digital matrix. The medium is fundamentally destructive.</strong>
+                </p>
+            </div>
+
+            <div class="hardware-box border-l-emerald-500">
+                <strong class="text-emerald-400 uppercase tracking-widest text-xs block mb-2">The Solution: Wavelength Multiplexing</strong>
+                <p class="m-0 text-sm leading-relaxed text-gray-300">
+                    Catastrophic Forgetting is inherently unnatural. In analog physical systems, information coexists spatially without destructive interference. In a fiber optic cable, a blue laser pulse (Task A) and a red laser pulse (Task B) occupy the exact same volume of space. Because they possess orthogonal phases and wavelengths, they do not destructively interfere.
+                    <br><br>
+                    <strong>Optical Attractor Basins:</strong> Instead of using computationally heavy Jacobians to artificially tether a digital matrix, an analog photonic cavity physically forms a true topological attractor. Wavelengths natively settle into resonant modes. Task B (encoded via the Euler operator $\mathcal{P} = e^{i\pi/2}$) passes through the exact same hardware as Task A without requiring $O(N)$ derivative calculations to prevent interference.
+                </p>
+            </div>
+
+            <p class="text-gray-400 italic mt-8 border-l-4 border-orange-900 pl-4 bg-orange-900/10 py-3 pr-3 rounded-r-lg">
+                Software regularization algorithms are critical engineering bridges, but they are fighting a losing battle against the physics of digital transistors. The theoretical limits of software have been mapped and mathematically exhausted. The ultimate realization of the MEP Architecture—an open dissipative system that computes near the Landauer limit and naturally prevents Catastrophic Forgetting—belongs to the nanophotonic hardware of the 2030s.
+            </p>
         </section>
 
     </main>
@@ -376,7 +335,6 @@
         let width, height;
         let nodes = [];
         let ripples = [];
-        // Dynamically calculate optimal node count based on screen size (keeps performance high)
         let NUM_NODES = 500; 
 
         let isDrawing = false;
@@ -384,16 +342,11 @@
         let mouseY = -1000;
 
         function resize() {
-            // Now mapping to the entire Window, not just the Hero!
             width = window.innerWidth;
             height = window.innerHeight;
             canvas.width = width;
             canvas.height = height;
-            
-            // Adjust swarm density for larger screens (DOUBLED DENSITY)
             NUM_NODES = Math.max(300, Math.min(Math.floor((width * height) / 3500), 800));
-            
-            // If the array is too small, add nodes. If too big, trim it.
             while(nodes.length < NUM_NODES) nodes.push(new Node());
             if(nodes.length > NUM_NODES) nodes.length = NUM_NODES;
         }
@@ -405,7 +358,6 @@
                 this.y = Math.random() * (window.innerHeight || 1000);
                 this.vx = (Math.random() - 0.5) * 0.5;
                 this.vy = (Math.random() - 0.5) * 0.5;
-                
                 this.heat = 0;           
                 this.phase = Math.random() * Math.PI * 2; 
                 this.basePhase = this.phase; 
@@ -415,7 +367,6 @@
             update() {
                 this.x += this.vx;
                 this.y += this.vy;
-                
                 if (this.x < 0) this.x = width;
                 if (this.x > width) this.x = 0;
                 if (this.y < 0) this.y = height;
@@ -423,7 +374,6 @@
 
                 let envTemp = Math.max(0.1, 1.0 - (this.x / width));
                 this.heat += (envTemp * 0.01) - 0.015; 
-                
                 if (this.heat < 0) this.heat = 0;
                 if (this.heat > 1.0) this.heat = 1.0;
 
@@ -434,7 +384,6 @@
                 
                 this.isResonant = this.heat > 0.5;
                 let langevinNoise = (Math.random() - 0.5) * Math.sqrt(envTemp) * 0.1;
-                
                 if (!this.isResonant) {
                     let diff = this.basePhase - this.phase;
                     this.phase += (diff * 0.01) + langevinNoise;
@@ -446,7 +395,6 @@
             draw() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.isResonant ? 2.5 : 1.5, 0, Math.PI * 2);
-                
                 if (this.isResonant) {
                     let r = Math.floor(Math.sin(this.phase) * 50 + 16); 
                     let g = Math.floor(Math.sin(this.phase + 2) * 100 + 185); 
@@ -474,7 +422,6 @@
             update() {
                 this.radius += this.speed;
                 this.opacity = 1.0 - (this.radius / this.maxRadius);
-                
                 nodes.forEach(n => {
                     let dist = Math.hypot(n.x - this.x, n.y - this.y);
                     if (Math.abs(dist - this.radius) < this.speed) {
@@ -499,12 +446,9 @@
             }
         }
 
-        function initSwarm() {
-            resize(); // This handles populating the initial array
-        }
+        function initSwarm() { resize(); }
 
         function animate() {
-            // Because canvas covers the whole screen, this gradient paints the entire page background every frame
             let grad = ctx.createLinearGradient(0, 0, width, 0);
             grad.addColorStop(0, 'rgba(5, 15, 12, 0.85)'); 
             grad.addColorStop(1, 'rgba(2, 6, 10, 0.85)'); 
@@ -528,14 +472,12 @@
                 for (let j = i + 1; j < nodes.length; j++) {
                     let n2 = nodes[j];
                     let dist = Math.hypot(n1.x - n2.x, n1.y - n2.y);
-                    
                     if (dist < 80 && n1.isResonant && n2.isResonant) {
                         let phaseDiff = Math.abs(n1.phase - n2.phase);
                         if (phaseDiff < 0.5 || Math.PI * 2 - phaseDiff < 0.5) {
                             ctx.beginPath();
                             ctx.moveTo(n1.x, n1.y);
                             ctx.lineTo(n2.x, n2.y);
-                            
                             let r = Math.floor(Math.sin(n1.phase) * 50 + 16); 
                             let g = Math.floor(Math.sin(n1.phase + 2) * 100 + 185); 
                             let b = Math.floor(Math.sin(n1.phase + 4) * 80 + 150);
@@ -545,7 +487,6 @@
                             let couplingStrength = 0.05;
                             let phaseShift1 = Math.sin(n2.phase - n1.phase) * couplingStrength;
                             let phaseShift2 = Math.sin(n1.phase - n2.phase) * couplingStrength;
-                            
                             n1.phase += phaseShift1;
                             n2.phase += phaseShift2;
                             
@@ -572,7 +513,6 @@
             requestAnimationFrame(animate);
         }
 
-        // Global Event Listeners - Now attached to the Window instead of a small Canvas container!
         function handleInput(e, isDown) {
             if (e.touches && e.touches.length > 0) {
                 mouseX = e.touches[0].clientX;
@@ -587,8 +527,6 @@
         window.addEventListener('mousedown', (e) => handleInput(e, true));
         window.addEventListener('mousemove', (e) => handleInput(e));
         window.addEventListener('mouseup', () => isDrawing = false);
-
-        // Keep passive:true so we do NOT block mobile users from scrolling!
         window.addEventListener('touchstart', (e) => handleInput(e, true), {passive: true});
         window.addEventListener('touchmove', (e) => { handleInput(e); }, {passive: true});
         window.addEventListener('touchend', () => isDrawing = false);
