@@ -72,8 +72,9 @@
 
         /* Box Styles */
         .equation-box { background: rgba(0,0,0,0.6); border-left: 3px solid #10b981; padding: 1.5rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0; }
-        .constraint-box, .threat-box, .bom-box { background: rgba(239, 68, 68, 0.05); border-left: 4px solid #ef4444; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; }
+        .constraint-box, .threat-box, .bom-box, .failure-box { background: rgba(239, 68, 68, 0.05); border-left: 4px solid #ef4444; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; }
         .pathway-box, .hardware-box, .concept-box { background: rgba(16, 185, 129, 0.05); border-left: 4px solid #10b981; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; }
+        .discovery-box { background: rgba(249, 115, 22, 0.05); border-left: 4px solid #f97316; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; }
         
         mjx-container[jax="SVG"][display="true"] {
             background: rgba(10, 15, 25, 0.8);
@@ -110,6 +111,8 @@
             background: #030508;
             padding: 0 10px;
         }
+        .data-row { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 0.75rem 0; }
+        .data-row:last-child { border-bottom: none; }
     </style>
 </head>
 <body class="antialiased selection:bg-emerald-900 selection:text-emerald-100">
@@ -146,6 +149,7 @@
             <a href="#optimizer" class="text-gray-400 hover:text-emerald-400 transition-colors">II. The Optimizer</a>
             <a href="#memory" class="text-gray-400 hover:text-emerald-400 transition-colors">III. Jacobian Memory</a>
             <a href="#hardware" class="text-gray-400 hover:text-emerald-400 transition-colors">IV. Hardware PoC</a>
+            <a href="#crucible" class="text-gray-400 hover:text-emerald-400 transition-colors">V. The Crucible & Lessons</a>
         </div>
     </nav>
 
@@ -199,7 +203,7 @@
                 *Empirical Validation:* On a highly non-linear regression landscape, the MEP Thermodynamic Engine successfully out-navigated the industry-standard Adam baseline, utilizing physical momentum to roll through traps and find the absolute mathematical floor.
             </p>
 
-            <!-- Visual Proof Image 1 -->
+            <!-- Embedded Image 1 -->
             <figure class="my-10 relative group">
                 <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
                 <img src="Riemannian_Optimization_VS_Adam_in_a_Non_Convex_Landscape.png" alt="Riemannian Optimization vs Adam" class="relative w-full rounded-xl border border-gray-700 shadow-2xl">
@@ -241,7 +245,7 @@
                 </p>
             </div>
 
-            <!-- Visual Proof Image 2 -->
+            <!-- Embedded Image 2 -->
             <figure class="my-10 relative group">
                 <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
                 <img src="Catastrophic_Forgetting_VS_MEP_Jacobian_Topological_Teather.png" alt="Catastrophic Forgetting vs MEP Jacobian Topological Tether" class="relative w-full rounded-xl border border-gray-700 shadow-2xl">
@@ -252,15 +256,15 @@
 
             <div class="bg-gray-900/50 border border-gray-700 rounded-lg p-6 mb-8 mt-8">
                 <h4 class="text-emerald-400 font-bold mono text-sm mb-4 uppercase tracking-widest border-b border-gray-800 pb-2">V5.0 Crucible Results (Split-MNIST)</h4>
-                <div class="flex justify-between border-b border-gray-800 py-2 text-sm">
+                <div class="data-row">
                     <span class="text-gray-400">Naive SGD (No Protection)</span>
                     <span class="font-bold text-red-400">1.76%</span>
                 </div>
-                <div class="flex justify-between border-b border-gray-800 py-2 text-sm">
+                <div class="data-row">
                     <span class="text-gray-400">EWC (Industry Baseline)</span>
                     <span class="font-bold text-gray-200">4.65%</span>
                 </div>
-                <div class="flex justify-between py-2 text-sm bg-emerald-900/20 -mx-6 px-6">
+                <div class="data-row bg-emerald-900/20 -mx-6 px-6 border-y border-emerald-900/50 mt-2">
                     <span class="text-emerald-400 font-bold">MEP Jacobian Tether</span>
                     <span class="font-bold text-emerald-400">91.49%</span>
                 </div>
@@ -300,6 +304,59 @@
                 <strong class="text-emerald-400 block mb-1">3. Entanglement & State Update</strong>
                 <p class="m-0 text-sm text-gray-300">A second AD633 scales the voltage by $W$. This voltage feeds into an Op-Amp Integrator, smoothly shifting Node A's internal CD4046 VCO frequency to align with Node B, mimicking continuous physical time-stepping.</p>
             </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <section id="crucible" class="scroll-mt-24">
+            <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2 !mt-0">
+                Part V: The Preregistration Crucible & Lessons Learned
+            </h2>
+            <h3 class="text-xl md:text-2xl text-emerald-400 font-light mt-0 mb-8 border-b border-gray-800 pb-6">
+                The Split-CIFAR10 Reality Check
+            </h3>
+            
+            <p class="mb-6">
+                A scientific architecture must be able to lose. Following the 91.49% retention success on Split-MNIST, a strict peer review identified a critical vulnerability: <strong>Conceptual Overfitting.</strong> Split-MNIST had become a familiar training set. To prove the validity of the Jacobian Tether, it had to survive a formally preregistered, cryptographically frozen crucible on a genuinely unseen dataset against an equal-memory baseline.
+            </p>
+
+            <div class="bg-gray-900/50 border border-gray-700 rounded-lg p-6 mb-8 font-mono text-sm">
+                <div class="data-row border-b border-gray-800 pb-4 mb-4">
+                    <span class="text-gray-400 uppercase tracking-widest text-xs">V5.1 Strict Parameters</span>
+                </div>
+                <div class="data-row">
+                    <span class="text-gray-400">Dataset</span>
+                    <span class="font-bold text-white">Split-CIFAR10 (Task A: 0-4, Task B: 5-9)</span>
+                </div>
+                <div class="data-row">
+                    <span class="text-gray-400">Primary Metric</span>
+                    <span class="font-bold text-white">Harmonic Mean (Stability & Plasticity)</span>
+                </div>
+                <div class="data-row">
+                    <span class="text-gray-400">Strict Memory Budget</span>
+                    <span class="font-bold text-emerald-400">Exactly 50 Samples (Replay vs Anchors)</span>
+                </div>
+            </div>
+
+            <div class="failure-box mt-8">
+                <strong class="text-red-500 uppercase tracking-widest text-xs block mb-2">The V5.1 Results: Catastrophic Failure</strong>
+                <p class="m-0 text-sm leading-relaxed text-gray-200">
+                    The preregistered failure condition was explicit: <em>"The hypothesis fails if MEP fails to outperform the Experience Replay baseline by a statistically significant margin."</em> The Jacobian Tether failed completely. Across all 10 independent seeds, the simple 50-sample Experience Replay baseline achieved a <strong>20.95%</strong> Harmonic Mean. The MEP Jacobian Tether achieved a <strong>0.00%</strong> Harmonic Mean. It learned Task B but retained exactly 0.0% of Task A.
+                </p>
+            </div>
+
+            <h4 class="text-lg font-bold text-white tracking-widest mt-10 mb-4">The Post-Mortem & The Lesson</h4>
+            <div class="discovery-box">
+                <strong class="text-orange-500 uppercase tracking-widest text-xs block mb-2">The Convolutional Manifold Problem</strong>
+                <p class="m-0 text-sm leading-relaxed text-gray-300">
+                    The data reveals a profound lesson in deep learning mechanics. The JVP operator calculated the derivative of the network's outputs with respect to its <em>raw input pixels</em>. On a simple MLP mapping MNIST pixels, this constrained the surface tension perfectly. However, CIFAR-10 requires a Convolutional Neural Network (CNN). By applying the tether to the raw input pixels, we only constrained the absolute lowest layer. The network completely scrambled its deep convolutional filters to learn Task B, destroying the complex feature extractors required for Task A while technically satisfying the pixel-level gradient constraint. <strong>The tether was attached to the wrong end of the manifold.</strong>
+                </p>
+            </div>
+
+            <p class="text-gray-400 italic mt-8 border-l-4 border-gray-700 pl-4">
+                "The preregistration trap worked flawlessly. It prevented post-hoc victory language, exposed the conceptual overfitting to MNIST, and isolated exactly how convolutional manifolds behave differently than simple MLPs. A scientific architecture must be able to lose in order to evolve."
+            </p>
+
         </section>
 
     </main>
