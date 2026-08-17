@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEP Architecture V5.0 - Formal Preregistration</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+    <style>
+        body {
+            background-color: #030508;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+        }
+        .mono { font-family: 'Space Mono', monospace; }
+        .hypothesis-box { background: rgba(34, 211, 238, 0.05); border-left: 4px solid #22d3ee; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; }
+        .failure-box { background: rgba(239, 68, 68, 0.05); border-left: 4px solid #ef4444; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; }
+    </style>
+</head>
+<body class="antialiased selection:bg-cyan-900 selection:text-cyan-100">
+
+    <main class="max-w-4xl mx-auto px-6 py-16 prose prose-invert prose-cyan lg:prose-lg">
+
+        <header class="mb-16">
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">MEP Architecture V5.0</h1>
+            <h2 class="text-2xl text-cyan-400 font-light mt-0 mb-6 border-b border-gray-800 pb-6">Formal Preregistration: Jacobian Topological Tethering</h2>
+            <div class="flex flex-col sm:flex-row gap-4 mono text-sm text-gray-400 bg-gray-900/50 p-4 rounded-lg border border-gray-800">
+                <div><strong class="text-gray-200">Date:</strong> August 16, 2026</div>
+                <div class="hidden sm:block">|</div>
+                <div><strong class="text-cyan-400 animate-pulse">Status: Pre-Data Collection</strong></div>
+            </div>
+        </header>
+
+        <section>
+            <div class="hypothesis-box">
+                <strong class="text-cyan-400 uppercase tracking-widest text-xs block mb-2">The Hypothesis</strong>
+                <p class="m-0 text-sm leading-relaxed text-gray-200">
+                    Catastrophic Forgetting can be prevented by protecting the <em>functional surface geometry</em> of a neural network rather than its internal parameters. By treating the $\mathcal{P}$ operator as an elastic tether on the <strong>Jacobian Matrix</strong> (measured via Hutchinson's JVP trace estimator), the network is allowed to freely scramble its internal weights to learn Task B, provided the topological shape of Task A's attractor basin remains unwarped. This operationalizes the true definition of a "lossy geometric scar."
+                </p>
+            </div>
+
+            <h3 class="text-xl font-bold text-white mt-10 mb-4">1. Experimental Design</h3>
+            <ul>
+                <li><strong>Benchmark:</strong> Split MNIST (Task A: Digits 0-4; Task B: Digits 5-9). This perfectly mirrors previous V3.2, V3.3, and V4.0 tests for rigorous comparison.</li>
+                <li><strong>Network:</strong> Standard discrete Multi-Layer Perceptron (MEPTopologicalNetwork).</li>
+                <li><strong>The Operation:</strong> 
+                    <ol>
+                        <li>Train on Task A. Freeze a copy of the network to act as the topological anchor ($J_A$).</li>
+                        <li>Extract a small subset of unlabeled anchor coordinates ($X_A$) from Task A's dataset.</li>
+                        <li>Train on Task B. At each step, compute the JVP (Jacobian-Vector Product) for both the current model and the anchor model on $X_A$ using a random perturbation vector $v$.</li>
+                        <li>Apply the Topological Tether: $\mathcal{Loss}_{total} = \mathcal{Loss}_{TaskB} + \lambda \cdot MSE(J_{current} \cdot v, J_A \cdot v)$</li>
+                    </ol>
+                </li>
+            </ul>
+
+            <h3 class="text-xl font-bold text-white mt-10 mb-4">2. Baselines & Seeds</h3>
+            <ul>
+                <li><strong>Naive SGD:</strong> Standard sequential training (expected 1-2% retention).</li>
+                <li><strong>EWC (Elastic Weight Consolidation):</strong> The industry standard for continual learning (achieved ~4.99% in V3.2).</li>
+                <li><strong>Seeds:</strong> 20 independent random initializations to ensure statistical significance.</li>
+            </ul>
+
+            <h3 class="text-xl font-bold text-white mt-10 mb-4">3. Explicit Failure Conditions (Falsifiability)</h3>
+            <div class="failure-box">
+                <strong class="text-red-500 uppercase tracking-widest text-xs block mb-2">Failure Conditions</strong>
+                <p class="m-0 text-sm leading-relaxed text-gray-200">The Jacobian Tethering hypothesis will be considered <strong>FAILED</strong> if:</p>
+                <ol class="mt-2 mb-0 text-sm">
+                    <li><strong>Retention Threshold:</strong> The MEP Architecture retains less than <strong>80% relative accuracy</strong> on Task A. If protecting the Jacobian fails to preserve the functional memory, the geometric scar theory is falsified.</li>
+                    <li><strong>Baseline Equivalence:</strong> The MEP Architecture fails to outperform Elastic Weight Consolidation (EWC) by a statistically significant margin ($p < 0.05$). If true topology performs worse than a standard Fisher Information penalty, the added computational complexity of the JVP engine is unjustified.</li>
+                </ol>
+            </div>
+        </section>
+
+    </main>
+
+</body>
+</html>
