@@ -5,13 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MEP Architecture V5.0 - Unified Master Document</title>
     
-    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Load Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Load MathJax for rendering LaTeX equations -->
     <script>
         MathJax = {
             tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
@@ -29,7 +25,6 @@
         }
         .mono { font-family: 'Space Mono', monospace; }
         
-        /* Swarm Canvas Hero Styles */
         #hero-container {
             position: relative;
             width: 100%;
@@ -60,6 +55,9 @@
             justify-content: flex-start;
             padding: 4rem;
         }
+        @media (max-width: 768px) {
+            #presentation-layer { padding: 2rem; }
+        }
         .glass-panel-hero {
             background: rgba(5, 5, 12, 0.85);
             backdrop-filter: blur(16px);
@@ -72,14 +70,11 @@
             pointer-events: auto;
         }
 
-        /* Combined Box Styles from all documents */
+        /* Box Styles */
         .equation-box { background: rgba(0,0,0,0.6); border-left: 3px solid #10b981; padding: 1.5rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0; }
         .constraint-box, .threat-box, .bom-box { background: rgba(239, 68, 68, 0.05); border-left: 4px solid #ef4444; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; }
         .pathway-box, .hardware-box, .concept-box { background: rgba(16, 185, 129, 0.05); border-left: 4px solid #10b981; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; }
-        .utopia-box { background: rgba(16, 185, 129, 0.05); border-left: 4px solid #10b981; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1rem; }
-        .dystopia-box { background: rgba(249, 115, 22, 0.05); border-left: 4px solid #f97316; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; }
         
-        /* MathJax Custom Styling */
         mjx-container[jax="SVG"][display="true"] {
             background: rgba(10, 15, 25, 0.8);
             border: 1px solid rgba(16, 185, 129, 0.2);
@@ -91,7 +86,6 @@
         }
         mjx-container svg { filter: drop-shadow(0px 0px 2px rgba(16, 185, 129, 0.5)); color: #10b981 !important; }
 
-        /* Sticky Nav */
         .sticky-nav {
             position: sticky;
             top: 0;
@@ -120,7 +114,6 @@
 </head>
 <body class="antialiased selection:bg-emerald-900 selection:text-emerald-100">
 
-    <!-- HERO SECTION (Interactive Swarm) -->
     <div id="hero-container">
         <canvas id="swarmCanvas"></canvas>
         <div id="presentation-layer">
@@ -147,7 +140,6 @@
         </div>
     </div>
 
-    <!-- STICKY NAVIGATION -->
     <nav class="sticky-nav py-4 px-6 shadow-lg">
         <div class="max-w-4xl mx-auto flex flex-wrap justify-center md:justify-between items-center gap-4 text-xs md:text-sm font-bold tracking-widest uppercase mono">
             <a href="#whitepaper" class="text-gray-400 hover:text-emerald-400 transition-colors">I. Whitepaper V5.0</a>
@@ -157,10 +149,8 @@
         </div>
     </nav>
 
-    <!-- MAIN CONTENT CONTAINER -->
     <main class="max-w-4xl mx-auto px-6 py-16 prose prose-invert prose-emerald lg:prose-lg">
 
-        <!-- SECTION I: THE WHITEPAPER -->
         <section id="whitepaper" class="scroll-mt-24">
             <div class="mb-12">
                 <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2 !mt-0">
@@ -184,7 +174,6 @@
 
         <div class="section-divider"></div>
 
-        <!-- SECTION II: THE OPTIMIZER -->
         <section id="optimizer" class="scroll-mt-24">
             <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2 !mt-0">
                 Part I: The Optimization Substrate
@@ -200,20 +189,29 @@
             <div class="concept-box">
                 <strong class="text-emerald-400 uppercase tracking-widest text-xs block mb-2">The APM (Adaptive Physical Momentum) Mechanism</strong>
                 <ul class="m-0 text-sm leading-relaxed text-gray-200 space-y-3">
-                    <li><strong>1. Local Heat Capacity (Curvature):</strong> We calculate a diagonal metric tensor to map the spatial curvature of the environment: $v_t = \beta v_{t-1} + (1-\beta)g_t^2$</li>
+                    <li><strong>1. Local Heat Capacity (Curvature):</strong> We calculate a diagonal metric tensor to map the spatial curvature of the environment.</li>
                     <li><strong>2. Underdamped Momentum:</strong> We apply physical mass to the gradients, preventing immediate oscillation and allowing the system to roll through shallow traps.</li>
-                    <li><strong>3. Langevin Thermal Noise:</strong> In high-dimensional spaces, ambient thermal noise ($\boldsymbol{\xi}_n$) is injected to physically bounce the state out of deep saddle points.</li>
+                    <li><strong>3. Langevin Thermal Noise:</strong> In high-dimensional spaces, ambient thermal noise is injected to physically bounce the state out of deep saddle points.</li>
                 </ul>
             </div>
 
-            <p class="text-gray-400 italic">
-                *Empirical Validation:* On a 100-D Rastrigin function, the MEP Thermodynamic Engine successfully out-navigated the industry-standard AdamW baseline, utilizing physical momentum and thermal shock to find a lower global minimum.
+            <p class="text-gray-400 italic mb-8">
+                *Empirical Validation:* On a highly non-linear regression landscape, the MEP Thermodynamic Engine successfully out-navigated the industry-standard Adam baseline, utilizing physical momentum to roll through traps and find the absolute mathematical floor.
             </p>
+
+            <!-- Visual Proof Image 1 -->
+            <figure class="my-10 relative group">
+                <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+                <img src="Riemannian Optimization VS Adam in a Non_Convex Landscape.png" alt="Riemannian Optimization vs Adam" class="relative w-full rounded-xl border border-gray-700 shadow-2xl">
+                <figcaption class="text-center text-sm text-emerald-400/80 mt-4 font-mono tracking-wide">
+                    Fig 1. Visual Proof: The MEP Riemannian Engine rolls through traps where Adam stalls.
+                </figcaption>
+            </figure>
+
         </section>
 
         <div class="section-divider"></div>
 
-        <!-- SECTION III: JACOBIAN MEMORY -->
         <section id="memory" class="scroll-mt-24">
             <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2 !mt-0">
                 Part II: The Memory Substrate
@@ -243,6 +241,15 @@
                 </p>
             </div>
 
+            <!-- Visual Proof Image 2 -->
+            <figure class="my-10 relative group">
+                <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+                <img src="Catastrophic Forgetting VS MEP Jacobian Topological Teather.png" alt="Catastrophic Forgetting vs MEP Jacobian Topological Tether" class="relative w-full rounded-xl border border-gray-700 shadow-2xl">
+                <figcaption class="text-center text-sm text-emerald-400/80 mt-4 font-mono tracking-wide">
+                    Fig 2. Visual Proof: The Jacobian Tether preserves the exact functional curve of Task A while learning Task B.
+                </figcaption>
+            </figure>
+
             <div class="bg-gray-900/50 border border-gray-700 rounded-lg p-6 mb-8 mt-8">
                 <h4 class="text-emerald-400 font-bold mono text-sm mb-4 uppercase tracking-widest border-b border-gray-800 pb-2">V5.0 Crucible Results (Split-MNIST)</h4>
                 <div class="flex justify-between border-b border-gray-800 py-2 text-sm">
@@ -266,7 +273,6 @@
 
         <div class="section-divider"></div>
 
-        <!-- SECTION IV: MACRO-SCALE HARDWARE POC -->
         <section id="hardware" class="scroll-mt-24">
             <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2 !mt-0">
                 Macro-Scale Hardware
@@ -299,8 +305,6 @@
     </main>
 
     <script>
-        // Swarm Physics Simulation Script (adapted for bounded hero container)
-        // Updated colors for V5 (Emerald theme)
         const canvas = document.getElementById('swarmCanvas');
         const ctx = canvas.getContext('2d', { alpha: false });
         const heroContainer = document.getElementById('hero-container');
@@ -372,7 +376,6 @@
                 ctx.arc(this.x, this.y, this.isResonant ? 2.5 : 1.5, 0, Math.PI * 2);
                 
                 if (this.isResonant) {
-                    // Emerald / Cyan resonance coloring
                     let r = Math.floor(Math.sin(this.phase) * 50 + 16); 
                     let g = Math.floor(Math.sin(this.phase + 2) * 100 + 185); 
                     let b = Math.floor(Math.sin(this.phase + 4) * 80 + 150);
