@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEP Architecture V5.1 - Crucible Results & Post-Mortem</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+    <style>
+        body {
+            background-color: #000;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .mono { font-family: 'Space Mono', monospace; }
+        
+        /* Swarm Canvas - Fixed to background */
+        #swarmCanvas {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1; 
+            filter: drop-shadow(0 0 5px rgba(239, 68, 68, 0.15)) contrast(1.2) brightness(1.1);
+        }
+
+        #hero-container {
+            position: relative;
+            width: 100%;
+            height: 60vh;
+            min-height: 400px;
+            background-color: transparent; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        #presentation-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 4rem;
+        }
+        @media (max-width: 768px) {
+            #presentation-layer { padding: 2rem; }
+        }
+        
+        .glass-panel-hero {
+            background: rgba(15, 5, 5, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 16px;
+            padding: 3rem;
+            max-width: 700px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.05);
+            pointer-events: auto;
+        }
+
+        /* Specific Box Styles */
+        .failure-box { background: rgba(239, 68, 68, 0.05); border-left: 4px solid #ef4444; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; backdrop-filter: blur(4px); }
+        .discovery-box { background: rgba(249, 115, 22, 0.05); border-left: 4px solid #f97316; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; backdrop-filter: blur(4px); }
+        .data-box { background: rgba(10, 15, 25, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; backdrop-filter: blur(8px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .data-row { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 0.75rem 0; }
+        .data-row:last-child { border-bottom: none; }
+
+        .sticky-nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(5, 2, 2, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+        }
+        
+        .section-divider {
+            border-top: 1px dashed rgba(255,255,255,0.1);
+            margin: 4rem 0;
+            position: relative;
+        }
+        .section-divider::after {
+            content: "◆";
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ef4444;
+            background: #000;
+            padding: 0 10px;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-red-900 selection:text-red-100">
+
+    <canvas id="swarmCanvas"></canvas>
+
+    <div id="hero-container">
+        <div id="presentation-layer">
+            <div class="glass-panel-hero">
+                <h3 class="text-red-500 font-bold text-xs tracking-[0.2em] uppercase mb-2">Preregistration Protocol Concluded</h3>
+                <h1 class="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight tracking-tight">The Crucible Results & <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">Post-Mortem V5.1</span></h1>
+                
+                <p class="text-sm text-gray-300 leading-relaxed mb-6">
+                    A formal record of the V5.1 Split-CIFAR10 Crucible. The protocol successfully falsified the hypothesis that the Jacobian Topological Tether could prevent Catastrophic Forgetting on a complex convolutional manifold when matched against an equal-memory baseline.
+                </p>
+
+                <div class="flex flex-wrap gap-4 mono text-xs text-gray-400 border-t border-gray-800 pt-4 mt-6">
+                    <div><strong class="text-gray-200">Execution:</strong> August 17, 2026</div>
+                    <div>|</div>
+                    <div><strong class="text-red-500 animate-pulse">Status: Hypothesis Falsified</strong></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <nav class="sticky-nav py-4 px-6 shadow-lg">
+        <div class="max-w-4xl mx-auto flex flex-wrap justify-center md:justify-between items-center gap-4 text-xs md:text-sm font-bold tracking-widest uppercase mono">
+            <a href="#benchmark" class="text-gray-400 hover:text-red-400 transition-colors">I. The Benchmark</a>
+            <a href="#results" class="text-gray-400 hover:text-red-400 transition-colors">II. The Results</a>
+            <a href="#lessons" class="text-gray-400 hover:text-red-400 transition-colors">III. The Convolutional Lesson</a>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto px-6 py-16 prose prose-invert prose-red lg:prose-lg relative z-10">
+
+        <section id="benchmark" class="scroll-mt-24 bg-black/50 p-8 rounded-2xl backdrop-blur-sm border border-white/5 mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2 !mt-0">
+                The Strict-Budget Benchmark
+            </h2>
+            <h3 class="text-xl md:text-2xl text-red-500 font-light mt-0 mb-8 border-b border-gray-800 pb-6">
+                Split-CIFAR10 & The Harmonic Mean
+            </h3>
+            
+            <p>
+                Following the 91.49% retention success of V5.0 on Split-MNIST, strict peer review identified a critical vulnerability: <strong>Conceptual Overfitting.</strong> To prove validity, the architecture was subjected to a cryptographically frozen crucible on a genuinely unseen dataset.
+            </p>
+
+            <div class="data-box mt-8">
+                <div class="data-row border-b border-gray-700 pb-4 mb-4">
+                    <span class="text-gray-400 uppercase tracking-widest text-xs font-bold">V5.1 Strict Protocol Parameters</span>
+                </div>
+                <div class="data-row">
+                    <span class="text-gray-400">Dataset</span>
+                    <span class="font-bold text-white">Split-CIFAR10 (Task A: 0-4, Task B: 5-9)</span>
+                </div>
+                <div class="data-row">
+                    <span class="text-gray-400">Network Architecture</span>
+                    <span class="font-bold text-white">Convolutional Neural Network (CNN)</span>
+                </div>
+                <div class="data-row">
+                    <span class="text-gray-400">Primary Metric</span>
+                    <span class="font-bold text-white">Harmonic Mean (Stability & Plasticity)</span>
+                </div>
+                <div class="data-row">
+                    <span class="text-gray-400">Strict Memory Budget</span>
+                    <span class="font-bold text-red-400">Exactly 50 Samples (Replay vs Anchors)</span>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <section id="results" class="scroll-mt-24 bg-black/50 p-8 rounded-2xl backdrop-blur-sm border border-white/5 mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2 !mt-0">
+                The Crucible Data
+            </h2>
+            <h3 class="text-xl md:text-2xl text-red-500 font-light mt-0 mb-8 border-b border-gray-800 pb-6">
+                Statistical Adjudication across 10 Seeds
+            </h3>
+
+            <div class="data-box font-mono text-sm">
+                <div class="data-row">
+                    <span class="text-gray-400">Experience Replay Baseline (50 Samples)</span>
+                    <span class="font-bold text-white">20.95% Harmonic Mean</span>
+                </div>
+                <div class="data-row bg-red-900/20 -mx-6 px-6 border-y border-red-900/50 mt-2">
+                    <span class="text-red-500 font-bold">MEP Jacobian Tether (50 Anchors)</span>
+                    <span class="font-bold text-red-500">0.00% Harmonic Mean</span>
+                </div>
+                <div class="data-row mt-4 pt-4 border-t border-gray-700 flex-col gap-2">
+                    <div class="flex justify-between w-full">
+                        <span class="text-gray-500 text-xs uppercase tracking-widest">Difference</span>
+                        <span class="text-white text-xs">-20.95% [95% CI: -23.03 to -18.88]</span>
+                    </div>
+                    <div class="flex justify-between w-full">
+                        <span class="text-gray-500 text-xs uppercase tracking-widest">Welch's t-test p-value</span>
+                        <span class="text-white text-xs">5.4337e-09 (Significant)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="failure-box mt-8">
+                <strong class="text-red-500 uppercase tracking-widest text-xs block mb-2">The Verdict: Catastrophic Failure</strong>
+                <p class="m-0 text-sm leading-relaxed text-gray-200">
+                    The preregistered failure condition was explicit: <em>"The hypothesis fails if MEP fails to outperform the Experience Replay baseline by a statistically significant margin."</em> The MEP Jacobian Tether completely severed. Across all 10 independent seeds, it acquired Task B (~37%) but retained exactly <strong>0.0%</strong> of Task A accuracy. 
+                </p>
+            </div>
+        </section>
+
+        <div class="section-divider"></div>
+
+        <section id="lessons" class="scroll-mt-24 bg-black/50 p-8 rounded-2xl backdrop-blur-sm border border-white/5 mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2 !mt-0">
+                The Post-Mortem
+            </h2>
+            <h3 class="text-xl md:text-2xl text-red-500 font-light mt-0 mb-8 border-b border-gray-800 pb-6">
+                The Convolutional Manifold Problem
+            </h3>
+            
+            <p>
+                How did a mechanism that scored 91.49% on MNIST score 0.0% on CIFAR-10? The data reveals a profound lesson in deep learning mechanics. 
+            </p>
+
+            <div class="discovery-box">
+                <strong class="text-orange-500 uppercase tracking-widest text-xs block mb-2">Tethering the Wrong End of the Manifold</strong>
+                <p class="m-0 text-sm leading-relaxed text-gray-300">
+                    The math of our JVP operator calculated the directional derivative of the network's outputs with respect to its <em>raw input pixels</em>. On a simple MLP mapping MNIST pixels, constraining this surface tension worked perfectly. However, CIFAR-10 requires a Convolutional Neural Network (CNN). 
+                    <br><br>
+                    CNNs rely on hierarchical feature extraction (edges $\rightarrow$ shapes $\rightarrow$ objects). By applying the tether to the raw input pixels, we only constrained the absolute lowest layer. The network simply ignored the tether, completely scrambled its deep convolutional filters to learn Task B, and destroyed the feature extractors required for Task A while technically satisfying the pixel-level gradient constraint. 
+                </p>
+            </div>
+
+            <p class="text-gray-400 italic mt-8 border-l-4 border-red-900 pl-4 bg-red-900/10 py-3 pr-3 rounded-r-lg">
+                "The preregistration trap worked flawlessly. It prevented post-hoc victory language and exposed the conceptual overfitting to MNIST. A scientific architecture must be able to lose in order to evolve. We now know that to constrain a deep convolutional manifold, the tether must be applied to the latent feature space, not the input pixels."
+            </p>
+        </section>
+
+    </main>
+
+    <script>
+        const canvas = document.getElementById('swarmCanvas');
+        const ctx = canvas.getContext('2d', { alpha: false });
+
+        let width, height;
+        let nodes = [];
+        let ripples = [];
+        // High density swarm (divided by 3500)
+        let NUM_NODES = 500; 
+
+        let isDrawing = false;
+        let mouseX = -1000;
+        let mouseY = -1000;
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+            
+            // Adjust swarm density for larger screens
+            NUM_NODES = Math.max(300, Math.min(Math.floor((width * height) / 3500), 800));
+            
+            while(nodes.length < NUM_NODES) nodes.push(new Node());
+            if(nodes.length > NUM_NODES) nodes.length = NUM_NODES;
+        }
+        window.addEventListener('resize', resize);
+
+        class Node {
+            constructor() {
+                this.x = Math.random() * (window.innerWidth || 1000);
+                this.y = Math.random() * (window.innerHeight || 1000);
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                
+                this.heat = 0;           
+                this.phase = Math.random() * Math.PI * 2; 
+                this.basePhase = this.phase; 
+                this.isResonant = false;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                if (this.x < 0) this.x = width;
+                if (this.x > width) this.x = 0;
+                if (this.y < 0) this.y = height;
+                if (this.y > height) this.y = 0;
+
+                let envTemp = Math.max(0.1, 1.0 - (this.x / width));
+                this.heat += (envTemp * 0.01) - 0.015; 
+                
+                if (this.heat < 0) this.heat = 0;
+                if (this.heat > 1.0) this.heat = 1.0;
+
+                if (this.heat > 0.8 && Math.random() < 0.05) {
+                    ripples.push(new Ripple(this.x, this.y, this.heat, this.phase));
+                    this.heat -= 0.2; 
+                }
+                
+                this.isResonant = this.heat > 0.5;
+                let langevinNoise = (Math.random() - 0.5) * Math.sqrt(envTemp) * 0.1;
+                
+                if (!this.isResonant) {
+                    let diff = this.basePhase - this.phase;
+                    this.phase += (diff * 0.01) + langevinNoise;
+                } else {
+                    this.phase += langevinNoise;
+                }
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.isResonant ? 2.5 : 1.5, 0, Math.PI * 2);
+                
+                if (this.isResonant) {
+                    // Changed to a fiery red/orange palette for the failure report
+                    let r = Math.floor(Math.sin(this.phase) * 50 + 200); 
+                    let g = Math.floor(Math.sin(this.phase + 2) * 80 + 100); 
+                    let b = Math.floor(Math.sin(this.phase + 4) * 40 + 20);
+                    ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+                } else {
+                    ctx.fillStyle = `rgba(239, 68, 68, ${0.1 + (this.heat * 0.2)})`;
+                }
+                ctx.fill();
+            }
+        }
+
+        class Ripple {
+            constructor(x, y, energy, phase) {
+                this.x = x;
+                this.y = y;
+                this.energy = energy;
+                this.phase = phase;
+                this.radius = 0;
+                this.maxRadius = energy * 150;
+                this.opacity = 1.0;
+                this.speed = 3 + Math.random() * 2;
+            }
+
+            update() {
+                this.radius += this.speed;
+                this.opacity = 1.0 - (this.radius / this.maxRadius);
+                
+                nodes.forEach(n => {
+                    let dist = Math.hypot(n.x - this.x, n.y - this.y);
+                    if (Math.abs(dist - this.radius) < this.speed) {
+                        n.heat = Math.min(n.heat + this.energy * 0.5 * this.opacity, 1.0);
+                        if (n.heat > 0.4) {
+                            n.phase += Math.sin(this.phase - n.phase) * 0.2;
+                        }
+                    }
+                });
+            }
+
+            draw() {
+                if (this.opacity <= 0) return;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                // Fiery ripple colors
+                let r = Math.floor(Math.sin(this.phase) * 50 + 200); 
+                let g = Math.floor(Math.sin(this.phase + 2) * 80 + 100); 
+                let b = Math.floor(Math.sin(this.phase + 4) * 40 + 20);
+                ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${this.opacity * 0.5})`;
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            }
+        }
+
+        function initSwarm() {
+            resize(); 
+        }
+
+        function animate() {
+            // Dark background with a slight crimson undertone
+            let grad = ctx.createLinearGradient(0, 0, width, 0);
+            grad.addColorStop(0, 'rgba(15, 5, 5, 0.85)'); 
+            grad.addColorStop(1, 'rgba(5, 2, 2, 0.85)'); 
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, width, height);
+
+            if (isDrawing) {
+                if (Math.random() < 0.3) {
+                    let userPhase = (Date.now() * 0.001) % (Math.PI * 2);
+                    ripples.push(new Ripple(mouseX, mouseY, 1.5, userPhase));
+                }
+                nodes.forEach(n => {
+                    let d = Math.hypot(n.x - mouseX, n.y - mouseY);
+                    if (d < 100) n.heat = 1.0;
+                });
+            }
+
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i < nodes.length; i++) {
+                let n1 = nodes[i];
+                for (let j = i + 1; j < nodes.length; j++) {
+                    let n2 = nodes[j];
+                    let dist = Math.hypot(n1.x - n2.x, n1.y - n2.y);
+                    
+                    if (dist < 80 && n1.isResonant && n2.isResonant) {
+                        let phaseDiff = Math.abs(n1.phase - n2.phase);
+                        if (phaseDiff < 0.5 || Math.PI * 2 - phaseDiff < 0.5) {
+                            ctx.beginPath();
+                            ctx.moveTo(n1.x, n1.y);
+                            ctx.lineTo(n2.x, n2.y);
+                            
+                            let r = Math.floor(Math.sin(n1.phase) * 50 + 200); 
+                            let g = Math.floor(Math.sin(n1.phase + 2) * 80 + 100); 
+                            let b = Math.floor(Math.sin(n1.phase + 4) * 40 + 20);
+                            ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${(1 - dist/80) * 0.8})`;
+                            ctx.stroke();
+                            
+                            let couplingStrength = 0.05;
+                            let phaseShift1 = Math.sin(n2.phase - n1.phase) * couplingStrength;
+                            let phaseShift2 = Math.sin(n1.phase - n2.phase) * couplingStrength;
+                            
+                            n1.phase += phaseShift1;
+                            n2.phase += phaseShift2;
+                            
+                            let avgHeat = (n1.heat + n2.heat) / 2;
+                            let entropyTax = 0.005; 
+                            n1.heat = Math.max(0, avgHeat - entropyTax);
+                            n2.heat = Math.max(0, avgHeat - entropyTax);
+                        }
+                    }
+                }
+            }
+
+            ripples.forEach((r, index) => {
+                r.update();
+                r.draw();
+                if (r.opacity <= 0) ripples.splice(index, 1);
+            });
+
+            nodes.forEach(n => {
+                n.update();
+                n.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        function handleInput(e, isDown) {
+            if (e.touches && e.touches.length > 0) {
+                mouseX = e.touches[0].clientX;
+                mouseY = e.touches[0].clientY;
+            } else {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            }
+            if (isDown !== undefined) isDrawing = isDown;
+        }
+
+        window.addEventListener('mousedown', (e) => handleInput(e, true));
+        window.addEventListener('mousemove', (e) => handleInput(e));
+        window.addEventListener('mouseup', () => isDrawing = false);
+
+        window.addEventListener('touchstart', (e) => handleInput(e, true), {passive: true});
+        window.addEventListener('touchmove', (e) => { handleInput(e); }, {passive: true});
+        window.addEventListener('touchend', () => isDrawing = false);
+
+        initSwarm();
+        animate();
+    </script>
+</body>
+</html>
