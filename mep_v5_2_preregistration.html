@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEP Architecture V5.2 - Formal Preregistration</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+    <style>
+        body {
+            background-color: #030508;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+        }
+        .mono { font-family: 'Space Mono', monospace; }
+        .hypothesis-box { background: rgba(16, 185, 129, 0.05); border-left: 4px solid #10b981; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; }
+        .failure-box { background: rgba(239, 68, 68, 0.05); border-left: 4px solid #ef4444; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; }
+    </style>
+</head>
+<body class="antialiased selection:bg-emerald-900 selection:text-emerald-100">
+
+    <main class="max-w-4xl mx-auto px-6 py-16 prose prose-invert prose-emerald lg:prose-lg">
+
+        <header class="mb-16">
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">MEP Architecture V5.2</h1>
+            <h2 class="text-2xl text-emerald-400 font-light mt-0 mb-6 border-b border-gray-800 pb-6">Formal Preregistration: Latent Feature Space Tethering</h2>
+            <div class="flex flex-col sm:flex-row gap-4 mono text-sm text-gray-400 bg-gray-900/50 p-4 rounded-lg border border-gray-800">
+                <div><strong class="text-gray-200">Date:</strong> August 17, 2026</div>
+                <div class="hidden sm:block">|</div>
+                <div><strong class="text-emerald-400 animate-pulse">Status: Pre-Data Collection (Cryptographic Hash Pending)</strong></div>
+            </div>
+        </header>
+
+        <section>
+            <h3 class="text-xl font-bold text-white mt-10 mb-4">Executive Summary</h3>
+            <p>
+                The V5.1 Crucible on Split-CIFAR10 resulted in catastrophic failure (0.0% retention) because the Jacobian Topological Tether was applied to the raw input pixels. This constrained the shallowest layers but allowed the deep hierarchical Convolutional filters to scramble. V5.2 hypothesizes that moving the tether into the <strong>Latent Feature Space</strong> will lock the deep convolutional geometry and prevent catastrophic forgetting on complex tasks.
+            </p>
+
+            <div class="hypothesis-box mt-8">
+                <strong class="text-emerald-400 uppercase tracking-widest text-xs block mb-2">1. The Hypothesis & Mechanism</strong>
+                <p class="m-0 text-sm leading-relaxed text-gray-200">
+                    We hypothesize that Catastrophic Forgetting in deep Convolutional Neural Networks can be mitigated by calculating the Jacobian-Vector Product (JVP) of the <strong>Latent Feature Space</strong> (the output of the final convolutional layer) with respect to the input pixels. This anchors the deep feature extractors ($E(x)$) while allowing the final linear classifier to dynamically adjust. 
+                </p>
+            </div>
+
+            <h3 class="text-xl font-bold text-white mt-10 mb-4">2. Experimental Design</h3>
+            <ul>
+                <li><strong>Benchmark:</strong> Split-CIFAR10 (Task A: Classes 0-4; Task B: Classes 5-9).</li>
+                <li><strong>Network Architecture:</strong> Deep Latent CNN.</li>
+                <li><strong>Strict Memory Budget:</strong> Both the Baseline and the MEP algorithm are granted an exact memory budget of $N=50$ data points extracted from Task A.</li>
+            </ul>
+
+            <h3 class="text-xl font-bold text-white mt-10 mb-4">3. Baselines & Seeds</h3>
+            <ul>
+                <li><strong>Baseline:</strong> Experience Replay (ER) using the 50-point buffer.</li>
+                <li><strong>Target Model:</strong> MEP Latent Space Tether (JVP penalty applied to both the Latent Space and Output Space).</li>
+                <li><strong>Seeds:</strong> 10 independent random initializations.</li>
+            </ul>
+
+            <h3 class="text-xl font-bold text-white mt-10 mb-4">4. Metrics & Statistical Adjudication</h3>
+            <p>
+                The primary metric of success is the <strong>Harmonic Mean</strong> of Task A Retention Accuracy and Task B Acquisition Accuracy.
+            </p>
+            
+            <div class="bg-black/50 p-4 rounded-lg border-l-4 border-emerald-500 my-6 overflow-x-auto text-center font-mono">
+                HarmonicMean = 2 × (Retention_A × Acquisition_B) / (Retention_A + Acquisition_B)
+            </div>
+
+            <h3 class="text-xl font-bold text-white mt-10 mb-4">5. Explicit Failure Conditions (Falsifiability)</h3>
+            <div class="failure-box">
+                <strong class="text-red-500 uppercase tracking-widest text-xs block mb-2">Failure Conditions</strong>
+                <p class="m-0 text-sm leading-relaxed text-gray-200">The MEP Latent Space Tether hypothesis will be considered <strong>FAILED</strong> if:</p>
+                <ol class="mt-2 mb-0 text-sm">
+                    <li><strong>Baseline Equivalence:</strong> The MEP architecture's Harmonic Mean fails to outperform the Experience Replay baseline by a statistically significant margin ($p \ge 0.05$).</li>
+                </ol>
+            </div>
+
+            <h3 class="text-xl font-bold text-white mt-10 mb-4 border-t border-gray-800 pt-8">Cryptographic Provenance</h3>
+            <div class="bg-gray-900 border border-gray-700 p-4 rounded-lg mono text-emerald-400 mt-4 text-center break-all">
+                Git Commit Hash: [201c00c04b5d5de7e681616bd2bb75213d3d7641]
+            </div>
+        </section>
+
+    </main>
+
+</body>
+</html>
