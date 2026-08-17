@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEP Architecture V5.1 - Preregistration Results</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+    <style>
+        body {
+            background-color: #030508;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(239, 68, 68, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.03) 0%, transparent 50%);
+        }
+        .mono { font-family: 'Space Mono', monospace; }
+
+        .glass-panel {
+            background: rgba(10, 15, 25, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .failure-box { background: rgba(239, 68, 68, 0.05); border-left: 4px solid #ef4444; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; }
+        .discovery-box { background: rgba(249, 115, 22, 0.05); border-left: 4px solid #f97316; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; }
+        .data-row { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 0.75rem 0; }
+        .data-row:last-child { border-bottom: none; }
+    </style>
+</head>
+<body class="antialiased selection:bg-red-900 selection:text-red-100">
+
+    <nav class="fixed top-0 left-0 w-full bg-black/50 backdrop-blur-md border-b border-white/10 z-50">
+        <div class="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="mono text-red-400 font-bold text-sm tracking-widest">MEP_ARCH_V5.1 // PROTOCOL_RESULTS</div>
+            <div class="text-xs text-gray-500 uppercase tracking-widest font-bold">Execution: August 17, 2026</div>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto px-6 pt-32 pb-24 prose prose-invert prose-emerald lg:prose-lg">
+        
+        <header class="mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">The Crucible Results</h1>
+            <h2 class="text-xl text-gray-400 font-light mt-0 mb-6 border-b border-gray-800 pb-6">
+                Formal Reporting of the V5.1 Preregistration: Unseen Benchmarks
+            </h2>
+            <div class="flex gap-4 mono text-sm text-gray-400">
+                <div><strong class="text-white">Status:</strong> Protocol Concluded. Hypothesis Falsified.</div>
+            </div>
+        </header>
+
+        <p class="text-lg leading-relaxed mb-12 text-gray-300">
+            This document serves as the formal record of the V5.1 Preregistration execution. The protocol successfully falsified the hypothesis that the Jacobian Topological Tether could prevent Catastrophic Forgetting on a complex, genuinely unseen dataset (Split-CIFAR10) when matched against an equal-memory baseline.
+        </p>
+
+        <section class="glass-panel relative overflow-hidden">
+            <h2 class="text-2xl font-bold text-white uppercase tracking-widest mt-0 mb-6 border-b border-gray-800 pb-4">
+                The Strict-Budget Benchmark
+            </h2>
+            <p class="text-sm text-gray-400 mb-6 mono">Task: Split CIFAR-10 | 10 Seeds | Metric: Harmonic Mean (Stability/Plasticity)</p>
+
+            <div class="bg-gray-900/50 border border-gray-700 rounded-lg p-6 mb-8 font-mono text-sm">
+                <div class="data-row">
+                    <span class="text-gray-400">Baseline: Experience Replay (50 Samples)</span>
+                    <span class="font-bold text-white">20.95%</span>
+                </div>
+                <div class="data-row bg-red-900/20 -mx-6 px-6 border-y border-red-900/50 mt-2">
+                    <span class="text-red-400 font-bold">MEP Jacobian Tether (50 Anchors)</span>
+                    <span class="font-bold text-red-400">0.00%</span>
+                </div>
+            </div>
+
+            <div class="failure-box">
+                <strong class="text-red-500 uppercase tracking-widest text-xs block mb-2">The Verdict: Catastrophic Failure</strong>
+                <p class="m-0 text-sm leading-relaxed text-gray-200">
+                    The preregistered failure condition was explicit: <em>"The hypothesis fails if MEP fails to outperform the baseline by a statistically significant margin."</em> The MEP Jacobian Tether completely severed. Across all 10 seeds, it retained exactly <strong>0.0%</strong> of Task A accuracy while acquiring Task B. It performed dramatically worse than the simple Experience Replay baseline (Difference: -20.95%, p = 5.43e-09).
+                </p>
+            </div>
+
+            <div class="discovery-box">
+                <strong class="text-orange-500 uppercase tracking-widest text-xs block mb-2">The Reality: Overfitting to MNIST & CNN Dynamics</strong>
+                <p class="m-0 text-sm leading-relaxed text-gray-300">
+                    The data reveals two hard truths. First, Split-MNIST had indeed become a conceptual training set. Second, computing the Jacobian-Vector Product on raw input pixels works for simple, centered MLP data (MNIST), but completely fails for convolutional feature extraction (CIFAR-10). Constraining the directional derivative of the <em>output w.r.t the input pixels</em> does not stop the internal convolutional filters from overwriting their feature representations. The tether was attached to the wrong end of the manifold.
+                </p>
+            </div>
+        </section>
+
+        <footer class="mt-16 text-center">
+            <p class="text-gray-500 text-sm italic">
+                "The preregistration trap worked flawlessly. It prevented post-hoc victory language and exposed the conceptual overfitting. A scientific architecture must be able to lose."
+            </p>
+        </footer>
+
+    </main>
+
+</body>
+</html>
