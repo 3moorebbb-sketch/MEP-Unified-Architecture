@@ -18,30 +18,35 @@
 
     <style>
         body {
-            background-color: #030508;
+            /* Let the canvas provide the primary background color */
+            background-color: #000;
             color: #e2e8f0;
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
         }
         .mono { font-family: 'Space Mono', monospace; }
         
+        /* Swarm Canvas - Now fixed to the background of the entire viewport! */
+        #swarmCanvas {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1; /* Keeps it behind all text and boxes */
+            filter: drop-shadow(0 0 5px rgba(16, 185, 129, 0.2)) contrast(1.2) brightness(1.1);
+        }
+
         #hero-container {
             position: relative;
             width: 100%;
             height: 70vh;
             min-height: 500px;
-            background-color: #000;
-            overflow: hidden;
+            background-color: transparent; /* Made transparent to show canvas */
             border-bottom: 1px solid rgba(16, 185, 129, 0.2);
         }
-        #swarmCanvas {
-            display: block;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1;
-            filter: drop-shadow(0 0 5px rgba(16, 185, 129, 0.2)) contrast(1.2) brightness(1.1);
-        }
+        
         #presentation-layer {
             position: absolute;
             top: 0;
@@ -72,9 +77,9 @@
 
         /* Box Styles */
         .equation-box { background: rgba(0,0,0,0.6); border-left: 3px solid #10b981; padding: 1.5rem; margin: 1.5rem 0; border-radius: 0 8px 8px 0; }
-        .constraint-box, .threat-box, .bom-box, .failure-box { background: rgba(239, 68, 68, 0.05); border-left: 4px solid #ef4444; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; }
-        .pathway-box, .hardware-box, .concept-box { background: rgba(16, 185, 129, 0.05); border-left: 4px solid #10b981; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; }
-        .discovery-box { background: rgba(249, 115, 22, 0.05); border-left: 4px solid #f97316; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; }
+        .constraint-box, .threat-box, .bom-box, .failure-box { background: rgba(239, 68, 68, 0.05); border-left: 4px solid #ef4444; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; backdrop-filter: blur(4px); }
+        .pathway-box, .hardware-box, .concept-box { background: rgba(16, 185, 129, 0.05); border-left: 4px solid #10b981; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; backdrop-filter: blur(4px); }
+        .discovery-box { background: rgba(249, 115, 22, 0.05); border-left: 4px solid #f97316; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; backdrop-filter: blur(4px); }
         
         mjx-container[jax="SVG"][display="true"] {
             background: rgba(10, 15, 25, 0.8);
@@ -84,6 +89,7 @@
             margin: 2rem 0;
             box-shadow: 0 0 20px rgba(16, 185, 129, 0.05);
             overflow-x: auto;
+            backdrop-filter: blur(8px);
         }
         mjx-container svg { filter: drop-shadow(0px 0px 2px rgba(16, 185, 129, 0.5)); color: #10b981 !important; }
 
@@ -91,8 +97,9 @@
             position: sticky;
             top: 0;
             z-index: 50;
-            background: rgba(3, 5, 8, 0.9);
-            backdrop-filter: blur(10px);
+            background: rgba(3, 5, 8, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
         
@@ -117,8 +124,10 @@
 </head>
 <body class="antialiased selection:bg-emerald-900 selection:text-emerald-100">
 
+    <!-- The Swarm Canvas is now independent of the Hero container! -->
+    <canvas id="swarmCanvas"></canvas>
+
     <div id="hero-container">
-        <canvas id="swarmCanvas"></canvas>
         <div id="presentation-layer">
             <div class="glass-panel-hero">
                 <h3 class="text-emerald-400 font-bold text-xs tracking-[0.2em] uppercase mb-2">Interactive Substrate</h3>
@@ -136,7 +145,7 @@
                 <div class="mt-6 flex items-center justify-between">
                     <p class="text-[11px] text-emerald-400 font-bold tracking-widest uppercase animate-pulse flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
-                        Simulation Active: Drag to inject Heat
+                        Simulation Active: Scroll or Drag to inject Heat globally
                     </p>
                 </div>
             </div>
@@ -153,9 +162,9 @@
         </div>
     </nav>
 
-    <main class="max-w-4xl mx-auto px-6 py-16 prose prose-invert prose-emerald lg:prose-lg">
+    <main class="max-w-4xl mx-auto px-6 py-16 prose prose-invert prose-emerald lg:prose-lg relative z-10">
 
-        <section id="whitepaper" class="scroll-mt-24">
+        <section id="whitepaper" class="scroll-mt-24 bg-black/40 p-8 rounded-2xl backdrop-blur-sm border border-white/5 mb-12">
             <div class="mb-12">
                 <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2 !mt-0">
                     Formal Specification V5.0
@@ -178,7 +187,7 @@
 
         <div class="section-divider"></div>
 
-        <section id="optimizer" class="scroll-mt-24">
+        <section id="optimizer" class="scroll-mt-24 bg-black/40 p-8 rounded-2xl backdrop-blur-sm border border-white/5 mb-12">
             <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2 !mt-0">
                 Part I: The Optimization Substrate
             </h2>
@@ -206,17 +215,16 @@
             <!-- Embedded Image 1 -->
             <figure class="my-10 relative group">
                 <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
-                <img src="Riemannian_Optimization_VS_Adam_in_a_Non_Convex_Landscape.png" alt="Riemannian Optimization vs Adam" class="relative w-full rounded-xl border border-gray-700 shadow-2xl">
+                <img src="Riemannian_Optimization_VS_Adam_in_a_Non_Convex_Landscape.png" alt="Riemannian Optimization vs Adam" class="relative w-full rounded-xl border border-gray-700 shadow-[0_0_30px_rgba(16,185,129,0.1)]">
                 <figcaption class="text-center text-sm text-emerald-400/80 mt-4 font-mono tracking-wide">
                     Fig 1. Visual Proof: The MEP Riemannian Engine rolls through traps where Adam stalls.
                 </figcaption>
             </figure>
-
         </section>
 
         <div class="section-divider"></div>
 
-        <section id="memory" class="scroll-mt-24">
+        <section id="memory" class="scroll-mt-24 bg-black/40 p-8 rounded-2xl backdrop-blur-sm border border-white/5 mb-12">
             <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2 !mt-0">
                 Part II: The Memory Substrate
             </h2>
@@ -248,13 +256,13 @@
             <!-- Embedded Image 2 -->
             <figure class="my-10 relative group">
                 <div class="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
-                <img src="Catastrophic_Forgetting_VS_MEP_Jacobian_Topological_Teather.png" alt="Catastrophic Forgetting vs MEP Jacobian Topological Tether" class="relative w-full rounded-xl border border-gray-700 shadow-2xl">
+                <img src="Catastrophic_Forgetting_VS_MEP_Jacobian_Topological_Teather.png" alt="Catastrophic Forgetting vs MEP Jacobian Topological Tether" class="relative w-full rounded-xl border border-gray-700 shadow-[0_0_30px_rgba(16,185,129,0.1)]">
                 <figcaption class="text-center text-sm text-emerald-400/80 mt-4 font-mono tracking-wide">
                     Fig 2. Visual Proof: The Jacobian Tether preserves the exact functional curve of Task A while learning Task B.
                 </figcaption>
             </figure>
 
-            <div class="bg-gray-900/50 border border-gray-700 rounded-lg p-6 mb-8 mt-8">
+            <div class="bg-gray-900/80 border border-gray-700 rounded-lg p-6 mb-8 mt-8 backdrop-blur-md">
                 <h4 class="text-emerald-400 font-bold mono text-sm mb-4 uppercase tracking-widest border-b border-gray-800 pb-2">V5.0 Crucible Results (Split-MNIST)</h4>
                 <div class="data-row">
                     <span class="text-gray-400">Naive SGD (No Protection)</span>
@@ -264,7 +272,7 @@
                     <span class="text-gray-400">EWC (Industry Baseline)</span>
                     <span class="font-bold text-gray-200">4.65%</span>
                 </div>
-                <div class="data-row bg-emerald-900/20 -mx-6 px-6 border-y border-emerald-900/50 mt-2">
+                <div class="data-row bg-emerald-900/40 -mx-6 px-6 border-y border-emerald-900/50 mt-2">
                     <span class="text-emerald-400 font-bold">MEP Jacobian Tether</span>
                     <span class="font-bold text-emerald-400">91.49%</span>
                 </div>
@@ -277,7 +285,7 @@
 
         <div class="section-divider"></div>
 
-        <section id="hardware" class="scroll-mt-24">
+        <section id="hardware" class="scroll-mt-24 bg-black/40 p-8 rounded-2xl backdrop-blur-sm border border-white/5 mb-12">
             <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2 !mt-0">
                 Macro-Scale Hardware
             </h2>
@@ -308,9 +316,9 @@
 
         <div class="section-divider"></div>
 
-        <section id="crucible" class="scroll-mt-24">
+        <section id="crucible" class="scroll-mt-24 bg-black/40 p-8 rounded-2xl backdrop-blur-sm border border-white/5 mb-12">
             <h2 class="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2 !mt-0">
-                Part V: The Preregistration Crucible & Lessons Learned
+                Part V: The Preregistration Crucible
             </h2>
             <h3 class="text-xl md:text-2xl text-emerald-400 font-light mt-0 mb-8 border-b border-gray-800 pb-6">
                 The Split-CIFAR10 Reality Check
@@ -320,7 +328,7 @@
                 A scientific architecture must be able to lose. Following the 91.49% retention success on Split-MNIST, a strict peer review identified a critical vulnerability: <strong>Conceptual Overfitting.</strong> Split-MNIST had become a familiar training set. To prove the validity of the Jacobian Tether, it had to survive a formally preregistered, cryptographically frozen crucible on a genuinely unseen dataset against an equal-memory baseline.
             </p>
 
-            <div class="bg-gray-900/50 border border-gray-700 rounded-lg p-6 mb-8 font-mono text-sm">
+            <div class="bg-gray-900/80 border border-gray-700 rounded-lg p-6 mb-8 font-mono text-sm backdrop-blur-md">
                 <div class="data-row border-b border-gray-800 pb-4 mb-4">
                     <span class="text-gray-400 uppercase tracking-widest text-xs">V5.1 Strict Parameters</span>
                 </div>
@@ -353,7 +361,7 @@
                 </p>
             </div>
 
-            <p class="text-gray-400 italic mt-8 border-l-4 border-gray-700 pl-4">
+            <p class="text-gray-400 italic mt-8 border-l-4 border-emerald-900 pl-4 bg-emerald-900/10 py-3 pr-3 rounded-r-lg">
                 "The preregistration trap worked flawlessly. It prevented post-hoc victory language, exposed the conceptual overfitting to MNIST, and isolated exactly how convolutional manifolds behave differently than simple MLPs. A scientific architecture must be able to lose in order to evolve."
             </p>
 
@@ -364,30 +372,37 @@
     <script>
         const canvas = document.getElementById('swarmCanvas');
         const ctx = canvas.getContext('2d', { alpha: false });
-        const heroContainer = document.getElementById('hero-container');
 
         let width, height;
         let nodes = [];
         let ripples = [];
-        const NUM_NODES = 250; 
+        // Dynamically calculate optimal node count based on screen size (keeps performance high)
+        let NUM_NODES = 500; 
 
         let isDrawing = false;
         let mouseX = -1000;
         let mouseY = -1000;
 
         function resize() {
-            width = heroContainer.clientWidth;
-            height = heroContainer.clientHeight;
+            // Now mapping to the entire Window, not just the Hero!
+            width = window.innerWidth;
+            height = window.innerHeight;
             canvas.width = width;
             canvas.height = height;
+            
+            // Adjust swarm density for larger screens (DOUBLED DENSITY)
+            NUM_NODES = Math.max(300, Math.min(Math.floor((width * height) / 3500), 800));
+            
+            // If the array is too small, add nodes. If too big, trim it.
+            while(nodes.length < NUM_NODES) nodes.push(new Node());
+            if(nodes.length > NUM_NODES) nodes.length = NUM_NODES;
         }
         window.addEventListener('resize', resize);
-        resize();
 
         class Node {
             constructor() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
+                this.x = Math.random() * (window.innerWidth || 1000);
+                this.y = Math.random() * (window.innerHeight || 1000);
                 this.vx = (Math.random() - 0.5) * 0.5;
                 this.vy = (Math.random() - 0.5) * 0.5;
                 
@@ -485,17 +500,14 @@
         }
 
         function initSwarm() {
-            nodes = [];
-            ripples = [];
-            for (let i = 0; i < NUM_NODES; i++) {
-                nodes.push(new Node());
-            }
+            resize(); // This handles populating the initial array
         }
 
         function animate() {
+            // Because canvas covers the whole screen, this gradient paints the entire page background every frame
             let grad = ctx.createLinearGradient(0, 0, width, 0);
-            grad.addColorStop(0, 'rgba(5, 20, 15, 0.8)'); 
-            grad.addColorStop(1, 'rgba(5, 10, 15, 0.8)'); 
+            grad.addColorStop(0, 'rgba(5, 15, 12, 0.85)'); 
+            grad.addColorStop(1, 'rgba(2, 6, 10, 0.85)'); 
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, width, height);
 
@@ -560,25 +572,25 @@
             requestAnimationFrame(animate);
         }
 
+        // Global Event Listeners - Now attached to the Window instead of a small Canvas container!
         function handleInput(e, isDown) {
-            let rect = canvas.getBoundingClientRect();
             if (e.touches && e.touches.length > 0) {
-                mouseX = e.touches[0].clientX - rect.left;
-                mouseY = e.touches[0].clientY - rect.top;
+                mouseX = e.touches[0].clientX;
+                mouseY = e.touches[0].clientY;
             } else {
-                mouseX = e.clientX - rect.left;
-                mouseY = e.clientY - rect.top;
+                mouseX = e.clientX;
+                mouseY = e.clientY;
             }
             if (isDown !== undefined) isDrawing = isDown;
         }
 
-        canvas.addEventListener('mousedown', (e) => handleInput(e, true));
+        window.addEventListener('mousedown', (e) => handleInput(e, true));
         window.addEventListener('mousemove', (e) => handleInput(e));
         window.addEventListener('mouseup', () => isDrawing = false);
-        canvas.addEventListener('mouseleave', () => isDrawing = false);
 
-        canvas.addEventListener('touchstart', (e) => handleInput(e, true), {passive: false});
-        window.addEventListener('touchmove', (e) => { handleInput(e); }, {passive: false});
+        // Keep passive:true so we do NOT block mobile users from scrolling!
+        window.addEventListener('touchstart', (e) => handleInput(e, true), {passive: true});
+        window.addEventListener('touchmove', (e) => { handleInput(e); }, {passive: true});
         window.addEventListener('touchend', () => isDrawing = false);
 
         initSwarm();
