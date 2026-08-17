@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEP Architecture V4.0 - ODE Preregistration Results</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+    <style>
+        body {
+            background-color: #030508;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(239, 68, 68, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 85% 30%, rgba(34, 211, 238, 0.03) 0%, transparent 50%);
+        }
+        .mono { font-family: 'Space Mono', monospace; }
+
+        .glass-panel {
+            background: rgba(10, 15, 25, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .failure-box { background: rgba(239, 68, 68, 0.05); border-left: 4px solid #ef4444; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; }
+        .discovery-box { background: rgba(34, 211, 238, 0.05); border-left: 4px solid #22d3ee; padding: 1.5rem; border-radius: 0 8px 8px 0; margin-bottom: 1.5rem; }
+        .data-row { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); padding: 0.75rem 0; }
+        .data-row:last-child { border-bottom: none; }
+    </style>
+</head>
+<body class="antialiased selection:bg-red-900 selection:text-red-100">
+
+    <nav class="fixed top-0 left-0 w-full bg-black/50 backdrop-blur-md border-b border-white/10 z-50">
+        <div class="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="mono text-cyan-400 font-bold text-sm tracking-widest">MEP_ARCH_V4.0 // PROTOCOL_RESULTS</div>
+            <div class="text-xs text-gray-500 uppercase tracking-widest font-bold">Execution: August 2026</div>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto px-6 pt-32 pb-24 prose prose-invert prose-cyan lg:prose-lg">
+        
+        <header class="mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">The Crucible Results</h1>
+            <h2 class="text-xl text-gray-400 font-light mt-0 mb-6 border-b border-gray-800 pb-6">
+                Formal Reporting of the V4.0 Preregistration: Continuous ODE Substrate
+            </h2>
+            <div class="flex gap-4 mono text-sm text-gray-400">
+                <div><strong class="text-white">Status:</strong> Protocol Concluded. Hypothesis Falsified.</div>
+            </div>
+        </header>
+
+        <p class="text-lg leading-relaxed mb-12 text-gray-300">
+            This document serves as the formal record of the V4.0 Preregistration execution. The protocol successfully falsified the hypothesis that replacing discrete PyTorch layers with continuous-time Neural Ordinary Differential Equations (Neural ODEs) could preserve phase-multiplexed memories using an isomorphic real-imaginary mapping.
+        </p>
+
+        <section class="glass-panel relative overflow-hidden">
+            <h2 class="text-2xl font-bold text-white uppercase tracking-widest mt-0 mb-6 border-b border-gray-800 pb-4">
+                The Memory Benchmark
+            </h2>
+            <p class="text-sm text-gray-400 mb-6 mono">Task: Split MNIST (0-4 -> 5-9) | 20 Seeds | Neural ODE Retention</p>
+
+            <div class="bg-gray-900/50 border border-gray-700 rounded-lg p-6 mb-8 font-mono text-sm">
+                <div class="data-row">
+                    <span class="text-gray-400">Naive Real ODE (Baseline)</span>
+                    <span class="font-bold text-red-400">15.22% <span class="text-gray-500 font-normal">(±4.10%)</span></span>
+                </div>
+                <div class="data-row">
+                    <span class="text-cyan-400">MEP Continuous Substrate ($\pi/2$ Phase)</span>
+                    <span class="font-bold text-red-500">18.74% <span class="text-red-800 font-normal">(±5.62%)</span></span>
+                </div>
+            </div>
+
+            <div class="failure-box">
+                <strong class="text-red-500 uppercase tracking-widest text-xs block mb-2">The Verdict: Catastrophic Failure</strong>
+                <p class="m-0 text-sm leading-relaxed text-gray-200">
+                    The preregistered failure condition was explicit: <em>"If the MEP Neural ODE with Phase Rotation retains less than 85% relative accuracy, the hypothesis is FAILED."</em> The continuous-time phase-multiplexing hypothesis failed completely. While it slightly outperformed the baseline (indicating some minor orthogonal protection), it fell drastically short of preserving the actual geometric memory.
+                </p>
+            </div>
+
+            <div class="discovery-box border-l-orange-500">
+                <strong class="text-orange-500 uppercase tracking-widest text-xs block mb-2">The Reality: Continuous Coupling Shear</strong>
+                <p class="m-0 text-sm leading-relaxed text-gray-300">
+                    The data reveals the flaw in using a shared continuous space. Even though the integration over time (using the <code>dopri5</code> solver) is perfectly smooth, the underlying weight matrix that defines the differential flow $\frac{dh}{dt}$ is <strong>shared</strong>. When backpropagation optimizes the Imaginary axis for Task B, it continuously twists the shared weight manifold, tearing apart the carefully aligned continuous flow that solved Task A. 
+                </p>
+            </div>
+            
+            <div class="discovery-box">
+                <strong class="text-cyan-400 uppercase tracking-widest text-xs block mb-2">The Big Picture: Parameter Superposition vs. Hardware</strong>
+                <p class="m-0 text-sm leading-relaxed text-gray-300">
+                    This experiment proves that making the "time" of the network continuous does not solve the fundamental problem of <strong>parameter interference</strong> in software. A digital array of weights cannot simulate a linear photonic medium. Software forces parameter superposition; optical hardware allows true linear wavelength multiplexing.
+                </p>
+            </div>
+        </section>
+
+        <footer class="mt-16 text-center">
+            <p class="text-gray-500 text-sm italic">
+                "We have systematically exhausted discrete layers, complex matrices, and continuous calculus. The limits of software have been mapped."
+            </p>
+        </footer>
+
+    </main>
+
+</body>
+</html>
