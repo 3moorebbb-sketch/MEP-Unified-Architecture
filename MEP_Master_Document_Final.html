@@ -290,9 +290,9 @@
             </div>
 
             <div class="failure-box mt-8">
-                <strong class="text-red-500 uppercase tracking-widest text-xs block mb-2">The "Toothpick" Reality: The Limits of Software</strong>
+                <strong class="text-red-500 uppercase tracking-widest text-xs block mb-2">The "Toothpick" Reality: The Limits of Tight Constraints</strong>
                 <p class="m-0 text-sm leading-relaxed text-gray-200">
-                    $H_{5.2}$ was falsified. A deep Convolutional Neural Network contains millions of parameters, creating an incredibly flexible manifold. Constraining the topology at a strict budget of only 50 anchor points—even in the latent space—is like trying to hold down a circus tent in a hurricane using 50 toothpicks. The network simply routed its internal geometry <em>around</em> those 50 constraints, satisfied the math, learned Task B, and destroyed Task A.
+                    $H_{5.2}$ was falsified. A deep Convolutional Neural Network contains millions of parameters, creating an incredibly flexible manifold. Constraining the topology at a strict budget of only 50 anchor points—even in the latent space—is like trying to hold down a circus tent in a hurricane using 50 toothpicks. The overparameterized network simply routed its internal geometry <em>around</em> those 50 constraints, satisfied the math penalty on those specific points, learned Task B, and destroyed Task A everywhere else.
                 </p>
             </div>
         </section>
@@ -315,21 +315,28 @@
             <div class="hardware-box">
                 <strong class="text-orange-500 uppercase tracking-widest text-xs block mb-2">The Problem: Parameter Superposition</strong>
                 <p class="m-0 text-sm leading-relaxed text-gray-300">
-                    In a digital CNN running on a GPU, memory is stored in discrete floating-point numbers within a shared silicon matrix. When it learns Task B, it must physically overwrite the transistors used for Task A. The software cannot hold two conflicting memories in the same register. Mathematical "traffic cops" (like Jacobians) fail because the overparameterized network simply routes around them. <strong>You cannot use math to negotiate with a shared digital matrix. The medium is fundamentally destructive.</strong>
+                    In a digital CNN running on a GPU, memory is stored in discrete floating-point numbers within a shared silicon matrix. When it learns Task B, it must physically overwrite the transistors used for Task A. Software continual learning is not mathematically exhausted—it simply demands ever-increasing memory budgets, massive constraint sampling, and brute-force computation to fight the physical reality of digital parameter superposition. Mathematical "traffic cops" (like Jacobians) fail on strict budgets because the overparameterized network simply routes around them.
                 </p>
             </div>
 
             <div class="hardware-box border-l-emerald-500">
-                <strong class="text-emerald-400 uppercase tracking-widest text-xs block mb-2">The Solution: Wavelength Multiplexing</strong>
+                <strong class="text-emerald-400 uppercase tracking-widest text-xs block mb-2">The Long-Term Solution: Physical Orthogonality</strong>
                 <p class="m-0 text-sm leading-relaxed text-gray-300">
                     Catastrophic Forgetting is inherently unnatural. In analog physical systems, information coexists spatially without destructive interference. In a fiber optic cable, a blue laser pulse (Task A) and a red laser pulse (Task B) occupy the exact same volume of space. Because they possess orthogonal phases and wavelengths, they do not destructively interfere.
                     <br><br>
-                    <strong>Optical Attractor Basins:</strong> Instead of using computationally heavy Jacobians to artificially tether a digital matrix, an analog photonic cavity physically forms a true topological attractor. Wavelengths natively settle into resonant modes. Task B (encoded via the Euler operator $\mathcal{P} = e^{i\pi/2}$) passes through the exact same hardware as Task A without requiring $O(N)$ derivative calculations to prevent interference.
+                    Instead of using computationally heavy Jacobians to artificially tether a digital matrix, an analog photonic cavity physically forms a true topological attractor. Task B (encoded via the Euler operator $\mathcal{P} = e^{i\pi/2}$) passes through the exact same hardware as Task A without requiring $O(N)$ derivative calculations to prevent interference.
+                </p>
+            </div>
+
+            <div class="failure-box border-l-purple-500 mt-4">
+                <strong class="text-purple-400 uppercase tracking-widest text-xs block mb-2">The Engineering Reality</strong>
+                <p class="m-0 text-sm leading-relaxed text-gray-300">
+                    Photonic hardware is not magic; it faces massive, unsolved engineering barriers. Optical losses, phase instability under thermal noise, fabrication bottlenecks, and the fundamental question of how to implement physical plasticity in a passive optical cavity remain open problems. The MEP physical architecture faces these exact barriers.
                 </p>
             </div>
 
             <p class="text-gray-400 italic mt-8 border-l-4 border-orange-900 pl-4 bg-orange-900/10 py-3 pr-3 rounded-r-lg">
-                Software regularization algorithms are critical engineering bridges, but they are fighting a losing battle against the physics of digital transistors. The theoretical limits of software have been mapped and mathematically exhausted. The ultimate realization of the MEP Architecture—an open dissipative system that computes near the Landauer limit and naturally prevents Catastrophic Forgetting—belongs to the nanophotonic hardware of the 2030s.
+                The most important discovery of this project was not a new optimizer or a new memory mechanism. We discovered a research process that can reliably map the physical limits of software. We have proven that low-budget functional tethers are insufficient against highly overparameterized digital networks. The theoretical pursuit of orthogonal physical degrees of freedom remains the definitive long-term direction of the MEP Architecture.
             </p>
         </section>
 
